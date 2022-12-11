@@ -15,6 +15,8 @@
 
 package com.xebisco.yieldscript;
 
+import java.lang.reflect.Array;
+
 public enum Primitive {
     _func(Function.class),
     _int(int.class),
@@ -32,10 +34,29 @@ public enum Primitive {
 
     public static Class<?> getType(String name) {
         try {
-            return Primitive.valueOf('_' + name).type;
+            if(name.endsWith("[]"))
+                return Primitive.valueOf('_' + name.substring(0, name.length() - 2)).type;
+            else
+                return Primitive.valueOf('_' + name).type;
         }catch (IllegalArgumentException e) {
-            return null;
+            try {if(name.endsWith("[]"))
+                return Array.newInstance(Class.forName(name.substring(0, name.length() - 2)), 0).getClass();
+            else
+                return Class.forName(name);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+    }
+
+    public static Class<?> getJavaPrimitive(Class<?> e) {
+        if(e.getName().hashCode() == "java.lang.Integer".hashCode()) return int.class;
+        if(e.getName().hashCode() == "java.lang.Float".hashCode()) return float.class;
+        if(e.getName().hashCode() == "java.lang.Double".hashCode()) return double.class;
+        if(e.getName().hashCode() == "java.lang.Short".hashCode()) return short.class;
+        if(e.getName().hashCode() == "java.lang.Byte".hashCode()) return byte.class;
+        if(e.getName().hashCode() == "java.lang.Character".hashCode()) return char.class;
+        return e;
     }
 
     private final Class<?> type;

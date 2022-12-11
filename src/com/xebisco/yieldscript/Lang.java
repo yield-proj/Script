@@ -17,23 +17,58 @@ package com.xebisco.yieldscript;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 public class Lang {
-    public static Object var(String s) {
+    public static Object instance(Class<?> type, Object[] args) {
+        try {
+            return type.getConstructor(getTypes(args)).newInstance(args);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static String var(String s) {
         return s;
     }
+    public static int var(int o) {
+        return o;
+    }
+    public static long var(long o) {
+        return o;
+    }
+    public static float var(float o) {
+        return o;
+    }
+    public static double var(double o) {
+        return o;
+    }
+    public static char var(char o) {
+        return o;
+    }
+    public static byte var(byte o) {
+        return o;
+    }
+    public static short var(short o) {
+        return o;
+    }
     public static Object call(String method, Object obj, Object[] args) {
-        Class<?>[] argsTypes = new Class[args.length];
-        for(int i= 0 ; i < argsTypes.length; i++)
-            argsTypes[i] = args[i].getClass();
         try {
-            return obj.getClass().getMethod(method, argsTypes).invoke(obj, args);
+            return obj.getClass().getMethod(method, getTypes(args)).invoke(obj, args);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
+    public static Class<?>[] getTypes(Object[] args) {
+        Class<?>[] argsTypes = new Class[args.length];
+        for(int i= 0 ; i < argsTypes.length; i++)
+            argsTypes[i] = args[i].getClass();
+        return argsTypes;
+    }
     public static void set(Object obj, int index, Object[] array) {
         array[index] = obj;
+    }
+    public static <T> ArrayList<T> newArrayList(Class<T> clazz) {
+        return new ArrayList<>();
     }
     @SuppressWarnings("unchecked")
     public static <T> T[] array(Class<T> type, int length) {

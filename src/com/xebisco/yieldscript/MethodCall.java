@@ -34,15 +34,7 @@ public class MethodCall implements Instruction {
         try {
             Object[] a_args = new Object[args.length];
             for (int i = 0; i < a_args.length; i++)
-                if (args[i] instanceof String) {
-                    if (((String) args[i]).charAt(0) == Constants.OBJECT_ID_CHAR)
-                        a_args[i] = script.getMemoryBank().getObjects().get(Long.parseLong(((String) args[i]).substring(1)));
-                    else {
-                        a_args[i] = Formatter.toNumber((String) args[i]);
-                        if(a_args[i] == null) a_args[i] = script.getMemoryBank().getObjects().get(args[i]);
-                        if(a_args[i] == null) throw new NullPointerException((String) args[i]);
-                    }
-                } else a_args[i] = args[i];
+                a_args[i] = script.getMemoryBank().getObject(args[i]);
             return method.invoke(object, a_args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
