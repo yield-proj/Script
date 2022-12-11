@@ -15,6 +15,7 @@
 
 package com.xebisco.yieldscript;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class Script {
         Pair<String, Map<Object, Object>> literals = Formatter.extractStringLiterals(contents);
         memoryBank.setObjects(literals.getSecond());
         for (Primitive primitive : Primitive.values())
-            memoryBank.getObjects().put(primitive.name().substring(1) + ".class", primitive.getType());
+            memoryBank.getObjects().put(primitive.name().substring(1), primitive.getType());
         String source = Formatter.format(literals.getFirst());
         IInterpreter interpreter = new Interpreter();
         functions = interpreter.getFunctions(source);

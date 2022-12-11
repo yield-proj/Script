@@ -30,7 +30,7 @@ public class Formatter {
                 }
             }
             if (c != null) {
-                boolean surroundBySpaces = false, removeSpaceBefore = false;
+                boolean surroundBySpaces = false, removeSpaces = false;
                 for (char c1 : Constants.CHARS_TO_GET_SURROUNDED_BY_SPACES) {
                     if (c == c1) {
                         surroundBySpaces = true;
@@ -43,13 +43,13 @@ public class Formatter {
                     lastIsSpace = true;
                     c = null;
                 } else {
-                    for (char c1 : Constants.CHARS_TO_REMOVE_SPACE_BEFORE) {
+                    for (char c1 : Constants.CHARS_TO_REMOVE_SPACES) {
                         if (c == c1) {
-                            removeSpaceBefore = true;
+                            removeSpaces = true;
                             break;
                         }
                     }
-                    if (removeSpaceBefore) {
+                    if (removeSpaces) {
                         if (lastIsSpace) formatted.setLength(formatted.length() - 1);
                         lastIsSpace = false;
                     } else {
@@ -71,24 +71,17 @@ public class Formatter {
 
     public static Object toNumber(String s) {
         try {
-            String sub = s.substring(0, s.length() - 1);
-            double d = Double.parseDouble(sub);
-            if (s.endsWith("d"))
-                return d;
-            else if (s.endsWith("f"))
-                return Float.parseFloat(sub);
-            else if (s.endsWith("l"))
-                return Long.parseLong(sub);
-            else if (s.endsWith("i"))
-                return Integer.parseInt(sub);
-            else if (s.endsWith("s"))
-                return Short.parseShort(sub);
-            else if (s.endsWith("b"))
-                return Byte.parseByte(sub);
-        } catch (NumberFormatException ignore) {
-            return null;
-        }
-        return null;
+            return Integer.parseInt(s);
+        }catch (NumberFormatException ignore) {
+            try {
+                return Float.parseFloat(s);
+            }catch (NumberFormatException ignore1) {
+                try {
+                    return Double.parseDouble(s);
+                } catch (NumberFormatException ignore2) {
+                    return null;
+                }
+            }}
     }
 
     public static Pair<String, Map<Object, Object>> extractStringLiterals(String source) {

@@ -17,7 +17,7 @@ package com.xebisco.yieldscript;
 
 public class Constants {
     public final static char OBJECT_ID_CHAR = '\2';
-    public final static char[] CHARS_TO_GET_SURROUNDED_BY_SPACES = new char[] {'(', ')', '[', ']', ',', '='};
-    public final static char[] CHARS_TO_REMOVE_SPACE_BEFORE = new char[] {};
+    public final static char[] CHARS_TO_GET_SURROUNDED_BY_SPACES = new char[] {'(', ')', '='};
+    public final static char[] CHARS_TO_REMOVE_SPACES = new char[] {'[', ']', ','};
     public final static char[] CHARS_TO_BE_REMOVED = new char[] {'\t'};
 }
