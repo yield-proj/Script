@@ -17,7 +17,9 @@ package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ParseUtils {
@@ -25,34 +27,55 @@ public class ParseUtils {
         return source.replace("\n", "").replace("\t", "");
     }
 
-    public static String removeUnnecessarySpaces(String contents) {
+    public static String parseChars(String contents) {
         StringBuilder out = new StringBuilder();
-        boolean lastIsSpace = false, removeSpaces = false;
-        for(Character c : contents.toCharArray()) {
-            if(c == ' ') {
-                if(lastIsSpace || removeSpaces) c = Constants.TO_REMOVE_CHAR;
+        boolean lastIsSpace = false, removeSpaces = false, addBreak;
+        for (Character c : contents.toCharArray()) {
+            addBreak = false;
+            if(removeSpaces) lastIsSpace = false;
+            if (c == ' ') {
+                if (lastIsSpace || removeSpaces) c = Constants.TO_REMOVE_CHAR;
                 lastIsSpace = true;
             } else {
                 removeSpaces = false;
-                for(char rsc : Constants.CHARS_TO_REMOVE_SPACES)
-                    if(c == rsc) {
+                for (char rsc : Constants.CHARS_TO_REMOVE_SPACES)
+                    if (c == rsc) {
                         removeSpaces = true;
-                        if(lastIsSpace)
+                        if (lastIsSpace)
                             out.setLength(out.length() - 1);
+                        break;
+                    }
+                for (char rsc : Constants.CHARS_TO_INSERT_SOURCE_BREAK)
+                    if (c == rsc) {
+                        addBreak = true;
                         break;
                     }
                 lastIsSpace = false;
             }
-            if(c != Constants.TO_REMOVE_CHAR) {
-                out.append(c);
-            }
+            if (c != Constants.TO_REMOVE_CHAR) out.append(c);
+            if (addBreak) out.append(Constants.SOURCE_BREAK);
         }
         return out.toString();
     }
 
-    public static Pair<String, Map<Long, String>> extractStringLiterals(String source) {
+    public static String[] toLastCurlyBrace(String[] source) {
+        int layer = 1;
+        List<String> out = new ArrayList<>();
+        for (String line : source) {
+            out.add(line);
+            if (line.endsWith("}")) {
+                String s = out.get(out.size() - 1);
+                out.set(out.size() - 1, s.substring(0, s.length() - 1));
+                if(out.get(out.size() - 1).hashCode() == "".hashCode()) out.remove(out.size() - 1);
+                break;
+            }
+        }
+        return out.toArray(new String[0]);
+    }
+
+    public static Pair<String, Map<String, String>> extractStringLiterals(String source) {
         long index = Long.MIN_VALUE;
-        Map<Long, String> literals = new HashMap<>();
+        Map<String, String> literals = new HashMap<>();
         StringBuilder out = new StringBuilder();
         boolean inString = false, lastIsSlash = false, append;
         StringBuilder string = new StringBuilder();
@@ -64,7 +87,7 @@ public class ParseUtils {
                     inString = !inString;
                     if (!inString) {
                         out.append(Constants.STRING_LITERAL_ID_CHAR).append(index);
-                        literals.put(index, string.toString());
+                        literals.put(String.valueOf(index), string.toString());
                         string.setLength(0);
                         index++;
                     }
@@ -84,8 +107,7 @@ public class ParseUtils {
     }
 
     @SuppressWarnings("RegExpRedundantEscape")
-    public static String removeComments(String content)
-    {
+    public static String removeComments(String content) {
         return content.replaceAll("(\\/\\*([^\\*]|[\\r\\n]|(\\*+([^*\\/]|[\\r\\n])))*\\*+\\/)|(\\/\\/.*)", "").trim();
     }
 }

@@ -1,7 +1,5 @@
 import com.xebisco.yieldscript.interpreter.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.Script;
-import com.xebisco.yieldscript.interpreter.type.Type;
-import com.xebisco.yieldscript.interpreter.utils.PatternUtils;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
 import java.util.Arrays;
@@ -12,5 +10,6 @@ public class Main {
         System.out.println(Arrays.toString(script.getSource()));
         script.createInstructions();
         System.out.println(script.getInstructions());
+        script.execute();
     }
 }

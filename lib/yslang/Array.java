@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package ys;
+package yslang;
 
 public class Array<T> {
     private final T[] objectArray;

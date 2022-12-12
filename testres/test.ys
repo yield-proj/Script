@@ -1,3 +1,1 @@
-
-
-main: string = "Hello, World!" {get, set};
+(java.lang.System) out.println("Hello, World!");

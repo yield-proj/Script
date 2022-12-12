@@ -15,9 +15,10 @@
 
 package com.xebisco.yieldscript.interpreter.type;
 
-import com.xebisco.yieldscript.interpreter.utils.PatternUtils;
-import ys.Array;
-import ys.ArrayList;
+import yslang.Array;
+import yslang.ArrayList;
+
+import java.lang.reflect.Constructor;
 
 public enum Type {
     _string(""),
@@ -31,7 +32,7 @@ public enum Type {
     _char((char) 0),
     _arraylist(null, ArrayList.class),
     _array(null, Array.class),
-    _any(null, Object.class);
+    _def(null, Object.class);
 
     private final Object initialValue;
     private final Class<?> javaClass;
@@ -48,6 +49,14 @@ public enum Type {
 
     public static Type getType(String s) {
         return Type.valueOf('_' + s);
+    }
+
+    public Constructor<?> getConstructor(Class<?> argumentTypes) {
+        try {
+            return javaClass.getConstructor(argumentTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Object getInitialValue() {

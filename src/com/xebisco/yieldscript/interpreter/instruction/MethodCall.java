@@ -17,15 +17,118 @@ package com.xebisco.yieldscript.interpreter.instruction;
 
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class MethodCall implements Instruction {
 
-    @Override
-    public void execute(Bank bank) {
+    private final Class<?> methodClass;
+    private final MethodCall[] arguments;
+    private final MethodCall parent;
+    private final String methodName, getter;
+    private String returnVariableName;
 
+    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String returnVariableName) {
+        this.methodClass = methodClass;
+        this.arguments = arguments;
+        this.parent = parent;
+        this.methodName = methodName;
+        this.returnVariableName = returnVariableName;
+        this.getter = null;
+    }
+
+    public MethodCall(Class<?> methodClass, String getter, MethodCall parent) {
+        this.getter = getter;
+        this.methodClass = methodClass;
+        this.arguments = null;
+        this.parent = parent;
+        this.methodName = null;
+        this.returnVariableName = null;
     }
 
     @Override
-    public String pattern() {
-        return null;
+    public void execute(Bank bank) {
+        Object out = invoke(bank);
+        if (returnVariableName != null)
+            bank.getVariable(returnVariableName).setValue(out);
+    }
+
+    public Object invoke(Bank bank) {
+        if (getter == null) {
+            assert arguments != null;
+            Object[] args = new Object[arguments.length];
+            Class<?>[] types = new Class<?>[args.length];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = arguments[i].invoke(bank);
+                types[i] = args[i].getClass();
+            }
+            Method method;
+            Object obj = null;
+            if (parent != null) {
+                try {
+                    assert methodName != null;
+                    method = (obj = parent.invoke(bank)).getClass().getMethod(methodName, types);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    assert methodName != null;
+                    assert methodClass != null;
+                    method = methodClass.getMethod(methodName, types);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            try {
+                return method.invoke(obj, args);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            if (parent != null) {
+                Object o = parent.invoke(bank);
+                try {
+                    return o.getClass().getField(getter).get(o);
+                } catch (IllegalAccessException | NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (methodClass != null) {
+                try {
+                    return methodClass.getField(getter).get(null);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            } else
+                return bank.getObject(getter);
+        }
+    }
+
+    public Class<?> getMethodClass() {
+        return methodClass;
+    }
+
+    public MethodCall[] getArguments() {
+        return arguments;
+    }
+
+    public MethodCall getParent() {
+        return parent;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getGetter() {
+        return getter;
+    }
+
+    public String getReturnVariableName() {
+        return returnVariableName;
+    }
+
+    public void setReturnVariableName(String returnVariableName) {
+        this.returnVariableName = returnVariableName;
     }
 }

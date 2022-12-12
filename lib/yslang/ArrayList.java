@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.instruction;
+package yslang;
 
-public class Function {
-
+public class ArrayList<T> extends java.util.ArrayList<T> {
+    public ArrayList(Class<T> type) {
+    }
 }

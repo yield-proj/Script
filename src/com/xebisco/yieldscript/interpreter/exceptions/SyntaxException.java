@@ -13,9 +13,14 @@
  * limitations under the License.
  */
 
-package ys;
+package com.xebisco.yieldscript.interpreter.exceptions;
 
-public class ArrayList<T> extends java.util.ArrayList<T> {
-    public ArrayList(Class<T> type) {
+public class SyntaxException extends RuntimeException {
+    public SyntaxException() {
+
+    }
+
+    public SyntaxException(String message) {
+        super(message);
     }
 }

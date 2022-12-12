@@ -31,12 +31,12 @@ public class Script {
     private List<Instruction> instructions;
     private final Bank bank;
 
-    public Script(String[] source, ProjectInfo projectInfo, Map<Long, String> stringLiterals) {
+    public Script(String[] source, ProjectInfo projectInfo, Map<String, String> stringLiterals) {
         this.source = source;
         this.projectInfo = projectInfo;
         bank = new Bank();
         bank.getObjects().put("null", null);
-        for(long id : stringLiterals.keySet()) {
+        for (String id : stringLiterals.keySet()) {
             Variable variable = new Variable(Constants.STRING_LITERAL_ID_CHAR + String.valueOf(id), Type._string);
             variable.setValue(stringLiterals.get(id));
             bank.getObjects().put(id, variable);
@@ -47,15 +47,32 @@ public class Script {
         createInstructions(new InstructionCreator());
     }
 
-    public void createInstructions(IInstructionCreator instructionCreator) {
+    public boolean createInstructions(IInstructionCreator instructionCreator) {
         instructions = new ArrayList<>();
-        for(int i = 0 ; i < source.length; i++) {
+        for (int i = 0; i < source.length; i++) {
             try {
-                instructions.add(instructionCreator.create(source[i]));
+                Instruction instruction = instructionCreator.create(source[i]);
+                if (instruction != null)
+                    instructions.add(instruction);
             } catch (Exception e) {
-                throw new InstructionCreationException(e.getClass().getSimpleName() + ": " + e.getMessage() + ". in line " + i + ": " + source[i]);
+                new InstructionCreationException(e.getClass().getSimpleName() + ". in line " + (i + 1) + ": " + source[i]).printStackTrace();
+                e.printStackTrace();
+                return false;
             }
         }
+        return true;
+    }
+
+    public boolean execute() {
+        for (Instruction instruction : instructions) {
+            try {
+                instruction.execute(getBank());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<Instruction> getInstructions() {

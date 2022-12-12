@@ -31,4 +31,11 @@ public class ObjectUtils {
             }
         }
     }
+
+    public static Class<?>[] getObjectTypes(Object[] objects) {
+        Class<?>[] types = new Class<?>[objects.length];
+        for(int i = 0; i < types.length; i++)
+            types[i] = objects.getClass();
+        return types;
+    }
 }

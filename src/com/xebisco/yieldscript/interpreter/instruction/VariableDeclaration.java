@@ -37,10 +37,14 @@ public class VariableDeclaration implements Instruction {
 
     @Override
     public void execute(Bank bank) {
-        final Variable variable = new Variable(name, type);
+        Type t = type;
+        System.out.println(name + ", " + startName);
+        if(type == null)
+            t = bank.getVariable(startName).getType();
+        final Variable variable = new Variable(name, t);
         if (startName != null)
             variable.setValue(bank.getObject(startName));
-        else variable.setValue(type.getInitialValue());
+        else variable.setValue(t.getInitialValue());
         bank.getObjects().put(name, variable);
     }
 
@@ -52,11 +56,6 @@ public class VariableDeclaration implements Instruction {
                 ", name='" + name + '\'' +
                 ", type=" + type +
                 '}';
-    }
-
-    @Override
-    public String pattern() {
-        return null;
     }
 
     public TypeModifier[] getModifiers() {

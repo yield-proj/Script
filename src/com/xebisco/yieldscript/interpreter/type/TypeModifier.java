@@ -16,7 +16,7 @@
 package com.xebisco.yieldscript.interpreter.type;
 
 public enum TypeModifier {
-    _get, _set;
+    _get, _set, _priv;
     public static TypeModifier getModifier(String s) {
         return TypeModifier.valueOf('_' + s);
     }

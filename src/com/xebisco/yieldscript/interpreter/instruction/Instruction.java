@@ -19,5 +19,4 @@ import com.xebisco.yieldscript.interpreter.memory.Bank;
 
 public interface Instruction {
     void execute(Bank bank);
-    String pattern();
 }

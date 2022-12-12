@@ -16,18 +16,22 @@
 package com.xebisco.yieldscript.interpreter.memory;
 
 import com.xebisco.yieldscript.interpreter.Constants;
-import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.utils.ObjectUtils;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Bank {
     private final Map<Object, Variable> objects = new HashMap<>();
+    private final Map<Pair<String, Class<?>[]>, Function> functions = new HashMap<>();
 
     public Object getObject(String name) {
-        if(name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(new Pair<>((Object) Long.parseLong(name.substring(1)), Type._string));
+        Object string = getString(name).getValue();
+        if(string != null) return string;
         Object o = ObjectUtils.toObject(name);
         if(o == null) {
             o = objects.get(name);
@@ -41,7 +45,39 @@ public class Bank {
         return o;
     }
 
+    public Field getField(String name, String fieldName) {
+        try {
+            return getObject(name).getClass().getField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Method getMethod(String name, String methodName, Class<?>... parameterTypes) {
+        try {
+            return getObject(name).getClass().getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Variable getVariable(String name) {
+        //TODO
+        Variable string = getString(name);
+        if(string != null) return string;
+        return getObjects().get(name);
+    }
+
+    public Variable getString(String name) {
+        if(name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(name.substring(1));
+        return null;
+    }
+
     public Map<Object, Variable> getObjects() {
         return objects;
+    }
+
+    public Map<Pair<String, Class<?>[]>, Function> getFunctions() {
+        return functions;
     }
 }
