@@ -13,12 +13,8 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package com.xebisco.yieldscript.interpreter.instruction;
 
-import java.util.ArrayList;
+public class Function {
 
-public class Utils {
-    public static <T> ArrayList<T> newArrayList(Class<T> clazz) {
-        return new ArrayList<>();
-    }
 }

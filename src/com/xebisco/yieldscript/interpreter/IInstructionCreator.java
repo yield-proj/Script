@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package com.xebisco.yieldscript.interpreter;
 
-public class SyntaxException extends RuntimeException {
-    public SyntaxException(String message) {
-        super(message);
-    }
+import com.xebisco.yieldscript.interpreter.instruction.Instruction;
+
+public interface IInstructionCreator {
+    Instruction create(String source);
 }

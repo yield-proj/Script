@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package com.xebisco.yieldscript.interpreter.utils;
 
-import java.util.Map;
-
-public class MemoryBank {
-    private Map<Object, Object> objects;
-
-    public Map<Object, Object> getObjects() {
-        return objects;
-    }
-
-    public void setObjects(Map<Object, Object> objects) {
-        this.objects = objects;
+public class ObjectUtils {
+    public static Object toObject(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ignore) {
+            try {
+                return Float.parseFloat(s);
+            } catch (NumberFormatException ignore1) {
+                try {
+                    return Double.parseDouble(s);
+                } catch (NumberFormatException ignore2) {
+                    return null;
+                }
+            }
+        }
     }
 }

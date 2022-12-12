@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package com.xebisco.yieldscript.interpreter.instruction;
 
-import java.util.Map;
+import com.xebisco.yieldscript.interpreter.memory.Bank;
 
-public interface IInterpreter {
-        Map<String, Function> getFunctions(String source);
+public interface Instruction {
+    void execute(Bank bank);
+    String pattern();
 }

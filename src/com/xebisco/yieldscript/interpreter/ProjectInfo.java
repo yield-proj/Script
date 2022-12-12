@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
-package ys;
+package com.xebisco.yieldscript.interpreter;
 
-public class Stdio {
-    public static void println(Object obj) {
-        System.out.println(obj);
+public class ProjectInfo {
+    private final String projectPath;
+
+    public ProjectInfo(String projectPath) {
+        this.projectPath = projectPath;
     }
 }

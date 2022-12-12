@@ -1,23 +1,16 @@
-import com.xebisco.yieldscript.Script;
+import com.xebisco.yieldscript.interpreter.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.Script;
+import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.utils.PatternUtils;
+import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Objects;
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        StringBuilder file = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(Main.class.getResourceAsStream("test.ys"))))) {
-            String line;
-            while ((line = reader.readLine()) != null)
-                file.append(line).append('\n');
-            if (file.length() > 0)
-                file.setLength(file.length() - 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Script script = new Script(file.toString());
-        script.run();
+        Script script = ScriptUtils.createScript(Main.class.getResourceAsStream("test.ys"), new ProjectInfo("/"));
+        System.out.println(Arrays.toString(script.getSource()));
+        script.createInstructions();
+        System.out.println(script.getInstructions());
     }
 }

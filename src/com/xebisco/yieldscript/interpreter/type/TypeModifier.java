@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package com.xebisco.yieldscript.interpreter.type;
 
-public class Constants {
-    public final static char OBJECT_ID_CHAR = '\2';
-    public final static char[] CHARS_TO_GET_SURROUNDED_BY_SPACES = new char[] {'(', ')', '[', ']', ',', '='};
-    public final static char[] CHARS_TO_REMOVE_SPACE_BEFORE = new char[] {};
-    public final static char[] CHARS_TO_BE_REMOVED = new char[] {'\t'};
+public enum TypeModifier {
+    _get, _set;
+    public static TypeModifier getModifier(String s) {
+        return TypeModifier.valueOf('_' + s);
+    }
 }

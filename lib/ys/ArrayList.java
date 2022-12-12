@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript;
+package ys;
 
-public interface Instruction {
-    Object run(Script script);
+public class ArrayList<T> extends java.util.ArrayList<T> {
+    public ArrayList(Class<T> type) {
+    }
 }
