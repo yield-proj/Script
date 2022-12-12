@@ -18,29 +18,27 @@ package com.xebisco.yieldscript.interpreter.memory;
 import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.utils.ObjectUtils;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
+import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Bank {
     private final Map<Object, Variable> objects = new HashMap<>();
-    private final Map<Pair<String, Class<?>[]>, Function> functions = new HashMap<>();
+    private final Map<Pair<String, List<Class<?>>>, Function> functions = new HashMap<>();
 
     public Object getObject(String name) {
-        Object string = getString(name).getValue();
-        if(string != null) return string;
+        Variable string = getString(name);
+        if (string != null) return string.getValue();
         Object o = ObjectUtils.toObject(name);
-        if(o == null) {
+        if (o == null) {
             o = objects.get(name);
-            if(o.getClass().isPrimitive()) {
-                return o;
-            } else {
-                //TODO
-                return null;
-            }
+            if (o != null) return ((Variable) o).getValue();
+            return ScriptUtils.methodCall(name, null).invoke(this);
         }
         return o;
     }
@@ -61,15 +59,8 @@ public class Bank {
         }
     }
 
-    public Variable getVariable(String name) {
-        //TODO
-        Variable string = getString(name);
-        if(string != null) return string;
-        return getObjects().get(name);
-    }
-
     public Variable getString(String name) {
-        if(name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(name.substring(1));
+        if (name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(name.substring(1));
         return null;
     }
 
@@ -77,7 +68,7 @@ public class Bank {
         return objects;
     }
 
-    public Map<Pair<String, Class<?>[]>, Function> getFunctions() {
+    public Map<Pair<String, List<Class<?>>>, Function> getFunctions() {
         return functions;
     }
 }

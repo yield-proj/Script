@@ -18,38 +18,31 @@ package com.xebisco.yieldscript.interpreter.memory;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 
-public class Variable extends UntypedVariable {
-    private final Type type;
-    private TypeModifier[] modifiers;
+public class UntypedVariable {
+    private Object value;
+    private final String name;
 
-    public Variable(String name, Type type) {
-        super(name);
-        this.type = type;
-        setValue(type.getInitialValue());
+    public UntypedVariable(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "Variable{" +
-                "value=" + getValue() +
-                ", type=" + type +
-                ", name='" + getName() + '\'' +
+                "value=" + value +
+                ", name='" + name + '\'' +
                 '}';
     }
 
-    @Override
-    public void setValue(Object value) {
-        super.setValue(type.getJavaClass().cast(value));
+    public String getName() {
+        return name;
     }
 
-    public Type getType() {
-        return type;
+    public Object getValue() {
+        return value;
     }
-    public void setModifiers(TypeModifier[] modifiers) {
-        if(modifiers.length == 0) this.modifiers = new TypeModifier[] {TypeModifier._get, TypeModifier._set};
-        else this.modifiers = modifiers;
-    }
-    public TypeModifier[] getModifiers() {
-        return modifiers;
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 }

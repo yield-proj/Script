@@ -27,12 +27,19 @@ public class ParseUtils {
         return source.replace("\n", "").replace("\t", "");
     }
 
+    public static String[] toStringArray(Object[] source) {
+        String[] array = new String[source.length];
+        for (int i = 0; i < array.length; i++)
+            array[i] = source[i].toString();
+        return array;
+    }
+
     public static String parseChars(String contents) {
         StringBuilder out = new StringBuilder();
         boolean lastIsSpace = false, removeSpaces = false, addBreak;
         for (Character c : contents.toCharArray()) {
             addBreak = false;
-            if(removeSpaces) lastIsSpace = false;
+            if (removeSpaces) lastIsSpace = false;
             if (c == ' ') {
                 if (lastIsSpace || removeSpaces) c = Constants.TO_REMOVE_CHAR;
                 lastIsSpace = true;
@@ -66,7 +73,7 @@ public class ParseUtils {
             if (line.endsWith("}")) {
                 String s = out.get(out.size() - 1);
                 out.set(out.size() - 1, s.substring(0, s.length() - 1));
-                if(out.get(out.size() - 1).hashCode() == "".hashCode()) out.remove(out.size() - 1);
+                if (out.get(out.size() - 1).hashCode() == "".hashCode()) out.remove(out.size() - 1);
                 break;
             }
         }

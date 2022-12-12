@@ -16,6 +16,7 @@
 package com.xebisco.yieldscript.interpreter.instruction;
 
 import com.xebisco.yieldscript.interpreter.memory.Bank;
+import com.xebisco.yieldscript.interpreter.memory.UntypedVariable;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
@@ -27,25 +28,44 @@ public class VariableDeclaration implements Instruction {
     private final TypeModifier[] modifiers;
     private final String startName, name;
     private final Type type;
+    private final UntypedVariable toSet;
 
     public VariableDeclaration(String name, String startName, Type type, TypeModifier[] modifiers) {
         this.name = name;
         this.type = type;
         this.startName = startName;
         this.modifiers = modifiers;
+        toSet = null;
+    }
+
+    public VariableDeclaration(String name, UntypedVariable toSet) {
+        this.name = name;
+        this.type = null;
+        this.startName = null;
+        this.modifiers = null;
+        this.toSet = toSet;
     }
 
     @Override
-    public void execute(Bank bank) {
+    public Object execute(Bank bank) {
+        Variable variable;
+        if(toSet == null) {
         Type t = type;
         System.out.println(name + ", " + startName);
-        if(type == null)
-            t = bank.getVariable(startName).getType();
-        final Variable variable = new Variable(name, t);
+        if (type == null) {
+            t = Type.getType(bank.getObject(startName).getClass().getName());
+        }
+        variable = new Variable(name, t);
         if (startName != null)
             variable.setValue(bank.getObject(startName));
-        else variable.setValue(t.getInitialValue());
+        else variable.setValue(t.getInitialValue());} else {
+            Type t = Type.getType(toSet.getValue().getClass());
+            assert t != null;
+            variable = new Variable(name, t);
+            variable.setValue(toSet.getValue());
+        }
         bank.getObjects().put(name, variable);
+        return variable.getValue();
     }
 
     @Override

@@ -1,1 +1,2 @@
-(java.lang.System) out.println("Hello, World!");
+attach yslang/console.ys;
+println("Hello, World!");

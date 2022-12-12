@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter;
+package com.xebisco.yieldscript.interpreter.exceptions;
 
-import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
-import com.xebisco.yieldscript.interpreter.instruction.Instruction;
+public class FunctionNotFoundException extends RuntimeException {
+    public FunctionNotFoundException() {
+    }
 
-public interface IInstructionCreator {
-    Instruction create(String source, ProjectInfo projectInfo);
+    public FunctionNotFoundException(String message) {
+        super(message);
+    }
 }

@@ -51,6 +51,15 @@ public enum Type {
         return Type.valueOf('_' + s);
     }
 
+    public static Type getType(Class<?> c) {
+        for(Type type : Type.values()) {
+            if(type.javaClass == c) {
+                return type;
+            }
+        }
+        return _def;
+    }
+
     public Constructor<?> getConstructor(Class<?> argumentTypes) {
         try {
             return javaClass.getConstructor(argumentTypes);

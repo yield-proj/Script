@@ -15,32 +15,8 @@
 
 package com.xebisco.yieldscript.interpreter.instruction;
 
-import com.xebisco.yieldscript.interpreter.Script;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
-import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
-public class AttachScript implements Instruction {
-
-    private Script otherScript;
-
-    public AttachScript(Script otherScript) {
-        this.otherScript = otherScript;
-    }
-
-    @Override
-    public Object execute(Bank bank) {
-        otherScript.createInstructions();
-        otherScript.execute();
-        ScriptUtils.attachBank(bank, otherScript.getBank());
-        otherScript = null;
-        return null;
-    }
-
-    public Script getOtherScript() {
-        return otherScript;
-    }
-
-    public void setOtherScript(Script otherScript) {
-        this.otherScript = otherScript;
-    }
+public interface Executable {
+    Object execute(Bank bank);
 }

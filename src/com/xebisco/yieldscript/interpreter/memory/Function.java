@@ -15,16 +15,21 @@
 
 package com.xebisco.yieldscript.interpreter.memory;
 
+import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
+import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Function implements Instruction {
+public class Function implements Executable {
     private final String name;
     private final Class<?>[] argumentsTypes;
     private final String[] argumentsNames;
     private final Class<?> returnType;
+    private final List<String> cachedVariableNames = new ArrayList<>();
     private final List<Instruction> instructions = new ArrayList<>();
 
     private Object returnObject;
@@ -57,16 +62,31 @@ public class Function implements Instruction {
     }
 
     @Override
-    public void execute(Bank bank) {
+    public Object execute(Bank bank) {
         setReturnObject(null);
+        for (String arg : argumentsNames) {
+            if (bank.getObjects().containsKey(arg)) {
+                cachedVariableNames.add(arg);
+                bank.getObjects().put("$" + arg, bank.getObjects().get(arg));
+                bank.getObjects().remove(arg);
+            }
+            bank.getObjects().put(arg, bank.getObjects().get(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg));
+        }
         Bank functionBank = new Bank();
-        functionBank.getObjects().putAll(bank.getObjects());
-        functionBank.getFunctions().putAll(bank.getFunctions());
+        ScriptUtils.attachBank(functionBank, bank);
         for (Instruction instruction : instructions) {
             instruction.execute(bank);
             if (returnObject != null)
-                break;
+                return returnObject;
         }
+        for (String cachedArgument : argumentsNames) {
+            bank.getObjects().remove(cachedArgument);
+        }
+        for (String cachedVariable : cachedVariableNames) {
+            bank.getObjects().put(cachedVariable, bank.getObjects().get("$" + cachedVariable));
+        }
+        cachedVariableNames.clear();
+        return null;
     }
 
     public Object getReturnObject() {

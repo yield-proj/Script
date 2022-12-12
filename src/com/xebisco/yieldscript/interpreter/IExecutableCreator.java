@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter;
 
-public enum TypeModifier {
-    _get, _set, _priv, _none;
-    public static TypeModifier getModifier(String s) {
-        return TypeModifier.valueOf('_' + s);
-    }
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.instruction.Executable;
+
+public interface IExecutableCreator {
+    Executable create(String source, ProjectInfo projectInfo);
 }

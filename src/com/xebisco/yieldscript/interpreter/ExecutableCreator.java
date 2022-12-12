@@ -17,6 +17,7 @@ package com.xebisco.yieldscript.interpreter;
 
 import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.instruction.AttachScript;
+import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.VariableDeclaration;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.memory.Function;
@@ -28,15 +29,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-public class InstructionCreator implements IInstructionCreator {
+public class ExecutableCreator implements IExecutableCreator {
 
     private List<Function> functionsLayer = new ArrayList<>();
 
     @Override
-    public Instruction create(String source, ProjectInfo projectInfo) {
-        Instruction out = null;
+    public Executable create(String source, ProjectInfo projectInfo) {
+        Executable out;
         boolean exitedGlobal = false;
-        Matcher matcher = Constants.DECLARATION_PATTERN.matcher(source);
+        Matcher matcher = Constants.SET_AS_PATTERN.matcher(source);
+        while (matcher.matches())
+            source = source.substring(source.indexOf('='));
+        matcher = Constants.DECLARATION_PATTERN.matcher(source);
         if (matcher.matches()) {
             String[] mods = matcher.group(4).split(",");
             if (mods.length == 1 && mods[0].hashCode() == "".hashCode()) mods = new String[0];
@@ -96,7 +100,7 @@ public class InstructionCreator implements IInstructionCreator {
                                         functionsLayer.remove(functionsLayer.size() - 1);
                                         return null;
                                     } else {
-                                        matcher.usePattern(Constants.IMPORT_PATTERN);
+                                        matcher.usePattern(Constants.ATTACH_PATTERN);
                                         if (matcher.matches()) {
                                             out = new AttachScript(ScriptUtils.createScript(Script.class.getResourceAsStream(projectInfo.getProjectPath() + matcher.group(1)), projectInfo));
                                         } else {
@@ -114,7 +118,7 @@ public class InstructionCreator implements IInstructionCreator {
         if (functionsLayer.size() > 0 && !exitedGlobal) {
             if (out instanceof Function)
                 functionsLayer.add((Function) out);
-            else functionsLayer.get(functionsLayer.size() - 1).getInstructions().add(out);
+            else functionsLayer.get(functionsLayer.size() - 1).getInstructions().add((Instruction) out);
             return null;
         }
 

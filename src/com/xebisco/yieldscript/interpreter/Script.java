@@ -17,26 +17,32 @@ package com.xebisco.yieldscript.interpreter;
 
 import com.xebisco.yieldscript.interpreter.exceptions.InstructionCreationException;
 import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
+import com.xebisco.yieldscript.interpreter.memory.Function;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.utils.Pair;
+import com.xebisco.yieldscript.interpreter.utils.ParseUtils;
+import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class Script {
     private final String[] source;
     private final ProjectInfo projectInfo;
-    private List<Instruction> instructions;
+    private List<Pair<Instruction, String[]>> instructions;
     private final Bank bank;
 
     public Script(String[] source, ProjectInfo projectInfo, Map<String, String> stringLiterals) {
         this.source = source;
         this.projectInfo = projectInfo;
         bank = new Bank();
-        bank.getObjects().put("null", null);
+        Variable nullVar = new Variable("null", Type._def);
+        bank.getObjects().put("null", nullVar);
         for (String id : stringLiterals.keySet()) {
             Variable variable = new Variable(Constants.STRING_LITERAL_ID_CHAR + String.valueOf(id), Type._string);
             variable.setValue(stringLiterals.get(id));
@@ -45,16 +51,30 @@ public class Script {
     }
 
     public void createInstructions() {
-        createInstructions(new InstructionCreator());
+        createInstructions(new ExecutableCreator());
     }
 
-    public boolean createInstructions(IInstructionCreator instructionCreator) {
+    public boolean createInstructions(IExecutableCreator instructionCreator) {
         instructions = new ArrayList<>();
+        List<String> toSetVars = new ArrayList<>();
         for (int i = 0; i < source.length; i++) {
             try {
-                Instruction instruction = instructionCreator.create(source[i], projectInfo);
-                if (instruction != null)
-                    instructions.add(instruction);
+                toSetVars.clear();
+                String line = source[i];
+                Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
+                while (matcher.matches()) {
+                    toSetVars.add(matcher.group(1));
+                    line = line.substring(line.indexOf('='));
+                    matcher = Constants.SET_AS_PATTERN.matcher(line);
+                }
+                Executable executable = instructionCreator.create(line, projectInfo);
+                if (executable != null) {
+                    if (executable instanceof Instruction)
+                        instructions.add(new Pair<>((Instruction) executable, toSetVars.toArray(new String[0])));
+                    else if(executable instanceof Function)
+                        bank.getFunctions().put(new Pair<>(((Function) executable).getName(), Arrays.asList(((Function) executable).getArgumentsTypes())), (Function) executable);
+                }
+
             } catch (Exception e) {
                 new InstructionCreationException(e.getClass().getSimpleName() + ". in line " + (i + 1) + ": " + source[i]).printStackTrace();
                 e.printStackTrace();
@@ -65,18 +85,10 @@ public class Script {
     }
 
     public boolean execute() {
-        for (Instruction instruction : instructions) {
-            try {
-                instruction.execute(getBank());
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return true;
+        return ScriptUtils.executeInstructions(instructions, getBank());
     }
 
-    public List<Instruction> getInstructions() {
+    public List<Pair<Instruction, String[]>> getInstructions() {
         return instructions;
     }
 

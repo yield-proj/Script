@@ -15,10 +15,18 @@
 
 package com.xebisco.yieldscript.interpreter.instruction;
 
+import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
+import com.xebisco.yieldscript.interpreter.memory.Function;
+import com.xebisco.yieldscript.interpreter.memory.UntypedVariable;
+import com.xebisco.yieldscript.interpreter.memory.Variable;
+import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.utils.Pair;
+import com.xebisco.yieldscript.interpreter.utils.ParseUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class MethodCall implements Instruction {
 
@@ -28,12 +36,11 @@ public class MethodCall implements Instruction {
     private final String methodName, getter;
     private String returnVariableName;
 
-    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String returnVariableName) {
+    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName) {
         this.methodClass = methodClass;
         this.arguments = arguments;
         this.parent = parent;
         this.methodName = methodName;
-        this.returnVariableName = returnVariableName;
         this.getter = null;
     }
 
@@ -47,10 +54,8 @@ public class MethodCall implements Instruction {
     }
 
     @Override
-    public void execute(Bank bank) {
-        Object out = invoke(bank);
-        if (returnVariableName != null)
-            bank.getVariable(returnVariableName).setValue(out);
+    public Object execute(Bank bank) {
+        return invoke(bank);
     }
 
     public Object invoke(Bank bank) {
@@ -71,10 +76,23 @@ public class MethodCall implements Instruction {
                 } catch (NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
+            } else if(methodClass == null) {
+                try {
+                    assert methodName != null;
+                    method = (obj = bank.getFunctions().get(new Pair<>(methodName, Arrays.asList(types)))).getClass().getMethod("execute", Bank.class);
+                    Function f = (Function) obj;
+                    for(int i = 0 ; i < f.getArgumentsNames().length; i++) {
+                        Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
+                        variable.setValue(args[i]);
+                        bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
+                    }
+                    args = new Object[] {bank};
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 try {
                     assert methodName != null;
-                    assert methodClass != null;
                     method = methodClass.getMethod(methodName, types);
                 } catch (NoSuchMethodException e) {
                     throw new RuntimeException(e);

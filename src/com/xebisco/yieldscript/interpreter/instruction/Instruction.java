@@ -15,8 +15,5 @@
 
 package com.xebisco.yieldscript.interpreter.instruction;
 
-import com.xebisco.yieldscript.interpreter.memory.Bank;
-
-public interface Instruction {
-    void execute(Bank bank);
+public interface Instruction extends Executable {
 }

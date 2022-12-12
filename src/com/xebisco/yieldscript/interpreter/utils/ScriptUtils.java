@@ -16,8 +16,9 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
-import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.Script;
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -46,6 +48,22 @@ public class ScriptUtils {
     public static void attachBank(Bank bank, Bank otherBank) {
         bank.getFunctions().putAll(otherBank.getFunctions());
         bank.getObjects().putAll(otherBank.getObjects());
+    }
+
+    public static boolean executeInstructions(List<Pair<Instruction, String[]>> instructions, Bank bank) {
+        for (Pair<Instruction, String[]> instruction : instructions) {
+            try {
+                Object o = instruction.getFirst().execute(bank);
+                if (instruction.getSecond() != null)
+                    for(String var : instruction.getSecond()) {
+                        bank.getObjects().get(var).setValue(o);
+                    }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     /*public static Object callFunction(String functionName, Bank bank, Object... args) {
@@ -71,7 +89,7 @@ public class ScriptUtils {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2), null);
+            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2));
         } else if (matcher.usePattern(Constants.CLASS_FIELD_PATTERN).matches()) {
             try {
                 clazz = Class.forName(matcher.group(1));
@@ -95,7 +113,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(3)), parent, f, null);
+            return new MethodCall(null, getArguments(matcher.group(3)), parent, f);
         } else if (matcher.usePattern(Constants.CLASS_FIELDS_PATTERN).matches()) {
             String f = matcher.group(2);
             if (matcher.group(2).contains(".")) {
@@ -107,7 +125,7 @@ public class ScriptUtils {
                     if (i > 0) {
                         mParent = calls[i - 1];
                     }
-                    calls[i] = methodCall("(" + matcher.group(1) + ")"  + pcs[i], mParent);
+                    calls[i] = methodCall("(" + matcher.group(1) + ")" + pcs[i], mParent);
                 }
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
@@ -129,7 +147,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(2)), parent, f, null);
+            return new MethodCall(null, getArguments(matcher.group(2)), parent, f);
         } else if (matcher.usePattern(Constants.FIELDS_CALL_PATTERN).matches()) {
             String f = matcher.group(1);
             if (matcher.group(1).contains(".")) {

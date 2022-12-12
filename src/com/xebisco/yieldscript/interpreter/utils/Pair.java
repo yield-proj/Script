@@ -39,6 +39,14 @@ public class Pair<F, S> {
         return Objects.hash(first, second);
     }
 
+    @Override
+    public String toString() {
+        return "Pair{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
+    }
+
     public F getFirst() {
         return first;
     }

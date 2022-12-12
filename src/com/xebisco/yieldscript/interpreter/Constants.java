@@ -38,8 +38,8 @@ public class Constants {
             METHOD_CALL_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\)"),
             METHODS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             FIELDS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
-            EQUALS_PATTERN = Pattern.compile("^(\\w+)=(\\w+)"),
-            IMPORT_PATTERN = Pattern.compile("^import (\\w+)");
-    public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';';
+            SET_AS_PATTERN = Pattern.compile("^(\\w+)="),
+            ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+");
+    public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';
     public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }
