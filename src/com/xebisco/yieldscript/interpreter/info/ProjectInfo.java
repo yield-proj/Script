@@ -13,12 +13,16 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter;
+package com.xebisco.yieldscript.interpreter.info;
 
 public class ProjectInfo {
     private final String projectPath;
 
     public ProjectInfo(String projectPath) {
         this.projectPath = projectPath;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
     }
 }

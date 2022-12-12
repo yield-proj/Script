@@ -16,6 +16,7 @@
 package com.xebisco.yieldscript.interpreter;
 
 import com.xebisco.yieldscript.interpreter.exceptions.InstructionCreationException;
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
@@ -51,7 +52,7 @@ public class Script {
         instructions = new ArrayList<>();
         for (int i = 0; i < source.length; i++) {
             try {
-                Instruction instruction = instructionCreator.create(source[i]);
+                Instruction instruction = instructionCreator.create(source[i], projectInfo);
                 if (instruction != null)
                     instructions.add(instruction);
             } catch (Exception e) {

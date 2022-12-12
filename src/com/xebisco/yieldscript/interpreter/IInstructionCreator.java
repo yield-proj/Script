@@ -15,8 +15,9 @@
 
 package com.xebisco.yieldscript.interpreter;
 
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 
 public interface IInstructionCreator {
-    Instruction create(String source);
+    Instruction create(String source, ProjectInfo projectInfo);
 }

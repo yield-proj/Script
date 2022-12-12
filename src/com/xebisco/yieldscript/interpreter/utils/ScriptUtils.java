@@ -16,18 +16,15 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
-import com.xebisco.yieldscript.interpreter.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.Script;
 import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
-import com.xebisco.yieldscript.interpreter.type.Type;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -44,6 +41,11 @@ public class ScriptUtils {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void attachBank(Bank bank, Bank otherBank) {
+        bank.getFunctions().putAll(otherBank.getFunctions());
+        bank.getObjects().putAll(otherBank.getObjects());
     }
 
     /*public static Object callFunction(String functionName, Bank bank, Object... args) {

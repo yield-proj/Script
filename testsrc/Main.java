@@ -1,4 +1,4 @@
-import com.xebisco.yieldscript.interpreter.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.Script;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 

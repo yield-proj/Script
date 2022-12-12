@@ -15,19 +15,17 @@
 
 package com.xebisco.yieldscript.interpreter;
 
-import com.xebisco.yieldscript.interpreter.exceptions.SyntaxException;
-import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
+import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.instruction.AttachScript;
 import com.xebisco.yieldscript.interpreter.instruction.VariableDeclaration;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.memory.Function;
-import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 
 public class InstructionCreator implements IInstructionCreator {
@@ -35,7 +33,7 @@ public class InstructionCreator implements IInstructionCreator {
     private List<Function> functionsLayer = new ArrayList<>();
 
     @Override
-    public Instruction create(String source) {
+    public Instruction create(String source, ProjectInfo projectInfo) {
         Instruction out = null;
         boolean exitedGlobal = false;
         Matcher matcher = Constants.DECLARATION_PATTERN.matcher(source);
@@ -47,7 +45,7 @@ public class InstructionCreator implements IInstructionCreator {
                 modifiers[i] = TypeModifier.getModifier(mods[i]);
             out = new VariableDeclaration(matcher.group(1), matcher.group(3), Type.getType(matcher.group(2)), modifiers);
         } else {
-            matcher = Constants.DECLARATION_PATTERN_DEFAULT_VALUE.matcher(source);
+            matcher.usePattern(Constants.DECLARATION_PATTERN_DEFAULT_VALUE);
             if (matcher.matches()) {
                 String[] mods = matcher.group(3).split(",");
                 if (mods.length == 1 && mods[0].hashCode() == "".hashCode()) mods = new String[0];
@@ -56,15 +54,15 @@ public class InstructionCreator implements IInstructionCreator {
                     modifiers[i] = TypeModifier.getModifier(mods[i]);
                 out = new VariableDeclaration(matcher.group(1), null, Type.getType(matcher.group(2)), modifiers);
             } else {
-                matcher = Constants.DECLARATION_PATTERN_NO_MODS.matcher(source);
+                matcher.usePattern(Constants.DECLARATION_PATTERN_NO_MODS);
                 if (matcher.matches()) {
                     out = new VariableDeclaration(matcher.group(1), matcher.group(3), Type.getType(matcher.group(2)), new TypeModifier[0]);
                 } else {
-                    matcher = Constants.DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS.matcher(source);
+                    matcher.usePattern(Constants.DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS);
                     if (matcher.matches()) {
                         out = new VariableDeclaration(matcher.group(1), null, Type.getType(matcher.group(2)), new TypeModifier[0]);
                     } else {
-                        matcher = Constants.DECLARATION_PATTERN_AUTO_TYPE.matcher(source);
+                        matcher.usePattern(Constants.DECLARATION_PATTERN_AUTO_TYPE);
                         if (matcher.matches()) {
                             String[] mods = matcher.group(3).split(",");
                             if (mods.length == 1 && mods[0].hashCode() == "".hashCode()) mods = new String[0];
@@ -73,11 +71,11 @@ public class InstructionCreator implements IInstructionCreator {
                                 modifiers[i] = TypeModifier.getModifier(mods[i]);
                             out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, modifiers);
                         } else {
-                            matcher = Constants.DECLARATION_PATTERN_AUTO_TYPE_NO_MODS.matcher(source);
+                            matcher.usePattern(Constants.DECLARATION_PATTERN_AUTO_TYPE_NO_MODS);
                             if (matcher.matches()) {
                                 out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, new TypeModifier[0]);
                             } else {
-                                matcher = Constants.FUNCTION_PATTERN.matcher(source);
+                                matcher.usePattern(Constants.FUNCTION_PATTERN);
                                 if (matcher.matches()) {
                                     String[] args = matcher.group(2).split(",");
                                     if (args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
@@ -93,12 +91,17 @@ public class InstructionCreator implements IInstructionCreator {
                                     functionsLayer.add(function);
                                     out = function;
                                 } else {
-                                    matcher = Constants.CLOSE_CURLY_BRACES_PATTERN.matcher(source);
+                                    matcher.usePattern(Constants.CLOSE_CURLY_BRACES_PATTERN);
                                     if (matcher.matches()) {
                                         functionsLayer.remove(functionsLayer.size() - 1);
                                         return null;
                                     } else {
-                                        out = ScriptUtils.methodCall(source, null);
+                                        matcher.usePattern(Constants.IMPORT_PATTERN);
+                                        if (matcher.matches()) {
+                                            out = new AttachScript(ScriptUtils.createScript(Script.class.getResourceAsStream(projectInfo.getProjectPath() + matcher.group(1)), projectInfo));
+                                        } else {
+                                            out = ScriptUtils.methodCall(source, null);
+                                        }
                                     }
                                 }
                             }
@@ -115,7 +118,6 @@ public class InstructionCreator implements IInstructionCreator {
             return null;
         }
 
-        if (out != null) return out;
-        throw new SyntaxException();
+        return out;
     }
 }
