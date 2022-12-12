@@ -1,2 +1,2 @@
 attach yslang/console.ys;
-println("Hello, World!");
+puts("Hello, World!");

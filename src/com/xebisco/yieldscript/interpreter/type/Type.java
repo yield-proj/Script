@@ -15,9 +15,6 @@
 
 package com.xebisco.yieldscript.interpreter.type;
 
-import yslang.Array;
-import yslang.ArrayList;
-
 import java.lang.reflect.Constructor;
 
 public enum Type {

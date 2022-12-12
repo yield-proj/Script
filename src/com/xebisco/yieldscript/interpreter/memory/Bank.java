@@ -16,6 +16,7 @@
 package com.xebisco.yieldscript.interpreter.memory;
 
 import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.exceptions.FunctionNotFoundException;
 import com.xebisco.yieldscript.interpreter.utils.ObjectUtils;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
@@ -31,14 +32,19 @@ public class Bank {
     private final Map<Object, Variable> objects = new HashMap<>();
     private final Map<Pair<String, List<Class<?>>>, Function> functions = new HashMap<>();
 
+    private String lastGetObjectName;
+
     public Object getObject(String name) {
+        lastGetObjectName = name;
         Variable string = getString(name);
         if (string != null) return string.getValue();
         Object o = ObjectUtils.toObject(name);
         if (o == null) {
             o = objects.get(name);
             if (o != null) return ((Variable) o).getValue();
-            return ScriptUtils.methodCall(name, null).invoke(this);
+            if (lastGetObjectName.hashCode() != name.hashCode())
+                return ScriptUtils.methodCall(name, null).invoke(this);
+            else throw new FunctionNotFoundException(name);
         }
         return o;
     }

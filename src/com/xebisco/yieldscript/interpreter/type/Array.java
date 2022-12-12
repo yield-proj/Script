@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package yslang;
+package com.xebisco.yieldscript.interpreter.type;
 
 public class Array<T> {
     private final T[] objectArray;

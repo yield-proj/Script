@@ -17,6 +17,7 @@ package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.Script;
+import com.xebisco.yieldscript.interpreter.exceptions.FunctionNotFoundException;
 import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
@@ -55,7 +56,7 @@ public class ScriptUtils {
             try {
                 Object o = instruction.getFirst().execute(bank);
                 if (instruction.getSecond() != null)
-                    for(String var : instruction.getSecond()) {
+                    for (String var : instruction.getSecond()) {
                         bank.getObjects().get(var).setValue(o);
                     }
             } catch (Exception e) {

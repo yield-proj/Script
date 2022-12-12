@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package yslang;
+package com.xebisco.yieldscript.interpreter.type;
 
 public class ArrayList<T> extends java.util.ArrayList<T> {
     public ArrayList(Class<T> type) {
