@@ -1,2 +1,6 @@
 attach yslang/console.ys;
-puts("Hello, World!");
+hw = "Hello, World!";
+
+main(): def {
+    puts(hw);
+}

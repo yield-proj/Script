@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter.exceptions;
 
-public enum TypeModifier {
-    _get, _set, _none;
-    public static TypeModifier getModifier(String s) {
-        return TypeModifier.valueOf('_' + s);
+public class ImmutableException extends RuntimeException {
+    public ImmutableException() {
+    }
+
+    public ImmutableException(String message) {
+        super(message);
     }
 }

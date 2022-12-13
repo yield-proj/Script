@@ -22,6 +22,7 @@ import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class VariableDeclaration implements Instruction {
 
@@ -49,16 +50,19 @@ public class VariableDeclaration implements Instruction {
     @Override
     public Object execute(Bank bank) {
         Variable variable;
-        if(toSet == null) {
-        Type t = type;
-        System.out.println(name + ", " + startName);
-        if (type == null) {
-            t = Type.getType(bank.getObject(startName).getClass().getName());
-        }
-        variable = new Variable(name, t);
-        if (startName != null)
-            variable.setValue(bank.getObject(startName));
-        else variable.setValue(t.getInitialValue());} else {
+        if (toSet == null) {
+            Type t = type;
+            if (type == null) {
+                t = Type.getType(bank.getObject(startName).getClass());
+            }
+            variable = new Variable(name, t);
+            variable.setModifiers(TypeModifier._get, TypeModifier._set);
+            if (startName != null)
+                variable.setValue(bank.getObject(startName));
+            else variable.setValue(t.getInitialValue());
+            assert modifiers != null;
+            variable.setModifiers(modifiers);
+        } else {
             Type t = Type.getType(toSet.getValue().getClass());
             assert t != null;
             variable = new Variable(name, t);

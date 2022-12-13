@@ -30,6 +30,7 @@ public class Constants {
             DECLARATION_PATTERN_DEFAULT_VALUE = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]"),
             DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")"),
             FUNCTION_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\):(" + PatternUtils.pattern(Type.class) + ")\\{"),
+            FUNCTION_WITH_MODIFIERS_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]\\{"),
             CLOSE_CURLY_BRACES_PATTERN = Pattern.compile("\\}"),
             CLASS_METHOD_CALL_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w+)\\(([^}]*)\\)"),
             CLASS_METHODS_CALL_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w.+)\\(([^}]*)\\)"),
@@ -39,7 +40,8 @@ public class Constants {
             METHODS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             FIELDS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             SET_AS_PATTERN = Pattern.compile("^(\\w+)="),
-            ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+");
+            ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+"),
+            RETURN_PATTERN = Pattern.compile("^return (\\S+)+");
     public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';
     public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }

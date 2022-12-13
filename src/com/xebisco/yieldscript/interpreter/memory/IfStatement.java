@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter.memory;
 
-public enum TypeModifier {
-    _get, _set, _none;
-    public static TypeModifier getModifier(String s) {
-        return TypeModifier.valueOf('_' + s);
+public class IfStatement extends Function {
+    public IfStatement(String name, Class<?>[] argumentsTypes, String[] argumentsNames, Class<?> returnType) {
+        super(name, argumentsTypes, argumentsNames, returnType);
     }
 }

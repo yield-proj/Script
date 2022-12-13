@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter.utils;
 
-public enum TypeModifier {
-    _get, _set, _none;
-    public static TypeModifier getModifier(String s) {
-        return TypeModifier.valueOf('_' + s);
+import com.xebisco.yieldscript.interpreter.type.Array;
+
+public class ArrayUtils {
+    public static <T> Array<T> newArray(Class<T> type, int length) {
+        return new Array<>(type, length);
     }
 }

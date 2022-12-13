@@ -18,11 +18,10 @@ package com.xebisco.yieldscript.interpreter.instruction;
 import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
-import com.xebisco.yieldscript.interpreter.memory.UntypedVariable;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
-import com.xebisco.yieldscript.interpreter.utils.ParseUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -83,6 +82,7 @@ public class MethodCall implements Instruction {
                     Function f = (Function) obj;
                     for(int i = 0 ; i < f.getArgumentsNames().length; i++) {
                         Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
+                        variable.setModifiers(TypeModifier._set);
                         variable.setValue(args[i]);
                         bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
                     }

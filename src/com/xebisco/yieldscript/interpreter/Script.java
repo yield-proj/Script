@@ -23,6 +23,7 @@ import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ParseUtils;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
@@ -43,8 +44,16 @@ public class Script {
         bank = new Bank();
         Variable nullVar = new Variable("null", Type._def);
         bank.getObjects().put("null", nullVar);
+        for (Type type : Type.values()) {
+            Variable variable = new Variable(type.name(), Type._class);
+            variable.setModifiers(TypeModifier._get, TypeModifier._set);
+            variable.setValue(type.getJavaClass());
+            variable.setModifiers(TypeModifier._none);
+            bank.getObjects().put(type.name(), variable);
+        }
         for (String id : stringLiterals.keySet()) {
             Variable variable = new Variable(Constants.STRING_LITERAL_ID_CHAR + String.valueOf(id), Type._string);
+            variable.setModifiers(TypeModifier._get, TypeModifier._set);
             variable.setValue(stringLiterals.get(id));
             bank.getObjects().put(id, variable);
         }
@@ -54,34 +63,8 @@ public class Script {
         createInstructions(new ExecutableCreator());
     }
 
-    public boolean createInstructions(IExecutableCreator instructionCreator) {
-        instructions = new ArrayList<>();
-        List<String> toSetVars = new ArrayList<>();
-        for (int i = 0; i < source.length; i++) {
-            try {
-                toSetVars.clear();
-                String line = source[i];
-                Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
-                while (matcher.matches()) {
-                    toSetVars.add(matcher.group(1));
-                    line = line.substring(line.indexOf('='));
-                    matcher = Constants.SET_AS_PATTERN.matcher(line);
-                }
-                Executable executable = instructionCreator.create(line, projectInfo);
-                if (executable != null) {
-                    if (executable instanceof Instruction)
-                        instructions.add(new Pair<>((Instruction) executable, toSetVars.toArray(new String[0])));
-                    else if(executable instanceof Function)
-                        bank.getFunctions().put(new Pair<>(((Function) executable).getName(), Arrays.asList(((Function) executable).getArgumentsTypes())), (Function) executable);
-                }
-
-            } catch (Exception e) {
-                new InstructionCreationException(e.getClass().getSimpleName() + ". in line " + (i + 1) + ": " + source[i]).printStackTrace();
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return true;
+    public void createInstructions(IExecutableCreator instructionCreator) {
+        instructions = ScriptUtils.createInstructions(instructionCreator, getSource(), getProjectInfo(), getBank());
     }
 
     public boolean execute() {

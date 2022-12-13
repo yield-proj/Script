@@ -42,9 +42,11 @@ public class Bank {
         if (o == null) {
             o = objects.get(name);
             if (o != null) return ((Variable) o).getValue();
-            if (lastGetObjectName.hashCode() != name.hashCode())
+            try {
                 return ScriptUtils.methodCall(name, null).invoke(this);
-            else throw new FunctionNotFoundException(name);
+            } catch (StackOverflowError e) {
+                throw new FunctionNotFoundException(name);
+            }
         }
         return o;
     }
@@ -66,8 +68,20 @@ public class Bank {
     }
 
     public Variable getString(String name) {
-        if (name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(name.substring(1));
+        try {
+            if (name.charAt(0) == Constants.STRING_LITERAL_ID_CHAR) return objects.get(name.substring(1));
+        } catch (StringIndexOutOfBoundsException ignore) {
+
+        }
         return null;
+    }
+
+    public String getLastGetObjectName() {
+        return lastGetObjectName;
+    }
+
+    public void setLastGetObjectName(String lastGetObjectName) {
+        this.lastGetObjectName = lastGetObjectName;
     }
 
     public Map<Object, Variable> getObjects() {

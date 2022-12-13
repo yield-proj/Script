@@ -15,17 +15,21 @@
 
 package com.xebisco.yieldscript.interpreter.memory;
 
+import com.xebisco.yieldscript.interpreter.exceptions.ImmutableException;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Variable extends UntypedVariable {
     private final Type type;
-    private TypeModifier[] modifiers;
+    private List<TypeModifier> modifiers = new ArrayList<>();
 
     public Variable(String name, Type type) {
         super(name);
         this.type = type;
-        setValue(type.getInitialValue());
+        setPrivateValue(type.getInitialValue());
     }
 
     @Override
@@ -39,17 +43,24 @@ public class Variable extends UntypedVariable {
 
     @Override
     public void setValue(Object value) {
+        if(!modifiers.contains(TypeModifier._set))
+            throw new ImmutableException(getName());
         super.setValue(type.getJavaClass().cast(value));
+    }
+
+    private void setPrivateValue(Object value) {
+        super.setValue(value);
     }
 
     public Type getType() {
         return type;
     }
-    public void setModifiers(TypeModifier[] modifiers) {
-        if(modifiers.length == 0) this.modifiers = new TypeModifier[] {TypeModifier._get, TypeModifier._set};
-        else this.modifiers = modifiers;
+    public void setModifiers(TypeModifier... modifiers) {
+        if(modifiers.length == 0) this.modifiers = List.of(TypeModifier._get, TypeModifier._set);
+        else this.modifiers = List.of(modifiers);
     }
-    public TypeModifier[] getModifiers() {
+
+    public List<TypeModifier> getModifiers() {
         return modifiers;
     }
 }

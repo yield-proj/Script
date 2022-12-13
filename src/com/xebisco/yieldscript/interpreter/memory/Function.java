@@ -18,7 +18,8 @@ package com.xebisco.yieldscript.interpreter.memory;
 import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
-import com.xebisco.yieldscript.interpreter.type.Type;
+import com.xebisco.yieldscript.interpreter.type.TypeModifier;
+import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
 import java.util.ArrayList;
@@ -30,7 +31,8 @@ public class Function implements Executable {
     private final String[] argumentsNames;
     private final Class<?> returnType;
     private final List<String> cachedVariableNames = new ArrayList<>();
-    private final List<Instruction> instructions = new ArrayList<>();
+    private final List<Pair<Instruction, String[]>> instructions = new ArrayList<>();
+    private List<TypeModifier> modifiers = new ArrayList<>();
 
     private Object returnObject;
 
@@ -41,7 +43,7 @@ public class Function implements Executable {
         this.returnType = returnType;
     }
 
-    public List<Instruction> getInstructions() {
+    public List<Pair<Instruction, String[]>> getInstructions() {
         return instructions;
     }
 
@@ -64,26 +66,21 @@ public class Function implements Executable {
     @Override
     public Object execute(Bank bank) {
         setReturnObject(null);
+        Bank functionBank = new Bank();
         for (String arg : argumentsNames) {
             if (bank.getObjects().containsKey(arg)) {
                 cachedVariableNames.add(arg);
                 bank.getObjects().put("$" + arg, bank.getObjects().get(arg));
                 bank.getObjects().remove(arg);
             }
-            bank.getObjects().put(arg, bank.getObjects().get(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg));
+            functionBank.getObjects().put(arg, bank.getObjects().get(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg));
+            bank.getObjects().remove(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg);
         }
-        Bank functionBank = new Bank();
         ScriptUtils.attachBank(functionBank, bank);
-        for (Instruction instruction : instructions) {
-            instruction.execute(bank);
-            if (returnObject != null)
-                return returnObject;
-        }
-        for (String cachedArgument : argumentsNames) {
-            bank.getObjects().remove(cachedArgument);
-        }
+        ScriptUtils.executeInstructions(instructions, functionBank);
         for (String cachedVariable : cachedVariableNames) {
             bank.getObjects().put(cachedVariable, bank.getObjects().get("$" + cachedVariable));
+            bank.getObjects().remove("$" + cachedVariable);
         }
         cachedVariableNames.clear();
         return null;
@@ -95,5 +92,13 @@ public class Function implements Executable {
 
     public void setReturnObject(Object returnObject) {
         this.returnObject = returnObject;
+    }
+    public void setModifiers(TypeModifier... modifiers) {
+        if(modifiers.length == 0) this.modifiers = List.of(TypeModifier._get);
+        else this.modifiers = List.of(modifiers);
+    }
+
+    public List<TypeModifier> getModifiers() {
+        return modifiers;
     }
 }

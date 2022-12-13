@@ -29,6 +29,7 @@ public enum Type {
     _char((char) 0),
     _arraylist(null, ArrayList.class),
     _array(null, Array.class),
+    _class(null, Class.class),
     _def(null, Object.class);
 
     private final Object initialValue;

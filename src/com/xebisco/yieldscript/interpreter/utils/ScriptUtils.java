@@ -16,17 +16,23 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.IExecutableCreator;
 import com.xebisco.yieldscript.interpreter.Script;
-import com.xebisco.yieldscript.interpreter.exceptions.FunctionNotFoundException;
+import com.xebisco.yieldscript.interpreter.exceptions.InstructionCreationException;
 import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
+import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
+import com.xebisco.yieldscript.interpreter.memory.Function;
+import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,6 +41,8 @@ public class ScriptUtils {
     public static Script createScript(InputStream inputStream, ProjectInfo projectInfo) {
         Pair<String, Map<String, String>> pair = ParseUtils.extractStringLiterals(ParseUtils.removeComments(FileUtils.readInputStream(inputStream)));
         String[] source = ParseUtils.parseChars(ParseUtils.removeUnnecessaryWhiteSpace(pair.getFirst())).split(String.valueOf(Constants.SOURCE_BREAK));
+        for(int i = 0 ; i < source.length; i++)
+            source[i] = source[i].trim();
         return new Script(source, projectInfo, pair.getSecond());
     }
 
@@ -46,8 +54,46 @@ public class ScriptUtils {
         }
     }
 
+    public static List<Pair<Instruction, String[]>> createInstructions(IExecutableCreator instructionCreator, String[] source, ProjectInfo projectInfo, Bank bank) {
+        List<Pair<Instruction, String[]>> instructions = new ArrayList<>();
+        List<String> toSetVars = new ArrayList<>();
+        for (int i = 0; i < source.length; i++) {
+            try {
+                Executable executable = createExecutable(instructionCreator, toSetVars, source[i], projectInfo);
+                if (executable != null) {
+                    if (executable instanceof Instruction)
+                        instructions.add(new Pair<>((Instruction) executable, toSetVars.toArray(new String[0])));
+                    else if(executable instanceof Function)
+                        bank.getFunctions().put(new Pair<>(((Function) executable).getName(), Arrays.asList(((Function) executable).getArgumentsTypes())), (Function) executable);
+                }
+            } catch (Exception e) {
+                new InstructionCreationException(e.getClass().getSimpleName() + ". in line " + (i + 1) + ": " + source[i]).printStackTrace();
+                e.printStackTrace();
+            }
+        }
+        return instructions;
+    }
+
+    public static Executable createExecutable(IExecutableCreator instructionCreator, List<String> toSetVars, String line, ProjectInfo projectInfo) {
+        toSetVars.clear();
+        Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
+        while (matcher.matches()) {
+            toSetVars.add(matcher.group(1));
+            line = line.substring(line.indexOf('='));
+            matcher = Constants.SET_AS_PATTERN.matcher(line);
+        }
+        return instructionCreator.create(line, projectInfo);
+    }
+
     public static void attachBank(Bank bank, Bank otherBank) {
-        bank.getFunctions().putAll(otherBank.getFunctions());
+        for(Pair<String, List<Class<?>>> pair : otherBank.getFunctions().keySet()) {
+            if(otherBank.getFunctions().get(pair).getModifiers().contains(TypeModifier._get))
+                bank.getFunctions().put(pair, otherBank.getFunctions().get(pair));
+        }
+        for(Object o : otherBank.getObjects().keySet()) {
+            if(otherBank.getObjects().get(o).getModifiers().contains(TypeModifier._get))
+                bank.getObjects().put(o, otherBank.getObjects().get(o));
+        }
         bank.getObjects().putAll(otherBank.getObjects());
     }
 
@@ -170,4 +216,5 @@ public class ScriptUtils {
             return new MethodCall(null, line, parent);
         }
     }
+
 }
