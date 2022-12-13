@@ -13,20 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter.exceptions;
 
-import java.util.List;
-
-public class ArrayList<T> extends java.util.ArrayList<T> {
-    public ArrayList(Class<T> type) {
-    }
-    public ArrayList(T[] base) {
-        addAll(List.of(base));
+public class FieldNotFoundException extends RuntimeException {
+    public FieldNotFoundException() {
     }
 
-    public static <T> ArrayList<T> of(T[] array) {
-        if (array == null)
-            return null;
-        else return new ArrayList<>(array);
+    public FieldNotFoundException(String message) {
+        super(message);
     }
 }

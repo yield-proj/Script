@@ -15,30 +15,10 @@
 
 package com.xebisco.yieldscript.interpreter.instruction;
 
-import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
-import com.xebisco.yieldscript.interpreter.utils.StopExecution;
 
-public class ReturnDeclaration implements Instruction {
-    private final Function function;
-    private final String arg;
-
-    public ReturnDeclaration(Function function, String arg) {
-        this.function = function;
-        this.arg = arg;
-    }
-
-    @Override
-    public Object execute(Bank bank) {
-        function.setReturnObject(bank.getObject(arg));
-        return new StopExecution();
-    }
-
-    public Function getFunction() {
-        return function;
-    }
-
-    public String getArg() {
-        return arg;
+public class IfStatement extends Function implements Instruction {
+    public IfStatement(String name, Class<?>[] argumentsTypes, String[] argumentsNames, Class<?> returnType) {
+        super(name, argumentsTypes, argumentsNames, returnType);
     }
 }

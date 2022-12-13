@@ -16,17 +16,16 @@
 package com.xebisco.yieldscript.interpreter;
 
 import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
-import com.xebisco.yieldscript.interpreter.instruction.AttachScript;
-import com.xebisco.yieldscript.interpreter.instruction.Executable;
-import com.xebisco.yieldscript.interpreter.instruction.Instruction;
-import com.xebisco.yieldscript.interpreter.instruction.VariableDeclaration;
+import com.xebisco.yieldscript.interpreter.instruction.*;
 import com.xebisco.yieldscript.interpreter.memory.Function;
+import com.xebisco.yieldscript.interpreter.instruction.IfStatement;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -40,13 +39,19 @@ public class ExecutableCreator implements IExecutableCreator {
         Executable out = null;
         boolean exitedGlobal = false;
         Matcher matcher = Constants.SET_AS_PATTERN.matcher(source);
-        while (matcher.matches())
-            source = source.substring(source.indexOf('='));
-        if(source.hashCode() == "".hashCode())
+        while (matcher.matches()) {
+            source = source.substring(source.indexOf('=') + 1);
+            matcher = Constants.SET_AS_PATTERN.matcher(source);
+        }
+        if (source.hashCode() == "".hashCode())
             return null;
-        matcher.usePattern(Constants.DECLARATION_PATTERN_AUTO_TYPE_NO_MODS);
+        matcher.usePattern(Constants.INT_FOR_EACH_PATTERN);
         if (matcher.matches()) {
-            out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, new TypeModifier[0]);
+            ForStatement forStatement = new ForStatement(matcher.group(1), matcher.group(2), "index=(com.xebisco.yieldscript.interpreter.utils.MathUtils)addInt(index, 1)");
+            forStatement.setModifiers(TypeModifier._none);
+            if (functionsLayer.size() == 0) exitedGlobal = true;
+            functionsLayer.add(forStatement);
+            out = forStatement;
         } else {
             matcher.usePattern(Constants.FUNCTION_PATTERN);
             if (matcher.matches()) {
@@ -128,24 +133,37 @@ public class ExecutableCreator implements IExecutableCreator {
                                     modifiers[i] = TypeModifier.getModifier(mods[i]);
                                 out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, modifiers);
                             } else {
-                                matcher.usePattern(Constants.CLOSE_CURLY_BRACES_PATTERN);
+                                /*matcher.usePattern(Constants.INT_FOR_EACH_PATTERN);
                                 if (matcher.matches()) {
-                                    functionsLayer.remove(functionsLayer.size() - 1);
-                                    return null;
+                                    out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, modifiers);
+                                } else {*/
+                                matcher.usePattern(Constants.RETURN_PATTERN);
+                                if (matcher.matches()) {
+                                    Function f = functionsLayer.get(functionsLayer.size() - 1);
+                                    if (f instanceof IfStatement || f instanceof ForStatement) {
+                                        for (int i = functionsLayer.size() - 2; i >= 0; i--) {
+                                            f = functionsLayer.get(i);
+                                            if (!(f instanceof IfStatement || f instanceof ForStatement)) break;
+                                        }
+                                    }
+                                    out = new ReturnDeclaration(f, matcher.group(1));
                                 } else {
-                                    matcher.usePattern(Constants.ATTACH_PATTERN);
+                                    matcher.usePattern(Constants.CLOSE_CURLY_BRACES_PATTERN);
                                     if (matcher.matches()) {
-                                        out = new AttachScript(ScriptUtils.createScript(Script.class.getResourceAsStream(projectInfo.getProjectPath() + matcher.group(1)), projectInfo));
+                                        functionsLayer.remove(functionsLayer.size() - 1);
+                                        return null;
                                     } else {
-                                        out = ScriptUtils.methodCall(source, null);
+                                        matcher.usePattern(Constants.ATTACH_PATTERN);
+                                        if (matcher.matches()) {
+                                            out = new AttachScript(ScriptUtils.createScript(Script.class.getResourceAsStream(projectInfo.getProjectPath() + matcher.group(1)), projectInfo));
+                                        } else {
+                                            out = ScriptUtils.methodCall(source, null);
+                                        }
                                     }
                                 }
                             }
-
                         }
                     }
-
-
                 }
             }
         }
@@ -153,20 +171,20 @@ public class ExecutableCreator implements IExecutableCreator {
         List<String> toSetVars = new ArrayList<>();
 
         if (functionsLayer.size() > 0 && !exitedGlobal && !ignoreFunctions) {
-            if (out instanceof Function)
+            if (out instanceof Function) {
                 functionsLayer.add((Function) out);
-            else {
+                if (out instanceof Instruction)
+                    functionsLayer.get(functionsLayer.size() - 2).getInstructions().add(new Pair<>((Instruction) out, toSetVars.toArray(new String[0])));
+            } else {
                 setIgnoreFunctions(true);
-                functionsLayer.get(functionsLayer.size() - 1).getInstructions().add(
-                        new Pair<>(
-                                (Instruction) ScriptUtils.createExecutable(this, toSetVars, source, projectInfo),
-                                toSetVars.toArray(new String[0])
-                        ));
+                Executable executable = ScriptUtils.createExecutable(this, toSetVars, source, projectInfo);
+                if (executable instanceof Instruction) {
+                    functionsLayer.get(functionsLayer.size() - 1).getInstructions().add(new Pair<>((Instruction) executable, toSetVars.toArray(new String[0])));
+                }
                 setIgnoreFunctions(false);
             }
             return null;
         }
-
         return out;
     }
 

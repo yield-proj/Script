@@ -34,27 +34,34 @@ public class MethodCall implements Instruction {
     private final MethodCall parent;
     private final String methodName, getter;
     private String returnVariableName;
+    private String[] toSetVars = {};
 
-    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName) {
+    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String[] toSetVars) {
         this.methodClass = methodClass;
         this.arguments = arguments;
         this.parent = parent;
         this.methodName = methodName;
         this.getter = null;
+        this.toSetVars = toSetVars;
     }
 
-    public MethodCall(Class<?> methodClass, String getter, MethodCall parent) {
+    public MethodCall(Class<?> methodClass, String getter, MethodCall parent, String[] toSetVars) {
         this.getter = getter;
         this.methodClass = methodClass;
         this.arguments = null;
         this.parent = parent;
         this.methodName = null;
         this.returnVariableName = null;
+        this.toSetVars = toSetVars;
     }
 
     @Override
     public Object execute(Bank bank) {
-        return invoke(bank);
+        Object o = invoke(bank);
+        for(String s : toSetVars) {
+            bank.getObjects().get(s).setValue(o);
+        }
+        return o;
     }
 
     public Object invoke(Bank bank) {
@@ -148,5 +155,13 @@ public class MethodCall implements Instruction {
 
     public void setReturnVariableName(String returnVariableName) {
         this.returnVariableName = returnVariableName;
+    }
+
+    public String[] getToSetVars() {
+        return toSetVars;
+    }
+
+    public void setToSetVars(String[] toSetVars) {
+        this.toSetVars = toSetVars;
     }
 }

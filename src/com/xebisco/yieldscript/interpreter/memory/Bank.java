@@ -34,6 +34,11 @@ public class Bank {
 
     private String lastGetObjectName;
 
+    public void clear() {
+        objects.clear();
+        functions.clear();
+    }
+
     public Object getObject(String name) {
         lastGetObjectName = name;
         Variable string = getString(name);

@@ -41,7 +41,7 @@ public class ScriptUtils {
     public static Script createScript(InputStream inputStream, ProjectInfo projectInfo) {
         Pair<String, Map<String, String>> pair = ParseUtils.extractStringLiterals(ParseUtils.removeComments(FileUtils.readInputStream(inputStream)));
         String[] source = ParseUtils.parseChars(ParseUtils.removeUnnecessaryWhiteSpace(pair.getFirst())).split(String.valueOf(Constants.SOURCE_BREAK));
-        for(int i = 0 ; i < source.length; i++)
+        for (int i = 0; i < source.length; i++)
             source[i] = source[i].trim();
         return new Script(source, projectInfo, pair.getSecond());
     }
@@ -63,8 +63,8 @@ public class ScriptUtils {
                 if (executable != null) {
                     if (executable instanceof Instruction)
                         instructions.add(new Pair<>((Instruction) executable, toSetVars.toArray(new String[0])));
-                    else if(executable instanceof Function)
-                        bank.getFunctions().put(new Pair<>(((Function) executable).getName(), Arrays.asList(((Function) executable).getArgumentsTypes())), (Function) executable);
+                    if (executable instanceof Function)
+                        bank.getFunctions().put(new Pair<>(((Function) executable).getName(), com.xebisco.yieldscript.interpreter.type.ArrayList.of(((Function) executable).getArgumentsTypes())), (Function) executable);
                 }
             } catch (Exception e) {
                 new InstructionCreationException(e.getClass().getSimpleName() + ". in line " + (i + 1) + ": " + source[i]).printStackTrace();
@@ -79,19 +79,19 @@ public class ScriptUtils {
         Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
         while (matcher.matches()) {
             toSetVars.add(matcher.group(1));
-            line = line.substring(line.indexOf('='));
+            line = line.substring(line.indexOf('=') + 1);
             matcher = Constants.SET_AS_PATTERN.matcher(line);
         }
         return instructionCreator.create(line, projectInfo);
     }
 
     public static void attachBank(Bank bank, Bank otherBank) {
-        for(Pair<String, List<Class<?>>> pair : otherBank.getFunctions().keySet()) {
-            if(otherBank.getFunctions().get(pair).getModifiers().contains(TypeModifier._get))
+        for (Pair<String, List<Class<?>>> pair : otherBank.getFunctions().keySet()) {
+            if (otherBank.getFunctions().get(pair).getModifiers().contains(TypeModifier._get))
                 bank.getFunctions().put(pair, otherBank.getFunctions().get(pair));
         }
-        for(Object o : otherBank.getObjects().keySet()) {
-            if(otherBank.getObjects().get(o).getModifiers().contains(TypeModifier._get))
+        for (Object o : otherBank.getObjects().keySet()) {
+            if (otherBank.getObjects().get(o).getModifiers().contains(TypeModifier._get))
                 bank.getObjects().put(o, otherBank.getObjects().get(o));
         }
         bank.getObjects().putAll(otherBank.getObjects());
@@ -105,6 +105,8 @@ public class ScriptUtils {
                     for (String var : instruction.getSecond()) {
                         bank.getObjects().get(var).setValue(o);
                     }
+                if (o instanceof StopExecution)
+                    break;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -128,22 +130,30 @@ public class ScriptUtils {
     }
 
     public static MethodCall methodCall(String line, MethodCall parent) {
-        Matcher matcher = Constants.CLASS_METHOD_CALL_PATTERN.matcher(line);
         Class<?> clazz;
+        List<String> toSetVarsList = new ArrayList<>();
+        Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
+        while (matcher.matches()) {
+            toSetVarsList.add(matcher.group(1));
+            line = line.substring(line.indexOf('=') + 1);
+            matcher = Constants.SET_AS_PATTERN.matcher(line);
+        }
+        String[] toSetVars = toSetVarsList.toArray(new String[0]);
+        matcher = Constants.CLASS_METHOD_CALL_PATTERN.matcher(line);
         if (matcher.matches()) {
             try {
                 clazz = Class.forName(matcher.group(1));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2));
+            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2), toSetVars);
         } else if (matcher.usePattern(Constants.CLASS_FIELD_PATTERN).matches()) {
             try {
                 clazz = Class.forName(matcher.group(1));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            return new MethodCall(clazz, matcher.group(2), parent);
+            return new MethodCall(clazz, matcher.group(2), parent, toSetVars);
         } else if (matcher.usePattern(Constants.CLASS_METHODS_CALL_PATTERN).matches()) {
             String f = matcher.group(2);
             if (matcher.group(2).contains(".")) {
@@ -160,7 +170,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(3)), parent, f);
+            return new MethodCall(null, getArguments(matcher.group(3)), parent, f, toSetVars);
         } else if (matcher.usePattern(Constants.CLASS_FIELDS_PATTERN).matches()) {
             String f = matcher.group(2);
             if (matcher.group(2).contains(".")) {
@@ -177,7 +187,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, f, parent);
+            return new MethodCall(null, f, parent, toSetVars);
         } else if (matcher.usePattern(Constants.METHODS_CALL_PATTERN).matches()) {
             String f = matcher.group(1);
             if (matcher.group(1).contains(".")) {
@@ -194,7 +204,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(2)), parent, f);
+            return new MethodCall(null, getArguments(matcher.group(2)), parent, f, toSetVars);
         } else if (matcher.usePattern(Constants.FIELDS_CALL_PATTERN).matches()) {
             String f = matcher.group(1);
             if (matcher.group(1).contains(".")) {
@@ -211,9 +221,9 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, f, parent);
+            return new MethodCall(null, f, parent, toSetVars);
         } else {
-            return new MethodCall(null, line, parent);
+            return new MethodCall(null, line, parent, toSetVars);
         }
     }
 

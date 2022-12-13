@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.memory;
+package com.xebisco.yieldscript.interpreter.utils;
 
-public class IfStatement extends Function {
-    public IfStatement(String name, Class<?>[] argumentsTypes, String[] argumentsNames, Class<?> returnType) {
-        super(name, argumentsTypes, argumentsNames, returnType);
+public class MathUtils {
+    public static int addInt(Integer base, Integer value) {
+        return base + value;
     }
 }

@@ -10,7 +10,7 @@ public class Main {
         Script script = ScriptUtils.createScript(Main.class.getResourceAsStream("test.ys"), new ProjectInfo("/"));
         script.createInstructions();
         script.execute();
-        script.getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0]))).execute(script.getBank());
-
+        /*script.getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0]))).execute(script.getBank());
+        System.out.println(script.getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0]))).getInstructions());*/
     }
 }

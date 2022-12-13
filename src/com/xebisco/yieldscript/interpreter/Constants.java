@@ -24,8 +24,8 @@ public class Constants {
     @SuppressWarnings("RegExpRedundantEscape")
     public final static Pattern
             DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\2-\\w+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^(\\w+)=(\2-\\w+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^(\\w+)=(\2-\\w+)"),
+            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^(\\w+):=(\2-\\w+)\\[([^}]*)\\]"),
+            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^(\\w+):=(\2-\\w+)"),
             DECLARATION_PATTERN_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\2-\\w+)"),
             DECLARATION_PATTERN_DEFAULT_VALUE = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]"),
             DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")"),
@@ -39,9 +39,11 @@ public class Constants {
             METHOD_CALL_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\)"),
             METHODS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             FIELDS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
-            SET_AS_PATTERN = Pattern.compile("^(\\w+)="),
+            SET_AS_PATTERN = Pattern.compile("^(\\w+)=( *\\S*)"),
             ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+"),
-            RETURN_PATTERN = Pattern.compile("^return (\\S+)+");
+            RETURN_PATTERN = Pattern.compile("^return (\\S+)+"),
+            INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+)+\\,(\\w.)+\\)\\{");
+
     public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';
     public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }

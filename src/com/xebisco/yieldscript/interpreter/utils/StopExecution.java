@@ -13,20 +13,7 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.type;
+package com.xebisco.yieldscript.interpreter.utils;
 
-import java.util.List;
-
-public class ArrayList<T> extends java.util.ArrayList<T> {
-    public ArrayList(Class<T> type) {
-    }
-    public ArrayList(T[] base) {
-        addAll(List.of(base));
-    }
-
-    public static <T> ArrayList<T> of(T[] array) {
-        if (array == null)
-            return null;
-        else return new ArrayList<>(array);
-    }
+public class StopExecution {
 }

@@ -33,6 +33,7 @@ public class Function implements Executable {
     private final List<String> cachedVariableNames = new ArrayList<>();
     private final List<Pair<Instruction, String[]>> instructions = new ArrayList<>();
     private List<TypeModifier> modifiers = new ArrayList<>();
+    private Bank functionBank = new Bank();
 
     private Object returnObject;
 
@@ -66,7 +67,6 @@ public class Function implements Executable {
     @Override
     public Object execute(Bank bank) {
         setReturnObject(null);
-        Bank functionBank = new Bank();
         for (String arg : argumentsNames) {
             if (bank.getObjects().containsKey(arg)) {
                 cachedVariableNames.add(arg);
@@ -83,6 +83,7 @@ public class Function implements Executable {
             bank.getObjects().remove("$" + cachedVariable);
         }
         cachedVariableNames.clear();
+        functionBank.clear();
         return null;
     }
 
@@ -93,12 +94,25 @@ public class Function implements Executable {
     public void setReturnObject(Object returnObject) {
         this.returnObject = returnObject;
     }
+
     public void setModifiers(TypeModifier... modifiers) {
-        if(modifiers.length == 0) this.modifiers = List.of(TypeModifier._get);
+        if (modifiers.length == 0) this.modifiers = List.of(TypeModifier._get);
         else this.modifiers = List.of(modifiers);
     }
 
     public List<TypeModifier> getModifiers() {
         return modifiers;
+    }
+
+    public List<String> getCachedVariableNames() {
+        return cachedVariableNames;
+    }
+
+    public Bank getFunctionBank() {
+        return functionBank;
+    }
+
+    public void setFunctionBank(Bank functionBank) {
+        this.functionBank = functionBank;
     }
 }

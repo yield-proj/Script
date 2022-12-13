@@ -17,6 +17,7 @@ package com.xebisco.yieldscript.interpreter.utils;
 
 public class ObjectUtils {
     public static Object toObject(String s) {
+        s = s.trim();
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException ignore) {
