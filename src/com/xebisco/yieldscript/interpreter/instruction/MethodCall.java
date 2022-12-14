@@ -136,8 +136,11 @@ public class MethodCall implements Instruction {
                             Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(cTypes.get(i)));
                             variable.setModifiers(TypeModifier._set);
                             if (i == cTypes.size() - 1) {
-                                //TODO Object[] objects = new Object[]
-                                variable.setValue(args[i]);
+                                Array<Object> array = new Array<>(Object.class, types.length - cTypes.size() + 1);
+                                for(int i1 = cTypes.size() - 1; i1 < types.length; i1++) {
+                                    array.set(args[i1], i1 - cTypes.size() + 1);
+                                }
+                                variable.setValue(array);
                             } else
                                 variable.setValue(args[i]);
                             bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
