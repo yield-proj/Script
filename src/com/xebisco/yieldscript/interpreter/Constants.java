@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
 public class Constants {
     @SuppressWarnings("RegExpRedundantEscape")
     public final static Pattern
-            DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\\S+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^(\\w+):=(\\S+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^(\\w+):=(\\S+)"),
-            DECLARATION_PATTERN_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\\S+)"),
+            DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=([^}]*)\\[([^}]*)\\]"),
+            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^auto (\\w+)=([^}]*)\\[([^}]*)\\]"),
+            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^auto (\\w+)=([^}]*)"),
+            DECLARATION_PATTERN_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=([^}]*)"),
             DECLARATION_PATTERN_DEFAULT_VALUE = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]"),
             DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")"),
             FUNCTION_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\):(" + PatternUtils.pattern(Type.class) + ")\\{"),
@@ -43,8 +43,8 @@ public class Constants {
             FIELDS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             SET_AS_PATTERN = Pattern.compile("^(\\w+)=( *\\S*)"),
             ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+"),
-            RETURN_PATTERN = Pattern.compile("^return (\\S+)+"),
-            CAST_PATTERN = Pattern.compile("\\S+\\s* as (" + PatternUtils.pattern(Type.class) + ")"),
+            RETURN_PATTERN = Pattern.compile("^return([^}]*)"),
+            CAST_PATTERN = Pattern.compile("[^}]+as (" + PatternUtils.pattern(Type.class) + ")"),
             INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+)+\\,(\\w.)+\\)\\{");
 
     public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';

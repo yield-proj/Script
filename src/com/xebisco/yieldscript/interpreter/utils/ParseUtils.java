@@ -16,6 +16,7 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.type.Array;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,10 @@ public class ParseUtils {
         for (int i = 0; i < array.length; i++)
             array[i] = source[i].toString();
         return array;
+    }
+
+    public static void printf(String format, Array<?> a) {
+        System.out.printf(format, (Object[]) a.getObjectArray());
     }
 
     public static String parseChars(String contents) {

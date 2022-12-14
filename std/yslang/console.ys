@@ -1,6 +1,0 @@
-puts(x: string): def {
-    (java.lang.System) out.println(x);
-}
-printf(x: string, values: array): def {
-    (java.lang.System) out.printf(x, values);
-}

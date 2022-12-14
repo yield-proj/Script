@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.yieldscript.interpreter.utils;
+package com.xebisco.yieldscript.interpreter.exceptions;
 
-import com.xebisco.yieldscript.interpreter.type.Array;
-
-public class ArrayUtils {
-    public static <T> Array<T> newArray(Class<T> type, int length) {
-        return new Array<>(type, length);
+public class NonPrimitiveException extends RuntimeException {
+    public NonPrimitiveException() {
     }
-    public static Array<Object> newArray(Object... args) {
-        Array<Object> array = new Array<>(Object.class, args.length);
-        for(int i = 0; i < args.length; i++) {
-            array.set(args[i], i);
-        }
-        return array;
+
+    public NonPrimitiveException(String message) {
+        super(message);
     }
 }

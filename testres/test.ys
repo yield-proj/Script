@@ -1,6 +1,4 @@
-attach yslang/console.ys;
+attach std/out.ys;
+attach std/array.ys;
 
-data human(name: string [arg]);
-
-human := human("Xebisco");
-puts(human.get("name"));
+printf("aaa", "aa");

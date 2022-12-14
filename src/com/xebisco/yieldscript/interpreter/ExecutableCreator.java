@@ -109,7 +109,7 @@ public class ExecutableCreator implements IExecutableCreator {
                             if (!(f instanceof IfStatement || f instanceof ForStatement)) break;
                         }
                     }
-                    out = new ReturnDeclaration(f, matcher.group(1));
+                    out = new ReturnDeclaration(f, matcher.group(1).trim());
                 } else {
                     matcher.usePattern(Constants.CLOSE_CURLY_BRACES_PATTERN);
                     if (matcher.matches()) {
@@ -125,10 +125,10 @@ public class ExecutableCreator implements IExecutableCreator {
                                 String[] vars = matcher.group(2).split("\\(.*?\\)|(\\,)");
                                 VariableDeclaration[] variables = new VariableDeclaration[vars.length];
                                 List<VariableDeclaration> args = new ArrayList<>();
-                                for(int i = 0; i < variables.length; i++) {
+                                for (int i = 0; i < variables.length; i++) {
                                     String var = vars[i];
                                     variables[i] = ScriptUtils.declaration(var);
-                                    if(Arrays.stream(variables[i].getModifiers()).anyMatch(m -> m == TypeModifier._arg)) {
+                                    if (Arrays.stream(variables[i].getModifiers()).anyMatch(m -> m == TypeModifier._arg)) {
                                         args.add(variables[i]);
                                     }
                                 }
@@ -136,7 +136,30 @@ public class ExecutableCreator implements IExecutableCreator {
                                 dataDeclaration.setModifiers();
                                 out = dataDeclaration;
                             } else {
-                                out = ScriptUtils.methodCall(source, null);
+                                matcher.usePattern(Constants.DATA_TYPE_WITH_MODIFIERS_PATTERN);
+                                if (matcher.matches()) {
+                                    String[] vars = matcher.group(2).split("\\(.*?\\)|(\\,)");
+                                    VariableDeclaration[] variables = new VariableDeclaration[vars.length];
+                                    List<VariableDeclaration> args = new ArrayList<>();
+                                    for (int i = 0; i < variables.length; i++) {
+                                        String var = vars[i];
+                                        variables[i] = ScriptUtils.declaration(var);
+                                        if (Arrays.stream(variables[i].getModifiers()).anyMatch(m -> m == TypeModifier._arg)) {
+                                            args.add(variables[i]);
+                                        }
+                                    }
+                                    DataDeclaration dataDeclaration = new DataDeclaration(matcher.group(1), variables, args.toArray(new VariableDeclaration[0]));
+                                    String[] mods = matcher.group(3).split(",");
+                                    if (mods.length == 1 && mods[0].hashCode() == "".hashCode())
+                                        mods = new String[0];
+                                    TypeModifier[] modifiers = new TypeModifier[mods.length];
+                                    for (int i = 0; i < modifiers.length; i++)
+                                        modifiers[i] = TypeModifier.getModifier(mods[i]);
+                                    dataDeclaration.setModifiers(modifiers);
+                                    out = dataDeclaration;
+                                } else {
+                                    out = ScriptUtils.methodCall(source, null);
+                                }
                             }
                         }
                     }

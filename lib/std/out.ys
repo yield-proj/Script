@@ -1,0 +1,12 @@
+println(x: def): def {
+    (java.lang.System) out.println(x as def);
+}
+println(x: char): def {
+    println(x as def);
+}
+println(x: char): def {
+    println(x as def);
+}
+printf(format: string, values: array): def {
+    (com.xebisco.yieldscript.interpreter.utils.ParseUtils) printf(format, values);
+}

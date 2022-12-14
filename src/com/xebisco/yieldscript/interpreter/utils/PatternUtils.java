@@ -28,7 +28,7 @@ public class PatternUtils {
         if(values.length == 0)
             throw new IllegalArgumentException("Enum class does not have any fields.");
         final StringBuilder matches = new StringBuilder();
-        for (Object value : values) matches.append(((Enum<?>) value).name().substring(1)).append('|');
+        for (Object value : values) matches.append(((Enum<?>) value).name().substring(1).replace('_', ' ')).append('|');
         matches.setLength(matches.length() - 1);
         return matches.toString();
     }

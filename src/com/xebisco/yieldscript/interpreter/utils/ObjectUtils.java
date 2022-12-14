@@ -22,12 +22,18 @@ public class ObjectUtils {
             return Integer.parseInt(s);
         } catch (NumberFormatException ignore) {
             try {
-                return Float.parseFloat(s);
+                if (!s.endsWith("L")) throw new NumberFormatException();
+                return Long.parseLong(s.substring(0, s.length() - 1));
             } catch (NumberFormatException ignore1) {
                 try {
-                    return Double.parseDouble(s);
+                    if (!s.endsWith("f")) throw new NumberFormatException();
+                    return Float.parseFloat(s.substring(0, s.length() - 1));
                 } catch (NumberFormatException ignore2) {
-                    return null;
+                    try {
+                        return Double.parseDouble(s);
+                    } catch (NumberFormatException ignore3) {
+                        return null;
+                    }
                 }
             }
         }
@@ -35,7 +41,7 @@ public class ObjectUtils {
 
     public static Class<?>[] getObjectTypes(Object[] objects) {
         Class<?>[] types = new Class<?>[objects.length];
-        for(int i = 0; i < types.length; i++)
+        for (int i = 0; i < types.length; i++)
             types[i] = objects.getClass();
         return types;
     }

@@ -184,7 +184,8 @@ public class ScriptUtils {
     }
 
     public static MethodCall methodCall(String line, MethodCall parent) {
-        Class<?> clazz, returnCast = null;
+        Class<?> clazz;
+        Type returnCast = null;
         List<String> toSetVarsList = new ArrayList<>();
         Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
         while (matcher.matches()) {
@@ -194,8 +195,8 @@ public class ScriptUtils {
         }
         matcher.usePattern(Constants.CAST_PATTERN);
         if (matcher.matches()) {
-            returnCast = Type.getType(matcher.group(1)).getJavaClass();
-            line = line.substring(0, line.lastIndexOf(" as "));
+            returnCast = Type.getType(matcher.group(1));
+            line = line.substring(0, line.lastIndexOf("as ")).trim();
         }
         String[] toSetVars = toSetVarsList.toArray(new String[0]);
         matcher = Constants.CLASS_METHOD_CALL_PATTERN.matcher(line);

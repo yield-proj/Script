@@ -73,7 +73,7 @@ public class Function implements Executable {
         ScriptUtils.executeInstructions(instructions, functionBank);
         FunctionUtils.addCachedVariables(bank, cachedVariableNames);
         functionBank.clear();
-        return null;
+        return getReturnObject();
     }
 
     public Object getReturnObject() {

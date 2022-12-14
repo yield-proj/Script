@@ -16,16 +16,21 @@
 package com.xebisco.yieldscript.interpreter.instruction;
 
 import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.exceptions.FunctionNotFoundException;
+import com.xebisco.yieldscript.interpreter.exceptions.NonPrimitiveException;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
+import com.xebisco.yieldscript.interpreter.type.Array;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MethodCall implements Instruction {
 
@@ -35,9 +40,9 @@ public class MethodCall implements Instruction {
     private final String methodName, getter;
     private String returnVariableName;
     private String[] toSetVars = {};
-    private final Class<?> returnCast;
+    private final Type returnCast;
 
-    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String[] toSetVars, Class<?> returnCast) {
+    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String[] toSetVars, Type returnCast) {
         this.methodClass = methodClass;
         this.arguments = arguments;
         this.parent = parent;
@@ -47,7 +52,7 @@ public class MethodCall implements Instruction {
         this.toSetVars = toSetVars;
     }
 
-    public MethodCall(Class<?> methodClass, String getter, MethodCall parent, String[] toSetVars, Class<?> returnCast) {
+    public MethodCall(Class<?> methodClass, String getter, MethodCall parent, String[] toSetVars, Type returnCast) {
         this.getter = getter;
         this.methodClass = methodClass;
         this.returnCast = returnCast;
@@ -76,9 +81,9 @@ public class MethodCall implements Instruction {
                 args[i] = arguments[i].invoke(bank);
                 if (arguments[i].getReturnCast() == null)
                     types[i] = args[i].getClass();
-                else types[i] = arguments[i].getReturnCast();
+                else types[i] = arguments[i].getReturnCast().getJavaClass();
             }
-            Method method;
+            Method method = null;
             Object obj = null;
             if (parent != null) {
                 try {
@@ -91,13 +96,52 @@ public class MethodCall implements Instruction {
             } else if (methodClass == null) {
                 try {
                     assert methodName != null;
-                    method = (obj = bank.getFunctions().get(new Pair<>(methodName, Arrays.asList(types)))).getClass().getMethod("execute", Bank.class);
-                    Function f = (Function) obj;
-                    for (int i = 0; i < f.getArgumentsNames().length; i++) {
-                        Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
-                        variable.setModifiers(TypeModifier._set);
-                        variable.setValue(args[i]);
-                        bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
+                    try {
+                        method = (obj = bank.getFunctions().get(new Pair<>(methodName, Arrays.asList(types)))).getClass().getMethod("execute", Bank.class);
+                        Function f = (Function) obj;
+                        for (int i = 0; i < f.getArgumentsNames().length; i++) {
+                            Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
+                            variable.setModifiers(TypeModifier._set);
+                            variable.setValue(args[i]);
+                            bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
+                        }
+                    } catch (NullPointerException e) {
+                        List<Class<?>> cTypes = new ArrayList<>();
+                        boolean found = false;
+                        try {
+                            cTypes.add(Array.class);
+                            method = (obj = bank.getFunctions().get(new Pair<>(methodName, cTypes))).getClass().getMethod("execute", Bank.class);
+                        } catch (NullPointerException ignore) {
+                        }
+                        if (obj != null)
+                            found = true;
+                        if (!found)
+                            for (Class<?> type : types) {
+                                try {
+                                    cTypes.remove(cTypes.size() - 1);
+                                    cTypes.add(type);
+                                    cTypes.add(Array.class);
+                                    method = (obj = bank.getFunctions().get(new Pair<>(methodName, cTypes))).getClass().getMethod("execute", Bank.class);
+                                } catch (NullPointerException ignore) {
+                                }
+                                if (obj != null) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        if (!found)
+                            throw new FunctionNotFoundException(methodName + Arrays.toString(types));
+                        Function f = (Function) obj;
+                        for (int i = 0; i < cTypes.size(); i++) {
+                            Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(cTypes.get(i)));
+                            variable.setModifiers(TypeModifier._set);
+                            if (i == cTypes.size() - 1) {
+                                //TODO Object[] objects = new Object[]
+                                variable.setValue(args[i]);
+                            } else
+                                variable.setValue(args[i]);
+                            bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
+                        }
                     }
                     args = new Object[]{bank};
                 } catch (NoSuchMethodException e) {
@@ -108,13 +152,16 @@ public class MethodCall implements Instruction {
                     assert methodName != null;
                     method = methodClass.getMethod(methodName, types);
                 } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(e);
+                    try {
+                        for (int i = 0; i < types.length; i++) if (types[i] == Character.class) types[i] = char.class;
+                        method = methodClass.getMethod(methodName, types);
+                    } catch (NoSuchMethodException ex) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             try {
-                if (returnCast == null)
-                    return method.invoke(obj, args);
-                else return returnCast.cast(method.invoke(obj, args));
+                return method.invoke(obj, args);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
@@ -133,14 +180,12 @@ public class MethodCall implements Instruction {
                     throw new RuntimeException(e);
                 }
             } else {
-                if (returnCast == null)
-                    return bank.getObject(getter);
-                else return returnCast.cast(bank.getObject(getter));
+                return bank.getObject(getter);
             }
         }
     }
 
-    public Class<?> getReturnCast() {
+    public Type getReturnCast() {
         return returnCast;
     }
 
