@@ -1,3 +1,6 @@
 attach yslang/console.ys;
-hw: string = "Hello, World!";
-puts(hw);
+
+data human(name: string [arg]);
+
+human := human("Xebisco");
+puts(human.get("name"));

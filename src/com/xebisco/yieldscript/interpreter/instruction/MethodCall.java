@@ -35,19 +35,22 @@ public class MethodCall implements Instruction {
     private final String methodName, getter;
     private String returnVariableName;
     private String[] toSetVars = {};
+    private final Class<?> returnCast;
 
-    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String[] toSetVars) {
+    public MethodCall(Class<?> methodClass, MethodCall[] arguments, MethodCall parent, String methodName, String[] toSetVars, Class<?> returnCast) {
         this.methodClass = methodClass;
         this.arguments = arguments;
         this.parent = parent;
         this.methodName = methodName;
+        this.returnCast = returnCast;
         this.getter = null;
         this.toSetVars = toSetVars;
     }
 
-    public MethodCall(Class<?> methodClass, String getter, MethodCall parent, String[] toSetVars) {
+    public MethodCall(Class<?> methodClass, String getter, MethodCall parent, String[] toSetVars, Class<?> returnCast) {
         this.getter = getter;
         this.methodClass = methodClass;
+        this.returnCast = returnCast;
         this.arguments = null;
         this.parent = parent;
         this.methodName = null;
@@ -58,7 +61,7 @@ public class MethodCall implements Instruction {
     @Override
     public Object execute(Bank bank) {
         Object o = invoke(bank);
-        for(String s : toSetVars) {
+        for (String s : toSetVars) {
             bank.getObjects().get(s).setValue(o);
         }
         return o;
@@ -71,7 +74,9 @@ public class MethodCall implements Instruction {
             Class<?>[] types = new Class<?>[args.length];
             for (int i = 0; i < args.length; i++) {
                 args[i] = arguments[i].invoke(bank);
-                types[i] = args[i].getClass();
+                if (arguments[i].getReturnCast() == null)
+                    types[i] = args[i].getClass();
+                else types[i] = arguments[i].getReturnCast();
             }
             Method method;
             Object obj = null;
@@ -82,18 +87,19 @@ public class MethodCall implements Instruction {
                 } catch (NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
-            } else if(methodClass == null) {
+
+            } else if (methodClass == null) {
                 try {
                     assert methodName != null;
                     method = (obj = bank.getFunctions().get(new Pair<>(methodName, Arrays.asList(types)))).getClass().getMethod("execute", Bank.class);
                     Function f = (Function) obj;
-                    for(int i = 0 ; i < f.getArgumentsNames().length; i++) {
+                    for (int i = 0; i < f.getArgumentsNames().length; i++) {
                         Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
                         variable.setModifiers(TypeModifier._set);
                         variable.setValue(args[i]);
                         bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
                     }
-                    args = new Object[] {bank};
+                    args = new Object[]{bank};
                 } catch (NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
@@ -106,7 +112,9 @@ public class MethodCall implements Instruction {
                 }
             }
             try {
-                return method.invoke(obj, args);
+                if (returnCast == null)
+                    return method.invoke(obj, args);
+                else return returnCast.cast(method.invoke(obj, args));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
@@ -124,9 +132,16 @@ public class MethodCall implements Instruction {
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            } else
-                return bank.getObject(getter);
+            } else {
+                if (returnCast == null)
+                    return bank.getObject(getter);
+                else return returnCast.cast(bank.getObject(getter));
+            }
         }
+    }
+
+    public Class<?> getReturnCast() {
+        return returnCast;
     }
 
     public Class<?> getMethodClass() {

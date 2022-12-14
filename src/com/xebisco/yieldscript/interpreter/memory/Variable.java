@@ -29,7 +29,7 @@ public class Variable extends UntypedVariable {
     public Variable(String name, Type type) {
         super(name);
         this.type = type;
-        setPrivateValue(type.getInitialValue());
+        super.setValue(type.getInitialValue());
     }
 
     @Override
@@ -43,13 +43,9 @@ public class Variable extends UntypedVariable {
 
     @Override
     public void setValue(Object value) {
-        if(!modifiers.contains(TypeModifier._set))
+        if(!modifiers.contains(TypeModifier._set) && !modifiers.contains(TypeModifier._arg))
             throw new ImmutableException(getName());
         super.setValue(type.getJavaClass().cast(value));
-    }
-
-    private void setPrivateValue(Object value) {
-        super.setValue(value);
     }
 
     public Type getType() {

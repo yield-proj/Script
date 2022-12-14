@@ -23,8 +23,10 @@ import com.xebisco.yieldscript.interpreter.info.ProjectInfo;
 import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.instruction.MethodCall;
+import com.xebisco.yieldscript.interpreter.instruction.VariableDeclaration;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
+import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 
 import java.io.File;
@@ -32,10 +34,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScriptUtils {
     public static Script createScript(InputStream inputStream, ProjectInfo projectInfo) {
@@ -72,6 +75,56 @@ public class ScriptUtils {
             }
         }
         return instructions;
+    }
+
+    public static VariableDeclaration declaration(String source) {
+        Matcher matcher = Constants.DECLARATION_PATTERN.matcher(source);
+        VariableDeclaration out = null;
+        if (matcher.matches()) {
+            String[] mods = matcher.group(4).split(",");
+            if (mods.length == 1 && mods[0].hashCode() == "".hashCode()) mods = new String[0];
+            TypeModifier[] modifiers = new TypeModifier[mods.length];
+            for (int i = 0; i < modifiers.length; i++)
+                modifiers[i] = TypeModifier.getModifier(mods[i]);
+            out = new VariableDeclaration(matcher.group(1), matcher.group(3), Type.getType(matcher.group(2)), modifiers);
+        } else {
+            matcher.usePattern(Constants.DECLARATION_PATTERN_DEFAULT_VALUE);
+            if (matcher.matches()) {
+                String[] mods = matcher.group(3).split(",");
+                if (mods.length == 1 && mods[0].hashCode() == "".hashCode()) mods = new String[0];
+                TypeModifier[] modifiers = new TypeModifier[mods.length];
+                for (int i = 0; i < modifiers.length; i++)
+                    modifiers[i] = TypeModifier.getModifier(mods[i]);
+                out = new VariableDeclaration(matcher.group(1), null, Type.getType(matcher.group(2)), modifiers);
+            } else {
+                matcher.usePattern(Constants.DECLARATION_PATTERN_NO_MODS);
+                if (matcher.matches()) {
+                    out = new VariableDeclaration(matcher.group(1), matcher.group(3), Type.getType(matcher.group(2)), new TypeModifier[0]);
+                } else {
+                    matcher.usePattern(Constants.DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS);
+                    if (matcher.matches()) {
+                        out = new VariableDeclaration(matcher.group(1), null, Type.getType(matcher.group(2)), new TypeModifier[0]);
+                    } else {
+                        matcher = Constants.DECLARATION_PATTERN_AUTO_TYPE_NO_MODS.matcher(source);
+                        if (matcher.matches()) {
+                            out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, new TypeModifier[0]);
+                        } else {
+                            matcher.usePattern(Constants.DECLARATION_PATTERN_AUTO_TYPE);
+                            if (matcher.matches()) {
+                                String[] mods = matcher.group(3).split(",");
+                                if (mods.length == 1 && mods[0].hashCode() == "".hashCode())
+                                    mods = new String[0];
+                                TypeModifier[] modifiers = new TypeModifier[mods.length];
+                                for (int i = 0; i < modifiers.length; i++)
+                                    modifiers[i] = TypeModifier.getModifier(mods[i]);
+                                out = new VariableDeclaration(matcher.group(1), matcher.group(2), null, modifiers);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return out;
     }
 
     public static Executable createExecutable(IExecutableCreator instructionCreator, List<String> toSetVars, String line, ProjectInfo projectInfo) {
@@ -121,7 +174,8 @@ public class ScriptUtils {
 
     @SuppressWarnings("RegExpRedundantEscape")
     public static MethodCall[] getArguments(String argsSource) {
-        String[] args = argsSource.split("\\(.*?\\)|(\\,)");
+        String[] args = Pattern.compile("(?:[^,(]|\\([^)]*\\))+").matcher(argsSource).results().map(MatchResult::group).toArray(String[]::new);
+        if (args.length == 1 && args[0].hashCode() == "".hashCode()) return new MethodCall[0];
         MethodCall[] arguments = new MethodCall[args.length];
         for (int i = 0; i < arguments.length; i++) {
             arguments[i] = methodCall(args[i], null);
@@ -130,13 +184,18 @@ public class ScriptUtils {
     }
 
     public static MethodCall methodCall(String line, MethodCall parent) {
-        Class<?> clazz;
+        Class<?> clazz, returnCast = null;
         List<String> toSetVarsList = new ArrayList<>();
         Matcher matcher = Constants.SET_AS_PATTERN.matcher(line);
         while (matcher.matches()) {
             toSetVarsList.add(matcher.group(1));
             line = line.substring(line.indexOf('=') + 1);
             matcher = Constants.SET_AS_PATTERN.matcher(line);
+        }
+        matcher.usePattern(Constants.CAST_PATTERN);
+        if (matcher.matches()) {
+            returnCast = Type.getType(matcher.group(1)).getJavaClass();
+            line = line.substring(0, line.lastIndexOf(" as "));
         }
         String[] toSetVars = toSetVarsList.toArray(new String[0]);
         matcher = Constants.CLASS_METHOD_CALL_PATTERN.matcher(line);
@@ -146,14 +205,14 @@ public class ScriptUtils {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2), toSetVars);
+            return new MethodCall(clazz, getArguments(matcher.group(3)), parent, matcher.group(2), toSetVars, returnCast);
         } else if (matcher.usePattern(Constants.CLASS_FIELD_PATTERN).matches()) {
             try {
                 clazz = Class.forName(matcher.group(1));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            return new MethodCall(clazz, matcher.group(2), parent, toSetVars);
+            return new MethodCall(clazz, matcher.group(2), parent, toSetVars, returnCast);
         } else if (matcher.usePattern(Constants.CLASS_METHODS_CALL_PATTERN).matches()) {
             String f = matcher.group(2);
             if (matcher.group(2).contains(".")) {
@@ -170,7 +229,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(3)), parent, f, toSetVars);
+            return new MethodCall(null, getArguments(matcher.group(3)), parent, f, toSetVars, returnCast);
         } else if (matcher.usePattern(Constants.CLASS_FIELDS_PATTERN).matches()) {
             String f = matcher.group(2);
             if (matcher.group(2).contains(".")) {
@@ -187,11 +246,11 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, f, parent, toSetVars);
+            return new MethodCall(null, f, parent, toSetVars, returnCast);
         } else if (matcher.usePattern(Constants.METHODS_CALL_PATTERN).matches()) {
             String f = matcher.group(1);
             if (matcher.group(1).contains(".")) {
-                String[] pcs = matcher.group(2).split("\\(.*?\\)|(\\.)");
+                String[] pcs = matcher.group(1).split("\\(.*?\\)|(\\.)");
                 MethodCall[] calls = new MethodCall[pcs.length - 1];
 
                 for (int i = 0; i < calls.length; i++) {
@@ -204,7 +263,7 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, getArguments(matcher.group(2)), parent, f, toSetVars);
+            return new MethodCall(null, getArguments(matcher.group(2)), parent, f, toSetVars, returnCast);
         } else if (matcher.usePattern(Constants.FIELDS_CALL_PATTERN).matches()) {
             String f = matcher.group(1);
             if (matcher.group(1).contains(".")) {
@@ -221,9 +280,9 @@ public class ScriptUtils {
                 parent = calls[calls.length - 1];
                 f = pcs[pcs.length - 1];
             }
-            return new MethodCall(null, f, parent, toSetVars);
+            return new MethodCall(null, f, parent, toSetVars, returnCast);
         } else {
-            return new MethodCall(null, line, parent, toSetVars);
+            return new MethodCall(null, line, parent, toSetVars, returnCast);
         }
     }
 

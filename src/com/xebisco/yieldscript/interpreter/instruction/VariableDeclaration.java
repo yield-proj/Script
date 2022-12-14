@@ -30,6 +30,7 @@ public class VariableDeclaration implements Instruction {
     private final String startName, name;
     private final Type type;
     private final UntypedVariable toSet;
+    private Variable varObject;
 
     public VariableDeclaration(String name, String startName, Type type, TypeModifier[] modifiers) {
         this.name = name;
@@ -69,6 +70,7 @@ public class VariableDeclaration implements Instruction {
             variable.setValue(toSet.getValue());
         }
         bank.getObjects().put(name, variable);
+        setVarObject(variable);
         return variable.getValue();
     }
 
@@ -80,6 +82,18 @@ public class VariableDeclaration implements Instruction {
                 ", name='" + name + '\'' +
                 ", type=" + type +
                 '}';
+    }
+
+    public UntypedVariable getToSet() {
+        return toSet;
+    }
+
+    public Variable getVarObject() {
+        return varObject;
+    }
+
+    public void setVarObject(Variable varObject) {
+        this.varObject = varObject;
     }
 
     public TypeModifier[] getModifiers() {

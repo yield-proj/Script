@@ -19,6 +19,7 @@ import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.instruction.Executable;
 import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
+import com.xebisco.yieldscript.interpreter.utils.FunctionUtils;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
 
@@ -67,22 +68,10 @@ public class Function implements Executable {
     @Override
     public Object execute(Bank bank) {
         setReturnObject(null);
-        for (String arg : argumentsNames) {
-            if (bank.getObjects().containsKey(arg)) {
-                cachedVariableNames.add(arg);
-                bank.getObjects().put("$" + arg, bank.getObjects().get(arg));
-                bank.getObjects().remove(arg);
-            }
-            functionBank.getObjects().put(arg, bank.getObjects().get(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg));
-            bank.getObjects().remove(Constants.FUNCTION_ARGUMENT_ID_CHAR + arg);
-        }
+        FunctionUtils.putArgsInBank(argumentsNames, getFunctionBank(), bank, cachedVariableNames);
         ScriptUtils.attachBank(functionBank, bank);
         ScriptUtils.executeInstructions(instructions, functionBank);
-        for (String cachedVariable : cachedVariableNames) {
-            bank.getObjects().put(cachedVariable, bank.getObjects().get("$" + cachedVariable));
-            bank.getObjects().remove("$" + cachedVariable);
-        }
-        cachedVariableNames.clear();
+        FunctionUtils.addCachedVariables(bank, cachedVariableNames);
         functionBank.clear();
         return null;
     }

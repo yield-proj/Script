@@ -15,6 +15,8 @@
 
 package com.xebisco.yieldscript.interpreter.type;
 
+import com.xebisco.yieldscript.interpreter.memory.DataDeclaration;
+
 import java.lang.reflect.Constructor;
 
 public enum Type {
@@ -30,6 +32,7 @@ public enum Type {
     _arraylist(null, ArrayList.class),
     _array(null, Array.class),
     _class(null, Class.class),
+    _data(null, Data.class),
     _def(null, Object.class);
 
     private final Object initialValue;

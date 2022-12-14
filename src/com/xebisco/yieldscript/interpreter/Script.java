@@ -49,7 +49,7 @@ public class Script {
             variable.setModifiers(TypeModifier._get, TypeModifier._set);
             variable.setValue(type.getJavaClass());
             variable.setModifiers(TypeModifier._none);
-            bank.getObjects().put(type.name(), variable);
+            bank.getObjects().put(type.name().substring(1), variable);
         }
         for (String id : stringLiterals.keySet()) {
             Variable variable = new Variable(Constants.STRING_LITERAL_ID_CHAR + String.valueOf(id), Type._string);
@@ -68,7 +68,10 @@ public class Script {
     }
 
     public boolean execute() {
-        return ScriptUtils.executeInstructions(instructions, getBank());
+        boolean result = ScriptUtils.executeInstructions(getInstructions(), getBank());
+        Function main = getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0])));
+        if(main != null) main.execute(getBank());
+        return result;
     }
 
     public List<Pair<Instruction, String[]>> getInstructions() {

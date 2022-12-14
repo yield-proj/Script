@@ -23,25 +23,28 @@ import java.util.regex.Pattern;
 public class Constants {
     @SuppressWarnings("RegExpRedundantEscape")
     public final static Pattern
-            DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\2-\\w+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^(\\w+):=(\2-\\w+)\\[([^}]*)\\]"),
-            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^(\\w+):=(\2-\\w+)"),
-            DECLARATION_PATTERN_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\2-\\w+)"),
+            DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\\S+)\\[([^}]*)\\]"),
+            DECLARATION_PATTERN_AUTO_TYPE = Pattern.compile("^(\\w+):=(\\S+)\\[([^}]*)\\]"),
+            DECLARATION_PATTERN_AUTO_TYPE_NO_MODS = Pattern.compile("^(\\w+):=(\\S+)"),
+            DECLARATION_PATTERN_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=(\\S+)"),
             DECLARATION_PATTERN_DEFAULT_VALUE = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]"),
             DECLARATION_PATTERN_DEFAULT_VALUE_NO_MODS = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")"),
             FUNCTION_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\):(" + PatternUtils.pattern(Type.class) + ")\\{"),
             FUNCTION_WITH_MODIFIERS_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\):(" + PatternUtils.pattern(Type.class) + ")\\[([^}]*)\\]\\{"),
+            DATA_TYPE_PATTERN = Pattern.compile("^data (\\w+)\\(([^}]*)\\)"),
+            DATA_TYPE_WITH_MODIFIERS_PATTERN = Pattern.compile("^data (\\w+)\\(([^}]*)\\)\\[([^}]*)\\]"),
             CLOSE_CURLY_BRACES_PATTERN = Pattern.compile("\\}"),
             CLASS_METHOD_CALL_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w+)\\(([^}]*)\\)"),
             CLASS_METHODS_CALL_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w.+)\\(([^}]*)\\)"),
             CLASS_FIELD_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w+)"),
             CLASS_FIELDS_PATTERN = Pattern.compile("^\\(([^}]*)\\)(\\w.+)"),
-            METHOD_CALL_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\)"),
-            METHODS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
+            METHOD_CALL_PATTERN = Pattern.compile("^([^\\(.]+)\\(([^}]*)\\)"),
+            METHODS_CALL_PATTERN = Pattern.compile("^([^\\(]+)\\(([^}]*)\\)"),
             FIELDS_CALL_PATTERN = Pattern.compile("^(\\w.+)\\(([^}]*)\\)"),
             SET_AS_PATTERN = Pattern.compile("^(\\w+)=( *\\S*)"),
             ATTACH_PATTERN = Pattern.compile("^attach (\\S+)+"),
             RETURN_PATTERN = Pattern.compile("^return (\\S+)+"),
+            CAST_PATTERN = Pattern.compile("\\S+\\s* as (" + PatternUtils.pattern(Type.class) + ")"),
             INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+)+\\,(\\w.)+\\)\\{");
 
     public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';
