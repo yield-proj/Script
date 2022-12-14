@@ -38,8 +38,9 @@ public enum Type {
     _primitive_double(0d, true),
     _primitive_boolean(false, true),
     _primitive_char((char) 0, true),
-    _arraylist(null, ArrayList.class),
+    _array_list(null, ArrayList.class),
     _array(null, Array.class),
+    _array_args(null, ArrayArgs.class),
     _class(null, Class.class),
     _data(null, Data.class),
     _def(null, Object.class);

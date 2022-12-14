@@ -1,6 +1,6 @@
 array(type: class, length: int): array {
     return (com.xebisco.yieldscript.interpreter.utils.ArrayUtils) newArray(type, length as primitive int);
 }
-array(b: array): array {
-    return array;
+array(b: array args): array {
+    return b;
 }

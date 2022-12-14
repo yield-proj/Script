@@ -22,6 +22,7 @@ import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
 import com.xebisco.yieldscript.interpreter.type.Array;
+import com.xebisco.yieldscript.interpreter.type.ArrayArgs;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
@@ -109,7 +110,7 @@ public class MethodCall implements Instruction {
                         List<Class<?>> cTypes = new ArrayList<>();
                         boolean found = false;
                         try {
-                            cTypes.add(Array.class);
+                            cTypes.add(ArrayArgs.class);
                             method = (obj = bank.getFunctions().get(new Pair<>(methodName, cTypes))).getClass().getMethod("execute", Bank.class);
                         } catch (NullPointerException ignore) {
                         }
@@ -120,7 +121,7 @@ public class MethodCall implements Instruction {
                                 try {
                                     cTypes.remove(cTypes.size() - 1);
                                     cTypes.add(type);
-                                    cTypes.add(Array.class);
+                                    cTypes.add(ArrayArgs.class);
                                     method = (obj = bank.getFunctions().get(new Pair<>(methodName, cTypes))).getClass().getMethod("execute", Bank.class);
                                 } catch (NullPointerException ignore) {
                                 }
@@ -133,16 +134,20 @@ public class MethodCall implements Instruction {
                             throw new FunctionNotFoundException(methodName + Arrays.toString(types));
                         Function f = (Function) obj;
                         for (int i = 0; i < cTypes.size(); i++) {
-                            Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(cTypes.get(i)));
-                            variable.setModifiers(TypeModifier._set);
+                            Variable variable;
                             if (i == cTypes.size() - 1) {
                                 Array<Object> array = new Array<>(Object.class, types.length - cTypes.size() + 1);
-                                for(int i1 = cTypes.size() - 1; i1 < types.length; i1++) {
+                                for (int i1 = cTypes.size() - 1; i1 < types.length; i1++) {
                                     array.set(args[i1], i1 - cTypes.size() + 1);
                                 }
+                                variable = new Variable(f.getArgumentsNames()[i], Type._array);
+                                variable.setModifiers(TypeModifier._set);
                                 variable.setValue(array);
-                            } else
+                            } else {
+                                variable = new Variable(f.getArgumentsNames()[i], Type.getType(cTypes.get(i)));
+                                variable.setModifiers(TypeModifier._set);
                                 variable.setValue(args[i]);
+                            }
                             bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
                         }
                     }
@@ -164,6 +169,7 @@ public class MethodCall implements Instruction {
                 }
             }
             try {
+                assert method != null;
                 return method.invoke(obj, args);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
