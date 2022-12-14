@@ -196,7 +196,7 @@ public class ScriptUtils {
         matcher.usePattern(Constants.CAST_PATTERN);
         if (matcher.matches()) {
             returnCast = Type.getType(matcher.group(1));
-            line = line.substring(0, line.lastIndexOf("as ")).trim();
+            line = ParseUtils.removeEndSpaces(line.substring(0, line.lastIndexOf("as ")));
         }
         String[] toSetVars = toSetVarsList.toArray(new String[0]);
         matcher = Constants.CLASS_METHOD_CALL_PATTERN.matcher(line);

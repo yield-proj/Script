@@ -35,6 +35,12 @@ public class ParseUtils {
         return array;
     }
 
+    public static String removeEndSpaces(String source) {
+        String out = source;
+        while (out.endsWith(" ")) out = out.substring(0, out.length() - 1);
+        return out;
+    }
+
     public static void printf(String format, Array<?> a) {
         System.out.printf(format, (Object[]) a.getObjectArray());
     }
