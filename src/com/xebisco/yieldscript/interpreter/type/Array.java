@@ -15,6 +15,8 @@
 
 package com.xebisco.yieldscript.interpreter.type;
 
+import java.util.Arrays;
+
 public class Array<T> {
     private final T[] objectArray;
 
@@ -29,6 +31,11 @@ public class Array<T> {
 
     public void set(T value, int index) {
         objectArray[index] = value;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(objectArray);
     }
 
     public T[] getObjectArray() {

@@ -1,6 +1,24 @@
 println(x: def): def {
     (java.lang.System) out.println(x as def);
 }
+println(x: string): def {
+    println(x as def);
+}
+println(x: int): def {
+    println(x as def);
+}
+println(x: float): def {
+    println(x as def);
+}
+println(x: byte): def {
+    println(x as def);
+}
+println(x: double): def {
+    println(x as def);
+}
+println(x: array): def {
+    println(x as def);
+}
 println(x: char): def {
     println(x as def);
 }
