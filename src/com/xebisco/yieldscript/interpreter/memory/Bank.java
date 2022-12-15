@@ -17,6 +17,7 @@ package com.xebisco.yieldscript.interpreter.memory;
 
 import com.xebisco.yieldscript.interpreter.Constants;
 import com.xebisco.yieldscript.interpreter.exceptions.FunctionNotFoundException;
+import com.xebisco.yieldscript.interpreter.utils.MathUtils;
 import com.xebisco.yieldscript.interpreter.utils.ObjectUtils;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
 import com.xebisco.yieldscript.interpreter.utils.ScriptUtils;
@@ -26,7 +27,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class Bank {
     private final Map<Object, Variable> objects = new HashMap<>();
@@ -45,12 +45,15 @@ public class Bank {
         if (string != null) return string.getValue();
         Object o = ObjectUtils.toObject(name);
         if (o == null) {
-            o = objects.get(name);
-            if (o != null) return ((Variable) o).getValue();
-            try {
-                return ScriptUtils.methodCall(name, null).invoke(this);
-            } catch (StackOverflowError e) {
-                throw new FunctionNotFoundException(name);
+            if(MathUtils.matchesForMath(name)) o = MathUtils.resolve(name);
+            if (o == null) {
+                o = objects.get(name);
+                if (o != null) return ((Variable) o).getValue();
+                try {
+                    return ScriptUtils.methodCall(name, null).invoke(this);
+                } catch (StackOverflowError e) {
+                    throw new FunctionNotFoundException(name);
+                }
             }
         }
         return o;

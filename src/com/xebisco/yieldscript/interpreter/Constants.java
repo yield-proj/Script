@@ -46,8 +46,10 @@ public class Constants {
             RETURN_PATTERN = Pattern.compile("^return([^}]*)"),
             CAST_PATTERN = Pattern.compile("[^}]+as (" + PatternUtils.pattern(Type.class) + ")"),
             INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+):(\\S+)+\\-\\>(\\S+)+\\)\\{"),
-            SUBTRACT_INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+):(\\S+)+\\<\\-(\\S+)+\\)\\{");
+            SUBTRACT_INT_FOR_EACH_PATTERN = Pattern.compile("^for\\((\\w+):(\\S+)+\\<\\-(\\S+)+\\)\\{"),
+            NUMBER_PATTERN = Pattern.compile("[+\\-]?(([0-9]+\\.[0-9]+)|([0-9]+\\.?)|(\\.?[0-9]+))([+\\^\\-/*%](([0-9]+\\.[0-9]+)|([0-9]+\\.?)|(\\.?[0-9]+)))*"),
+            BRACE_PATTERN = Pattern.compile("\\[[^\\[\\]]+\\]");
 
     public final static char STRING_LITERAL_ID_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3';
-    public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']', '-', '>', '<'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
+    public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']', '-', '>', '<', '+', '/', '%', '*'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }

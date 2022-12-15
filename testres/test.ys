@@ -1,5 +1,2 @@
 attach std/out.ys;
-
-main(args: array): def {
-    println(args);
-}
+println(1 + 1);

@@ -1,0 +1,18 @@
+toInt(x: double): int {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
+}
+toFloat(x: double): float {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
+}
+toLong(x: double): long {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
+}
+toByte(x: double): byte {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
+}
+toShort(x: double): short {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
+}
+resolveExpression(expression: string): double {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) resolve(expression);
+}
