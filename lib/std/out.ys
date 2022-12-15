@@ -1,6 +1,9 @@
 println(x: def): def {
     (java.lang.System) out.println(x as def);
 }
+println(): def {
+    (java.lang.System) out.println();
+}
 println(x: string): def {
     println(x as def);
 }

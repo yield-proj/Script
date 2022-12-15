@@ -48,34 +48,24 @@ public class ExecutableCreator implements IExecutableCreator {
             return null;
         matcher.usePattern(Constants.INT_FOR_EACH_PATTERN);
         if (matcher.matches()) {
-            ForStatement forStatement = new ForStatement(matcher.group(1), matcher.group(2), "index=(com.xebisco.yieldscript.interpreter.utils.MathUtils)addInt(index, 1)");
+            IntForStatement forStatement = new IntForStatement(matcher.group(1), matcher.group(2), matcher.group(3), false);
             forStatement.setModifiers(TypeModifier._none);
             if (functionsLayer.size() == 0) exitedGlobal = true;
             functionsLayer.add(forStatement);
             out = forStatement;
         } else {
-            matcher.usePattern(Constants.FUNCTION_PATTERN);
+            matcher.usePattern(Constants.SUBTRACT_INT_FOR_EACH_PATTERN);
             if (matcher.matches()) {
-                String[] args = matcher.group(2).split(",");
-                if (args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
-                String[] argumentsNames = new String[args.length];
-                Class<?>[] argumentsTypes = new Class<?>[args.length];
-                for (int i = 0; i < args.length; i++) {
-                    String[] pcs = args[i].split(":");
-                    argumentsNames[i] = pcs[0];
-                    argumentsTypes[i] = Type.getType(pcs[1]).getJavaClass();
-                }
-                Function function = new Function(matcher.group(1), argumentsTypes, argumentsNames, Type.getType(matcher.group(3)).getJavaClass());
-                function.setModifiers();
+                IntForStatement forStatement = new IntForStatement(matcher.group(1), matcher.group(2), matcher.group(3), true);
+                forStatement.setModifiers(TypeModifier._none);
                 if (functionsLayer.size() == 0) exitedGlobal = true;
-                functionsLayer.add(function);
-                out = function;
+                functionsLayer.add(forStatement);
+                out = forStatement;
             } else {
-                matcher.usePattern(Constants.FUNCTION_WITH_MODIFIERS_PATTERN);
+                matcher.usePattern(Constants.FUNCTION_PATTERN);
                 if (matcher.matches()) {
                     String[] args = matcher.group(2).split(",");
-                    if (args.length == 1 && args[0].hashCode() == "".hashCode())
-                        args = new String[0];
+                    if (args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
                     String[] argumentsNames = new String[args.length];
                     Class<?>[] argumentsTypes = new Class<?>[args.length];
                     for (int i = 0; i < args.length; i++) {
@@ -84,16 +74,35 @@ public class ExecutableCreator implements IExecutableCreator {
                         argumentsTypes[i] = Type.getType(pcs[1]).getJavaClass();
                     }
                     Function function = new Function(matcher.group(1), argumentsTypes, argumentsNames, Type.getType(matcher.group(3)).getJavaClass());
-                    String[] mods = matcher.group(4).split(",");
-                    if (mods.length == 1 && mods[0].hashCode() == "".hashCode())
-                        mods = new String[0];
-                    TypeModifier[] modifiers = new TypeModifier[mods.length];
-                    for (int i = 0; i < modifiers.length; i++)
-                        modifiers[i] = TypeModifier.getModifier(mods[i]);
-                    function.setModifiers(modifiers);
+                    function.setModifiers();
                     if (functionsLayer.size() == 0) exitedGlobal = true;
                     functionsLayer.add(function);
                     out = function;
+                } else {
+                    matcher.usePattern(Constants.FUNCTION_WITH_MODIFIERS_PATTERN);
+                    if (matcher.matches()) {
+                        String[] args = matcher.group(2).split(",");
+                        if (args.length == 1 && args[0].hashCode() == "".hashCode())
+                            args = new String[0];
+                        String[] argumentsNames = new String[args.length];
+                        Class<?>[] argumentsTypes = new Class<?>[args.length];
+                        for (int i = 0; i < args.length; i++) {
+                            String[] pcs = args[i].split(":");
+                            argumentsNames[i] = pcs[0];
+                            argumentsTypes[i] = Type.getType(pcs[1]).getJavaClass();
+                        }
+                        Function function = new Function(matcher.group(1), argumentsTypes, argumentsNames, Type.getType(matcher.group(3)).getJavaClass());
+                        String[] mods = matcher.group(4).split(",");
+                        if (mods.length == 1 && mods[0].hashCode() == "".hashCode())
+                            mods = new String[0];
+                        TypeModifier[] modifiers = new TypeModifier[mods.length];
+                        for (int i = 0; i < modifiers.length; i++)
+                            modifiers[i] = TypeModifier.getModifier(mods[i]);
+                        function.setModifiers(modifiers);
+                        if (functionsLayer.size() == 0) exitedGlobal = true;
+                        functionsLayer.add(function);
+                        out = function;
+                    }
                 }
             }
         }
@@ -103,10 +112,10 @@ public class ExecutableCreator implements IExecutableCreator {
                 matcher.usePattern(Constants.RETURN_PATTERN);
                 if (matcher.matches()) {
                     Function f = functionsLayer.get(functionsLayer.size() - 1);
-                    if (f instanceof IfStatement || f instanceof ForStatement) {
+                    if (f instanceof IfStatement || f instanceof IntForStatement) {
                         for (int i = functionsLayer.size() - 2; i >= 0; i--) {
                             f = functionsLayer.get(i);
-                            if (!(f instanceof IfStatement || f instanceof ForStatement)) break;
+                            if (!(f instanceof IfStatement || f instanceof IntForStatement)) break;
                         }
                     }
                     out = new ReturnDeclaration(f, matcher.group(1).trim());

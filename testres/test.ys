@@ -1,2 +1,5 @@
 attach std/out.ys;
-printf("%s\n", "Hello, World!");
+for(i: 1 -> 10) {
+    printf("Hello, World! %d times.", i);
+    println();
+}
