@@ -182,7 +182,6 @@ public class ExecutableCreator implements IExecutableCreator {
         if (functionsLayer.size() > 0 && !exitedGlobal && !ignoreFunctions) {
             if (out instanceof Function) {
                 if (!(out instanceof DataDeclaration)) {
-                    functionsLayer.add((Function) out);
                     if (out instanceof Instruction)
                         functionsLayer.get(functionsLayer.size() - 2).getInstructions().add(new Pair<>((Instruction) out, toSetVars.toArray(new String[0])));
                 } else {

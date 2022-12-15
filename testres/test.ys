@@ -1,5 +1,8 @@
 attach std/out.ys;
-for(i: 1 -> 10) {
-    printf("Hello, World! %d times.", i);
-    println();
+
+main(): def {
+    for(i: 1 -> 10) {
+        printf("Hello, World! %d times.", i);
+        println();
+    }
 }
