@@ -25,6 +25,13 @@ public class Array<T> {
         this.objectArray = (T[]) java.lang.reflect.Array.newInstance(type, length);
     }
 
+    public Array(Array<T> array) {
+        this.objectArray = array.objectArray;
+    }
+    public Array(T[] array) {
+        this.objectArray = array;
+    }
+
     public T get(int index) {
         return objectArray[index];
     }

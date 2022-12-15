@@ -101,9 +101,16 @@ public class MethodCall implements Instruction {
                         method = (obj = bank.getFunctions().get(new Pair<>(methodName, Arrays.asList(types)))).getClass().getMethod("execute", Bank.class);
                         Function f = (Function) obj;
                         for (int i = 0; i < f.getArgumentsNames().length; i++) {
-                            Variable variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
+                            Variable variable;
+                            Object o = args[i];
+                            if (args[i].getClass() == ArrayArgs.class) {
+                                variable = new Variable(f.getArgumentsNames()[i], Type._array);
+                                o = new Array<>((Array<?>) args[i]);
+                            } else {
+                                variable = new Variable(f.getArgumentsNames()[i], Type.getType(args[i].getClass()));
+                            }
                             variable.setModifiers(TypeModifier._set);
-                            variable.setValue(args[i]);
+                            variable.setValue(o);
                             bank.getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + f.getArgumentsNames()[i], variable);
                         }
                     } catch (NullPointerException e) {

@@ -19,4 +19,17 @@ public class ArrayArgs<T> extends Array<T> {
     public ArrayArgs(Class<T> type, int length) {
         super(type, length);
     }
+
+    public ArrayArgs(Array<T> array) {
+        super(array);
+    }
+
+    public ArrayArgs(T[] array) {
+        super(array);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> ArrayArgs<T> arrayArgs(Array<T> base) {
+        return new ArrayArgs<>(base.getObjectArray());
+    }
 }

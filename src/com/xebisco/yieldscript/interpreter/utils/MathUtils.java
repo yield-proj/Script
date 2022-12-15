@@ -16,7 +16,7 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 public class MathUtils {
-    public static int addInt(Integer base, Integer value) {
-        return base + value;
-    }
+    /*public static double resolve(String expression) {
+
+    }*/
 }

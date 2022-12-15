@@ -22,6 +22,7 @@ import com.xebisco.yieldscript.interpreter.instruction.Instruction;
 import com.xebisco.yieldscript.interpreter.memory.Bank;
 import com.xebisco.yieldscript.interpreter.memory.Function;
 import com.xebisco.yieldscript.interpreter.memory.Variable;
+import com.xebisco.yieldscript.interpreter.type.Array;
 import com.xebisco.yieldscript.interpreter.type.Type;
 import com.xebisco.yieldscript.interpreter.type.TypeModifier;
 import com.xebisco.yieldscript.interpreter.utils.Pair;
@@ -78,10 +79,16 @@ public class Script {
         instructions = ScriptUtils.createInstructions(instructionCreator, getSource(), getProjectInfo(), getBank());
     }
 
-    public boolean execute() {
+    public boolean execute(String[] args) {
         boolean result = ScriptUtils.executeInstructions(getInstructions(), getBank());
-        Function main = getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0])));
-        if(main != null) main.execute(getBank());
+        if (args != null) {
+            Function main = getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[]{Array.class})));
+            Variable variable = new Variable("args", Type._array);
+            variable.setModifiers(TypeModifier._set, TypeModifier._get);
+            variable.setValue(new Array<>(args));
+            getBank().getObjects().put(Constants.FUNCTION_ARGUMENT_ID_CHAR + "args", variable);
+            if (main != null) main.execute(getBank());
+        }
         return result;
     }
 

@@ -30,7 +30,7 @@ public class AttachScript implements Instruction {
     @Override
     public Object execute(Bank bank) {
         otherScript.createInstructions();
-        otherScript.execute();
+        otherScript.execute(null);
         ScriptUtils.attachBank(bank, otherScript.getBank());
         otherScript = null;
         return null;

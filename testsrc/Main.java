@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
         Script script = ScriptUtils.createScript(Main.class.getResourceAsStream("test.ys"), new ProjectInfo("/"));
         script.createInstructions();
-        script.execute();
+        script.execute(new String[0]);
         //System.out.println(script.getBank().getFunctions().get(new Pair<>("main", List.of(new Class<?>[0]))).getInstructions());
     }
 }
