@@ -1,2 +1,2 @@
 attach std/out.ys;
-printf("%s", "Hello, World!");
+printf("%s\n", "Hello, World!");

@@ -105,7 +105,7 @@ public class ParseUtils {
                     inString = !inString;
                     if (!inString) {
                         out.append(Constants.STRING_LITERAL_ID_CHAR).append(index);
-                        literals.put(String.valueOf(index), string.toString());
+                        literals.put(String.valueOf(index), string.toString().replace("\\\\", "\4").replace("\\n", "\n").replace("\\t", "\t").replace("\4", "\\"));
                         string.setLength(0);
                         index++;
                     }

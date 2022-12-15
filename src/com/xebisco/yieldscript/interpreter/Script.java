@@ -55,8 +55,19 @@ public class Script {
             Variable variable = new Variable(Constants.STRING_LITERAL_ID_CHAR + String.valueOf(id), Type._string);
             variable.setModifiers(TypeModifier._get, TypeModifier._set);
             variable.setValue(stringLiterals.get(id));
+            variable.setModifiers(TypeModifier._get);
             bank.getObjects().put(id, variable);
         }
+        Variable trueVariable = new Variable("true", Type._boolean);
+        trueVariable.setModifiers(TypeModifier._get, TypeModifier._set);
+        trueVariable.setValue(true);
+        trueVariable.setModifiers(TypeModifier._get);
+        bank.getObjects().put(trueVariable.getName(), trueVariable);
+        Variable falseVariable = new Variable("false", Type._boolean);
+        falseVariable.setModifiers(TypeModifier._get, TypeModifier._set);
+        falseVariable.setValue(false);
+        falseVariable.setModifiers(TypeModifier._get);
+        bank.getObjects().put(falseVariable.getName(), falseVariable);
     }
 
     public void createInstructions() {
