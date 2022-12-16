@@ -28,6 +28,7 @@ public class Array<T> {
     public Array(Array<T> array) {
         this.objectArray = array.objectArray;
     }
+
     public Array(T[] array) {
         this.objectArray = array;
     }
@@ -36,8 +37,20 @@ public class Array<T> {
         return objectArray[index];
     }
 
+    public T get(Integer index) {
+        return objectArray[index];
+    }
+
     public void set(T value, int index) {
         objectArray[index] = value;
+    }
+
+    public void set(T value, Integer index) {
+        objectArray[index] = value;
+    }
+
+    public int size() {
+        return objectArray.length;
     }
 
     @Override

@@ -1,18 +1,104 @@
-toInt(x: double): int {
+//Integer conversions
+asInt(x: double): int {
     return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
 }
-toFloat(x: double): float {
+asInt(x: float): int {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
+}
+asInt(x: long): int {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
+}
+asInt(x: byte): int {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
+}
+asInt(x: short): int {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toInt(x as primitive double);
+}
+
+//Float conversions
+asFloat(x: double): float {
     return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
 }
-toLong(x: double): long {
+asFloat(x: long): float {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
+}
+asFloat(x: int): float {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
+}
+asFloat(x: short): float {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
+}
+asFloat(x: byte): float {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toFloat(x as primitive double);
+}
+
+//Long conversions
+asLong(x: double): long {
     return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
 }
-toByte(x: double): byte {
+asLong(x: float): long {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
+}
+asLong(x: int): long {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
+}
+asLong(x: short): long {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
+}
+asLong(x: byte): long {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toLong(x as primitive double);
+}
+
+//Byte conversions
+asByte(x: double): byte {
     return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
 }
-toShort(x: double): short {
+asByte(x: float): byte {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
+}
+asByte(x: long): byte {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
+}
+asByte(x: int): byte {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
+}
+asByte(x: short): byte {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toByte(x as primitive double);
+}
+
+//Short conversions
+asShort(x: double): short {
     return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
 }
-resolveExpression(expression: string): double {
-    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) resolve(expression);
+asShort(x: float): short {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
+}
+asShort(x: long): short {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
+}
+asShort(x: int): short {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
+}
+asShort(x: byte): short {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) toShort(x as primitive double);
+}
+
+cos(x: double): double {
+    return (java.lang.Math) cos(x as primitive double);
+}
+
+sin(x: double): double {
+    return (java.lang.Math) sin(x as primitive double);
+}
+
+abs(x: double): double {
+    return (java.lang.Math) abs(x as primitive double);
+}
+
+pow(a: double, b: double): double {
+    return (java.lang.Math) pow(a as primitive double, b as primitive double);
+}
+
+expf(expression: string, args: array args): double {
+    return (com.xebisco.yieldscript.interpreter.utils.MathUtils) expf(expression, args);
 }

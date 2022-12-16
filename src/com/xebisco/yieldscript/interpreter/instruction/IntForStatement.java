@@ -38,7 +38,7 @@ public class IntForStatement extends Function implements Instruction {
 
     @Override
     public Object execute(Bank bank) {
-        int length = (int) bank.getObject(this.length), start = (int) bank.getObject(this.start);
+        int length = ScriptUtils.integerValue((Number) bank.getObject(this.length)), start = ScriptUtils.integerValue((Number) bank.getObject(this.start));
         Variable index = bank.getObjects().get(this.index);
         if (index == null) {
             index = new Variable(this.index, Type._int);

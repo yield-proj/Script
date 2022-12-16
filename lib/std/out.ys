@@ -25,6 +25,9 @@ println(x: array): def {
 println(x: char): def {
     println(x as def);
 }
+println(x: boolean): def {
+    println(x as def);
+}
 printf(format: string, values: array args): def {
     (com.xebisco.yieldscript.interpreter.utils.ParseUtils) printf(format, values);
 }

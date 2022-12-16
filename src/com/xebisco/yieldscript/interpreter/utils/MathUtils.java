@@ -16,8 +16,11 @@
 package com.xebisco.yieldscript.interpreter.utils;
 
 import com.xebisco.yieldscript.interpreter.Constants;
+import com.xebisco.yieldscript.interpreter.memory.Bank;
+import com.xebisco.yieldscript.interpreter.type.Array;
 
 import java.util.ArrayDeque;
+import java.util.Formatter;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,10 +47,43 @@ public class MathUtils {
         return (float) d;
     }
 
+    public static Boolean booleanOut(String expression, Bank bank) {
+        Matcher m = Constants.EQUALS_PATTERN.matcher(expression);
+        if (m.matches()) {
+            return bank.getObject(m.group(1)).equals(bank.getObject(m.group(2)));
+        }
+        m.usePattern(Constants.GREATER_PATTERN);
+        if (m.matches()) return (Double) bank.getObject(m.group(1)) > (Double) bank.getObject(m.group(2));
+        m.usePattern(Constants.LESS_PATTERN);
+        if (m.matches()) return (Double) bank.getObject(m.group(1)) < (Double) bank.getObject(m.group(2));
+        m.usePattern(Constants.GREATER_OR_EQUAL_PATTERN);
+        if (m.matches()) return (Double) bank.getObject(m.group(1)) >= (Double) bank.getObject(m.group(2));
+        m.usePattern(Constants.LESS_OR_EQUAL_PATTERN);
+        if (m.matches()) return (Double) bank.getObject(m.group(1)) <= (Double) bank.getObject(m.group(2));
+        m.usePattern(Constants.DIFFERENT_PATTERN);
+        if (m.matches()) {
+            Object o1 = bank.getObject(m.group(1)), o2 = bank.getObject(m.group(2));
+            if (o1 instanceof String && o2 instanceof String) {
+                return o1.equals(o2);
+            }
+            return o1 != o2;
+        }
+        return null;
+    }
+
+    private static StringBuilder builder = new StringBuilder();
+    private static Formatter formatter = new Formatter(builder);
+
+    public static Object expf(String expression, Array<?> args) {
+        builder.setLength(0);
+        formatter.format(expression, (Object[]) args.getObjectArray());
+        return resolve(builder.toString());
+    }
+
     public static boolean matchesForMath(String txt) {
 
         if (txt == null || txt.isEmpty()) return false;
-        txt = txt.replaceAll("\\s+", "");
+        //txt = txt.replaceAll("\\s+", "");
         if (!txt.contains("[") && !txt.contains("]")) return Constants.NUMBER_PATTERN.matcher(txt).matches();
         if (txt.contains("[") ^ txt.contains("]")) return false;
         if (txt.contains("[]")) return false;
@@ -88,7 +124,7 @@ public class MathUtils {
             double parse() {
                 nextChar();
                 double x = parseExpression();
-                if (pos < expression.length()) throw new RuntimeException("Unexpected: " + (char)ch);
+                if (pos < expression.length()) throw new RuntimeException("Unexpected: " + (char) ch);
                 return x;
             }
 
@@ -101,8 +137,8 @@ public class MathUtils {
 
             double parseExpression() {
                 double x = parseTerm();
-                for (;;) {
-                    if      (eat('+')) x += parseTerm(); // addition
+                for (; ; ) {
+                    if (eat('+')) x += parseTerm(); // addition
                     else if (eat('-')) x -= parseTerm(); // subtraction
                     else return x;
                 }
@@ -110,8 +146,8 @@ public class MathUtils {
 
             double parseTerm() {
                 double x = parseFactor();
-                for (;;) {
-                    if      (eat('*')) x *= parseFactor(); // multiplication
+                for (; ; ) {
+                    if (eat('*')) x *= parseFactor(); // multiplication
                     else if (eat('/')) x /= parseFactor(); // division
                     else return x;
                 }
@@ -130,7 +166,7 @@ public class MathUtils {
                     while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
                     x = Double.parseDouble(expression.substring(startPos, this.pos));
                 } else {
-                    throw new RuntimeException("Unexpected: " + (char)ch);
+                    throw new RuntimeException("Unexpected: " + (char) ch);
                 }
 
                 if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
@@ -138,5 +174,21 @@ public class MathUtils {
                 return x;
             }
         }.parse();
+    }
+
+    public static StringBuilder getBuilder() {
+        return builder;
+    }
+
+    public static void setBuilder(StringBuilder builder) {
+        MathUtils.builder = builder;
+    }
+
+    public static Formatter getFormatter() {
+        return formatter;
+    }
+
+    public static void setFormatter(Formatter formatter) {
+        MathUtils.formatter = formatter;
     }
 }

@@ -183,6 +183,16 @@ public class ScriptUtils {
         return arguments;
     }
 
+    public static Integer integerValue(Number d) {
+        if(d instanceof Double)
+            return Math.toIntExact((long) Math.rint((Double) d));
+        if(d instanceof Long)
+            return Math.toIntExact((Long) d);
+        if(d instanceof Float)
+            return Math.round((Float) d);
+        return d.intValue();
+    }
+
     public static MethodCall methodCall(String line, MethodCall parent) {
         Class<?> clazz;
         Type returnCast = null;

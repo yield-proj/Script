@@ -1,2 +1,10 @@
 attach std/out.ys;
-println(1 + 1);
+attach std/array.ys;
+attach std/math.ys;
+
+main(args: array): def {
+    var test = array("Hello", ",", "World", "!");
+    for(i: 0 -> expf("%d - 1", test.size())) {
+        println(test.get(i));
+    }
+}

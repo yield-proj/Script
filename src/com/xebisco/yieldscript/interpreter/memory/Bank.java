@@ -45,14 +45,17 @@ public class Bank {
         if (string != null) return string.getValue();
         Object o = ObjectUtils.toObject(name);
         if (o == null) {
-            if(MathUtils.matchesForMath(name)) o = MathUtils.resolve(name);
+            if (MathUtils.matchesForMath(name)) o = MathUtils.resolve(name);
             if (o == null) {
-                o = objects.get(name);
-                if (o != null) return ((Variable) o).getValue();
-                try {
-                    return ScriptUtils.methodCall(name, null).invoke(this);
-                } catch (StackOverflowError e) {
-                    throw new FunctionNotFoundException(name);
+                o = MathUtils.booleanOut(name, this);
+                if (o == null) {
+                    o = objects.get(name);
+                    if (o != null) return ((Variable) o).getValue();
+                    try {
+                        return ScriptUtils.methodCall(name, null).invoke(this);
+                    } catch (StackOverflowError e) {
+                        throw new FunctionNotFoundException(name);
+                    }
                 }
             }
         }
