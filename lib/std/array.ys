@@ -1,9 +1,0 @@
-array(type: class, length: int): array {
-    return (com.xebisco.yieldscript.interpreter.utils.ArrayUtils) newArray(type, length as primitive int);
-}
-array(b: array args): array {
-    return b;
-}
-arrayArgs(b: array): array args {
-    return (com.xebisco.yieldscript.interpreter.type.ArrayArgs) arrayArgs(b);
-}
