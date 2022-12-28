@@ -1,0 +1,15 @@
+is (Import Script) [long (Script Path String)]
+fd (Function Declaration) [string (Name), long (Arguments 'name:type,name:type...')]
+ef (End Function) [byte (Execute last function)]
+vd (Variable Declaration) [string (Name), string (Type), byte (0 = GET, SET; 1 = GET; 2 = SET)]
+svv (Set Variable Value) [string (Name), string (Value)]
+sdvv (Set Default Variable Value) [string (Name)]
+fc (Function Call) [string (Arguments 'namev name()f')]
+stp (Stop)
+
+import "std.io";
+
+main() {
+    var main = "Hello, World!";
+    println(main);
+}
