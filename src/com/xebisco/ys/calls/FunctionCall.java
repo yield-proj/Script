@@ -15,22 +15,27 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.yieldutils.Pair;
 import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.utils.FunctionUtils;
 
 public class FunctionCall extends Instruction {
     private final String functionName;
     private final FunctionCall[] args;
+    private Class<?> cast;
 
-    public FunctionCall(String functionName, FunctionCall[] args) {
+    public FunctionCall(String functionName, FunctionCall[] args, Class<?> cast) {
         this.functionName = functionName;
         this.args = args;
+        this.cast = cast;
     }
 
     @Override
     public Object call(MemoryBank memoryBank) {
-        return FunctionUtils.call(memoryBank, functionName, args);
+        Object o = FunctionUtils.call(memoryBank, functionName, args);
+        if(cast == null && o != null) {
+            cast = o.getClass();
+        }
+        return o;
     }
 
     public String getFunctionName() {
@@ -39,5 +44,13 @@ public class FunctionCall extends Instruction {
 
     public FunctionCall[] getArgs() {
         return args;
+    }
+
+    public Class<?> getCast() {
+        return cast;
+    }
+
+    public void setCast(Class<?> cast) {
+        this.cast = cast;
     }
 }

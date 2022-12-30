@@ -19,9 +19,9 @@ import com.xebisco.yieldutils.Pair;
 
 public class Source {
     private final String[] contents;
-    private final Pair<Long, Object>[] stringLiterals;
+    private final Pair<Long, String>[] stringLiterals;
 
-    public Source(String[] contents, Pair<Long, Object>[] stringLiterals) {
+    public Source(String[] contents, Pair<Long, String>[] stringLiterals) {
         this.contents = contents;
         this.stringLiterals = stringLiterals;
     }
@@ -30,7 +30,7 @@ public class Source {
         return contents;
     }
 
-    public Pair<Long, Object>[] getStringLiterals() {
+    public Pair<Long, String>[] getStringLiterals() {
         return stringLiterals;
     }
 }

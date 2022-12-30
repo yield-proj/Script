@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class SourceUtils {
     public static Source fromRaw(String contents) {
-        Pair<String, Map<Long, Object>> pair = ParseUtils.extractStringLiterals(ParseUtils.removeComments(contents));
+        Pair<String, Map<Long, String>> pair = ParseUtils.extractStringLiterals(ParseUtils.removeComments(contents));
         String[] source = ParseUtils.parseChars(ParseUtils.removeUnnecessaryWhiteSpace(pair.getFirst())).split(String.valueOf(Constants.SOURCE_BREAK));
         for (int i = 0; i < source.length; i++)
             source[i] = source[i].trim();

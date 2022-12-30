@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="YieldUtils">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/YieldUtils.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

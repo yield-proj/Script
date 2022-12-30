@@ -13,24 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.program;
+package com.xebisco.ys.exceptions;
 
-import com.xebisco.ys.Constants;
-import com.xebisco.ys.calls.*;
-import com.xebisco.ys.utils.FunctionUtils;
-import com.xebisco.ys.utils.InterpreterUtils;
-import com.xebisco.ys.utils.RunUtils;
+public class ReturnException extends RuntimeException {
+    public ReturnException() {
+    }
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-
-public class Interpreter implements IInterpreter {
-
-    private final List<Call> functionsLayer = new ArrayList<>();
-
-    @Override
-    public Call createInstruction(String line) {
-        return InterpreterUtils.createCall(line, functionsLayer);
+    public ReturnException(String message) {
+        super(message);
     }
 }

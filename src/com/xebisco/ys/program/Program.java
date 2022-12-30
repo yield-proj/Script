@@ -18,33 +18,23 @@ package com.xebisco.ys.program;
 import com.xebisco.yieldutils.Pair;
 import com.xebisco.ys.calls.*;
 import com.xebisco.ys.memory.MemoryBank;
+import com.xebisco.ys.utils.FunctionUtils;
+import com.xebisco.ys.utils.RunUtils;
 import com.xebisco.ys.utils.SourceUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Program {
     private MemoryBank bank = new MemoryBank();
     private final Source source;
+    private File libsFolder = new File("./");
     private List<Instruction> instructions;
 
     public Program(Source source) {
         this.source = source;
-        SourceUtils.putAll(this.bank.getPointers(), source.getStringLiterals());
-    }
-
-    public void addLibs() {
-        bank.getFunctions().put(new Pair<>("print", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
-                new Instruction() {
-                    @Override
-                    public Object call(MemoryBank memoryBank) {
-                        System.out.println(memoryBank.getValue("x"));
-                        return null;
-                    }
-                }
-        }, new Argument[]{
-                new Argument("x", String.class, false)
-        }));
+        SourceUtils.putAll(bank.getStringLiterals(), source.getStringLiterals());
     }
 
     public void interpret(IInterpreter interpreter) {
@@ -53,14 +43,28 @@ public class Program {
             Call call = interpreter.createInstruction(line);
             if (call instanceof Instruction)
                 instructions.add((Instruction) call);
-            //else bank.getFunctions().put(new Pair<>())
+            else if(call instanceof Function) bank.getFunctions().put(new Pair<>(((Function) call).getTName(), List.of(FunctionUtils.argTypes(((Function) call).getArgs()))), (Function) call);
         }
     }
 
     public void run() {
-        for(Instruction instruction : instructions) {
-            instruction.call(bank);
-        }
+        RunUtils.run(bank, instructions);
+    }
+
+    public List<Instruction> getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(List<Instruction> instructions) {
+        this.instructions = instructions;
+    }
+
+    public File getLibsFolder() {
+        return libsFolder;
+    }
+
+    public void setLibsFolder(File libsFolder) {
+        this.libsFolder = libsFolder;
     }
 
     public MemoryBank getBank() {

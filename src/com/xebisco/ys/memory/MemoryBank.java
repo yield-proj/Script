@@ -16,24 +16,48 @@
 package com.xebisco.ys.memory;
 
 import com.xebisco.yieldutils.Pair;
+import com.xebisco.ys.Constants;
 import com.xebisco.ys.calls.Function;
+import com.xebisco.ys.exceptions.InvalidPointerException;
 import com.xebisco.ys.exceptions.ValueNotFoundException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryBank {
     private Map<Long, Object> pointers = new HashMap<>();
+    private Map<Long, String> stringLiterals = new HashMap<>();
     private Map<String, Object> variables = new HashMap<>();
     private Map<Pair<String, List<Class<?>>>, Function> functions = new HashMap<>();
 
     public Object getValue(String var) {
         Object o;
-        if(var.startsWith("*")) o = pointers.get(Long.parseLong(var.substring(1)));
+        boolean isPtr = var.startsWith("*");
+        if (isPtr) var = var.substring(1);
+        if (var.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)))
+            o = stringLiterals.get(Long.parseLong(var.substring(1)));
         else o = variables.get(var);
-        if(o == null) throw new ValueNotFoundException(var);
+        if (o == null) throw new ValueNotFoundException(var);
+        if (isPtr) {
+            try {
+                o = pointers.get((long) o);
+            } catch (ClassCastException ignore) {
+                throw new InvalidPointerException(var);
+            }
+            if (o == null) throw new InvalidPointerException(var);
+        }
         return o;
+    }
+
+    public Object put(String name, Object value) {
+        if (name.startsWith("*")) {
+            long ptr = Long.MIN_VALUE + pointers.size();
+            pointers.put(ptr, value);
+            variables.put(name.substring(1), ptr);
+            return ptr;
+        } else {
+            variables.put(name, value);
+            return value;
+        }
     }
 
     public Map<Long, Object> getPointers() {
@@ -58,5 +82,13 @@ public class MemoryBank {
 
     public void setFunctions(Map<Pair<String, List<Class<?>>>, Function> functions) {
         this.functions = functions;
+    }
+
+    public Map<Long, String> getStringLiterals() {
+        return stringLiterals;
+    }
+
+    public void setStringLiterals(Map<Long, String> stringLiterals) {
+        this.stringLiterals = stringLiterals;
     }
 }

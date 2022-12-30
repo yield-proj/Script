@@ -16,12 +16,14 @@
 import com.xebisco.ys.program.Interpreter;
 import com.xebisco.ys.program.Program;
 import com.xebisco.ys.utils.FileUtils;
+import com.xebisco.ys.utils.LibUtils;
+import com.xebisco.ys.utils.LibVersion;
 import com.xebisco.ys.utils.SourceUtils;
 
 public class Main {
     public static void main(String[] args) {
         Program program = new Program(SourceUtils.fromRaw(FileUtils.readInputStream(Main.class.getResourceAsStream("test.ys"))));
-        program.addLibs();
+        LibUtils.addLibs(program, LibVersion._01);
         program.interpret(new Interpreter());
         program.run();
     }

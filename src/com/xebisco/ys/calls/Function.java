@@ -15,20 +15,46 @@
 
 package com.xebisco.ys.calls;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Function implements Call {
-    private final Instruction[] instructions;
+    private final List<Instruction> instructions;
     private final Argument[] args;
+    private Class<?> returnCast;
+    private String tName;
 
     public Function(Instruction[] instructions, Argument[] args) {
-        this.instructions = instructions;
+        this.instructions = List.of(instructions);
         this.args = args;
+    }
+
+    public Function(Argument[] args) {
+        this.instructions = new ArrayList<>();
+        this.args = args;
+    }
+
+    public String getTName() {
+        return tName;
+    }
+
+    public void setTName(String tName) {
+        this.tName = tName;
+    }
+
+    public Class<?> getReturnCast() {
+        return returnCast;
+    }
+
+    public void setReturnCast(Class<?> returnCast) {
+        this.returnCast = returnCast;
     }
 
     public Argument[] getArgs() {
         return args;
     }
 
-    public Instruction[] getInstructions() {
+    public List<Instruction> getInstructions() {
         return instructions;
     }
 }

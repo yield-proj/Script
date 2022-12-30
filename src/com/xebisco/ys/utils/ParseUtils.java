@@ -89,12 +89,27 @@ public class ParseUtils {
     }
 
     public static String[] splitPattern(String s) {
-        return Constants.SPLIT_PATTERN.matcher(s).results().map(MatchResult::group).toArray(String[]::new);
+        List<String> args = new ArrayList<>();
+        int parenthesisLayer = 0;
+        String act = "";
+        for(char c : s.toCharArray()) {
+            if(c == '(') parenthesisLayer++;
+            else if(c == ')') parenthesisLayer--;
+            if(c == ',' && parenthesisLayer == 0) {
+                args.add(act);
+                act = "";
+            }
+            else act += c;
+        }
+        if(act.hashCode() != "".hashCode()) {
+            args.add(act);
+        }
+        return args.toArray(new String[0]);
     }
 
-    public static Pair<String, Map<Long, Object>> extractStringLiterals(String source) {
+    public static Pair<String, Map<Long, String>> extractStringLiterals(String source) {
         long index = Long.MIN_VALUE;
-        Map<Long, Object> literals = new HashMap<>();
+        Map<Long, String> literals = new HashMap<>();
         StringBuilder out = new StringBuilder();
         boolean inString = false, lastIsSlash = false, append;
         StringBuilder string = new StringBuilder();
@@ -105,7 +120,7 @@ public class ParseUtils {
                     append = false;
                     inString = !inString;
                     if (!inString) {
-                        out.append(Constants.POINTER_CHAR).append(index);
+                        out.append(Constants.STRING_LITERAL_CHAR).append(index);
                         literals.put(index, string.toString().replace("\\\\", "\4").replace("\\n", "\n").replace("\\t", "\t").replace("\4", "\\"));
                         string.setLength(0);
                         index++;

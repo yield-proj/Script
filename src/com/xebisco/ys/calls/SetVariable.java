@@ -15,15 +15,30 @@
 
 package com.xebisco.ys.calls;
 
+import com.xebisco.ys.exceptions.VariableDontExistException;
 import com.xebisco.ys.memory.MemoryBank;
 
-public class VariableFromFunctionCall extends FunctionCall {
-    public VariableFromFunctionCall(String functionName, Class<?> cast) {
-        super(functionName, null, cast);
+public class SetVariable extends Instruction {
+    private final String variable;
+    private final Instruction instruction;
+
+    public SetVariable(String variable, Instruction instruction) {
+        this.variable = variable;
+        this.instruction = instruction;
     }
 
     @Override
     public Object call(MemoryBank memoryBank) {
-        return memoryBank.getValue(getFunctionName());
+        Object o = memoryBank.getVariables().replace(variable, instruction.call(memoryBank));
+        if(o == null) throw new VariableDontExistException(variable);
+        return o;
+    }
+
+    public Instruction getInstruction() {
+        return instruction;
+    }
+
+    public String getVariable() {
+        return variable;
     }
 }

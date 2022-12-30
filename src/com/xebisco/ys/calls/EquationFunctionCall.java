@@ -13,24 +13,18 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.program;
+package com.xebisco.ys.calls;
 
-import com.xebisco.ys.Constants;
-import com.xebisco.ys.calls.*;
-import com.xebisco.ys.utils.FunctionUtils;
-import com.xebisco.ys.utils.InterpreterUtils;
-import com.xebisco.ys.utils.RunUtils;
+import com.xebisco.ys.memory.MemoryBank;
+import com.xebisco.ys.utils.MathUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-
-public class Interpreter implements IInterpreter {
-
-    private final List<Call> functionsLayer = new ArrayList<>();
+public class EquationFunctionCall extends FunctionCall {
+    public EquationFunctionCall(String equation, Class<?> cast) {
+        super(equation, null, cast);
+    }
 
     @Override
-    public Call createInstruction(String line) {
-        return InterpreterUtils.createCall(line, functionsLayer);
+    public Object call(MemoryBank memoryBank) {
+        return MathUtils.eval(memoryBank, getFunctionName());
     }
 }
