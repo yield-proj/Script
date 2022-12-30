@@ -205,7 +205,6 @@ public class LibUtils {
                 }));
 
 
-
                 //double to float
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
@@ -281,7 +280,6 @@ public class LibUtils {
                 }, new Argument[]{
                         new Argument("x", String.class, false)
                 }));
-
 
 
                 //double to long
@@ -361,7 +359,6 @@ public class LibUtils {
                 }));
 
 
-
                 //double to int
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
@@ -439,8 +436,6 @@ public class LibUtils {
                 }));
 
 
-
-
                 //double to short
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
@@ -516,8 +511,6 @@ public class LibUtils {
                 }, new Argument[]{
                         new Argument("x", String.class, false)
                 }));
-
-
 
 
                 //double to byte
@@ -632,16 +625,16 @@ public class LibUtils {
                 }));
 
 
-
-
-
                 //function: include(String file)
                 //This function execute and attach other ys file in this program.
                 program.getBank().getFunctions().put(new Pair<>("include", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(MemoryBank memoryBank) {
-                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(new File(program.getLibsFolder(), memoryBank.getValue("file") + ".ys"))));
+                                File file = new File(memoryBank.getValue("file") + ".ys");
+                                if (!file.exists())
+                                    file = new File(program.getLibsFolder(), memoryBank.getValue("file") + ".ys");
+                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)));
                                 addLibs(toInclude, libVersion);
                                 toInclude.interpret(new Interpreter());
                                 toInclude.run();
