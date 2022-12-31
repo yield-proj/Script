@@ -37,6 +37,13 @@ public class LibraryBank {
         throw new MissingLibraryException(libName);
     }
 
+    public boolean containsLibrary(String libName) {
+        for (Library library : libraries) {
+            if (library.getName().hashCode() == libName.hashCode() && library.getName().equals(libName)) return true;
+        }
+        return false;
+    }
+
     public Function getFunction(String functionName, List<Class<?>> types) {
         Function function = getFunctionNullable(functionName, types);
         if(function != null)
@@ -47,28 +54,34 @@ public class LibraryBank {
     private Function getFunctionNullable(String functionName, List<Class<?>> types) {
         Matcher matcher = Constants.LIBRARY_FUNCTION_PATTERN.matcher(functionName);
         if (matcher.matches()) {
-            return getLibrary(matcher.group(1)).getFunctions().get(new Pair<>(matcher.group(2), types));
+            return findByArrayArgs(getLibrary(matcher.group(1)), new Pair<>(matcher.group(2), types), types);
         } else {
             Pair<String, List<Class<?>>> pair = new Pair<>(functionName, types);
             for (Library library : libraries) {
-                if (library.getFunctions().containsKey(pair)) {
-                    return library.getFunctions().get(pair);
-                } else {
-                    List<Class<?>> cTypes = new ArrayList<>();
-                    cTypes.add(ArrayArgs.class);
-                    Function function = library.getFunctions().get(new Pair<>(functionName, cTypes));
-                    if (function == null) {
-                        for (Class<?> type : types) {
-                            cTypes.add(cTypes.size() - 1, type);
-                            function = library.getFunctions().get(new Pair<>(functionName, cTypes));
-                            if (function != null) break;
-                        }
-                    }
-                    if(function != null) return function;
-                }
+                Function f = findByArrayArgs(library, pair, types);
+                if(f != null)
+                    return f;
             }
         }
         return null;
+    }
+
+    private Function findByArrayArgs(Library library, Pair<String, List<Class<?>>> pair, List<Class<?>> types) {
+        if (library.getFunctions().containsKey(pair)) {
+            return library.getFunctions().get(pair);
+        } else {
+            List<Class<?>> cTypes = new ArrayList<>();
+            cTypes.add(ArrayArgs.class);
+            Function function = library.getFunctions().get(new Pair<>(pair.getFirst(), cTypes));
+            if (function == null) {
+                for (Class<?> type : types) {
+                    cTypes.add(cTypes.size() - 1, type);
+                    function = library.getFunctions().get(new Pair<>(pair.getFirst(), cTypes));
+                    if (function != null) break;
+                }
+            }
+            return function;
+        }
     }
 
     public Function getFunction(String functionName, Class<?>[] types) {

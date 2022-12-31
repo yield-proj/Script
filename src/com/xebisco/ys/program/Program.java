@@ -46,17 +46,22 @@ public class Program {
         this.bank = bank;
     }
 
-    public void interpret(IInterpreter interpreter) {
-        bank.getLibraries().add(new Library("."));
+    public void interpret(IInterpreter interpreter, String libName) {
+        if (!bank.containsLibrary(libName))
+            bank.getLibraries().add(new Library(libName));
         instructions = new ArrayList<>();
         for (String line : source.getContents()) {
             Call call = interpreter.createInstruction(line);
             if (call instanceof Instruction)
                 instructions.add((Instruction) call);
-            else if(call instanceof Function) {
-                bank.getLibrary(".").getFunctions().put(new Pair<>(((Function) call).getTName(), List.of(FunctionUtils.argTypes(((Function) call).getArgs()))), (Function) call);
+            else if (call instanceof Function) {
+                bank.getLibrary(libName).getFunctions().put(new Pair<>(((Function) call).getTName(), List.of(FunctionUtils.argTypes(((Function) call).getArgs()))), (Function) call);
             }
         }
+    }
+
+    public void interpret(IInterpreter interpreter) {
+        interpret(interpreter, ".");
     }
 
     public void run() {

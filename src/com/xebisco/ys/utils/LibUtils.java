@@ -733,6 +733,45 @@ public class LibUtils {
                         new Argument("file", String.class, false)
                 }));
 
+                //function: lib(String file)
+                library.getFunctions().put(new Pair<>("lib", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                        new LowSecurityInstruction() {
+                            @Override
+                            public Object call(MemoryBank memoryBank, ValueMod valueMod) {
+                                String name = (String) valueMod.getValue("file");
+                                File file = new File(name + ".ys");
+                                if (!file.exists())
+                                    file = new File(library.getLibsFolder(), valueMod.getValue("file") + ".ys");
+                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)), memoryBank);
+                                toInclude.interpret(new Interpreter(), name.substring(name.lastIndexOf("/") + 1));
+                                toInclude.run();
+                                return null;
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("file", String.class, false)
+                }));
+
+                //function: libls(String file)
+                library.getFunctions().put(new Pair<>("libls", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                        new LowSecurityInstruction() {
+                            @Override
+                            public Object call(MemoryBank memoryBank, ValueMod valueMod) {
+                                String name = (String) valueMod.getValue("file");
+                                File file = new File(name + ".ys");
+                                if (!file.exists())
+                                    file = new File(library.getLibsFolder(), valueMod.getValue("file") + ".ys");
+                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)), memoryBank);
+                                toInclude.setAllowLowSecurity(true);
+                                toInclude.interpret(new Interpreter(), name.substring(name.lastIndexOf("/") + 1));
+                                toInclude.run();
+                                return null;
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("file", String.class, false)
+                }));
+
                 //function: puts(String x)
                 //This function prints a String into de standard output stream
                 library.getFunctions().put(new Pair<>("puts", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
