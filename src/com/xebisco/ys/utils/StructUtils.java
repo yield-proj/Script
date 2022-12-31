@@ -38,7 +38,9 @@ public class StructUtils {
                 setReturnExecution(true);
                 Struct struct = new Struct();
                 for (Argument field : fields) {
-                    if (field.isIn())
+                    if (field instanceof SetArgument)
+                        struct.getFields().put(field.getName(), ((SetArgument) field).getSet().call(valueMod));
+                    else if (field.isIn())
                         struct.getFields().put(field.getName(), valueMod.getValue(field.getName()));
                     else
                         struct.getFields().put(field.getName(), field.getType().cast(null));

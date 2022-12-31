@@ -1,8 +1,6 @@
 include("lang/string");
-includels("lang/runtime");
 
-Struct vec2(in Float x, in Float y);
+Struct vec2(in Float x, in Float y, ratio = x / y);
 
 var m = vec2(20f, 10f);
-puts(concat("x=", string(m.x), ", y=", string(m.y)));
-exit(0);
+puts(concat("x=", string(m.x), ", y=", string(m.y), ", ratio=", string(m.ratio)));

@@ -76,6 +76,8 @@ public class InterpreterUtils {
                     arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), true, false);
                 else if (m.usePattern(Constants.ARGUMENT_PATTERN).matches())
                     arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false, false);
+                else if (m.usePattern(Constants.SET_PATTERN).matches())
+                    arguments[i] = new SetArgument(m.group(1), (Instruction) createCall(m.group(2), null));
                 else throw new SyntaxException(line + ". on: " + args[i]);
             }
             call = StructUtils.createStruct(matcher.group(1), arguments);
