@@ -16,11 +16,14 @@
 package com.xebisco.ys.program;
 
 import com.xebisco.yieldutils.Pair;
-import com.xebisco.ys.calls.*;
+import com.xebisco.ys.calls.Call;
+import com.xebisco.ys.calls.Function;
+import com.xebisco.ys.calls.Instruction;
+import com.xebisco.ys.exceptions.MissingLibraryException;
+import com.xebisco.ys.memory.LibraryBank;
 import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.utils.FunctionUtils;
 import com.xebisco.ys.utils.RunUtils;
-import com.xebisco.ys.utils.SourceUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ public class Program {
     private final Source source;
     private File libsFolder = new File("./");
     private List<Instruction> instructions;
+    private boolean allowLowSecurity;
 
     public Program(Source source) {
         this.source = source;
@@ -43,17 +47,20 @@ public class Program {
     }
 
     public void interpret(IInterpreter interpreter) {
+        bank.getLibraries().add(new Library("."));
         instructions = new ArrayList<>();
         for (String line : source.getContents()) {
             Call call = interpreter.createInstruction(line);
             if (call instanceof Instruction)
                 instructions.add((Instruction) call);
-            else if(call instanceof Function) bank.getFunctions().put(new Pair<>(((Function) call).getTName(), List.of(FunctionUtils.argTypes(((Function) call).getArgs()))), (Function) call);
+            else if(call instanceof Function) {
+                bank.getLibrary(".").getFunctions().put(new Pair<>(((Function) call).getTName(), List.of(FunctionUtils.argTypes(((Function) call).getArgs()))), (Function) call);
+            }
         }
     }
 
     public void run() {
-        RunUtils.run(bank, instructions, 0);
+        RunUtils.run(bank, instructions, 0, allowLowSecurity);
     }
 
     public List<Instruction> getInstructions() {
@@ -82,5 +89,13 @@ public class Program {
 
     public Source getSource() {
         return source;
+    }
+
+    public boolean isAllowLowSecurity() {
+        return allowLowSecurity;
+    }
+
+    public void setAllowLowSecurity(boolean allowLowSecurity) {
+        this.allowLowSecurity = allowLowSecurity;
     }
 }

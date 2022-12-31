@@ -1,5 +1,8 @@
 include("lang/string");
-include("lang/runtime");
+includels("lang/runtime");
 
-puts(string_concat("Hello, ", "World!"));
+Struct vec2(in Float x, in Float y);
+
+var m = vec2(20f, 10f);
+puts(concat("x=", string(m.x), ", y=", string(m.y)));
 exit(0);

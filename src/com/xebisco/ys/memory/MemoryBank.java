@@ -15,20 +15,25 @@
 
 package com.xebisco.ys.memory;
 
-import com.xebisco.yieldutils.Pair;
 import com.xebisco.ys.Constants;
-import com.xebisco.ys.calls.Function;
 import com.xebisco.ys.exceptions.InvalidPointerException;
 import com.xebisco.ys.exceptions.NullValueException;
 import com.xebisco.ys.exceptions.VariableAlreadyExistsException;
 import com.xebisco.ys.utils.RunUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
-public class MemoryBank {
+public class MemoryBank extends LibraryBank {
     private LinkedList<Object> pointers = new LinkedList<>();
     private Map<String, Object> variables = new HashMap<>();
-    private Map<Pair<String, List<Class<?>>>, Function> functions = new HashMap<>();
+
+    public MemoryBank() {
+        put("true", true);
+        put("false", false);
+        put(Constants.POINTER_CHAR + "nullptr", null);
+    }
 
     public Object getValue(String var) {
         Object o;
@@ -77,13 +82,5 @@ public class MemoryBank {
 
     public void setVariables(Map<String, Object> variables) {
         this.variables = variables;
-    }
-
-    public Map<Pair<String, List<Class<?>>>, Function> getFunctions() {
-        return functions;
-    }
-
-    public void setFunctions(Map<Pair<String, List<Class<?>>>, Function> functions) {
-        this.functions = functions;
     }
 }

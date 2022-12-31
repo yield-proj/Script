@@ -15,29 +15,37 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.Constants;
 import com.xebisco.ys.exceptions.NullValueException;
-import com.xebisco.ys.exceptions.VariableAlreadyExistsException;
+import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.memory.MemoryBank;
+import com.xebisco.ys.types.Struct;
 
 public final class ValueMod extends SecurityManager {
     private final long id;
     private final MemoryBank memoryBank;
+    private final boolean allowLowSecurity;
 
-    public ValueMod(long id, MemoryBank memoryBank) {
+    public ValueMod(long id, MemoryBank memoryBank, boolean allowLowSecurity) {
         this.id = id;
         this.memoryBank = memoryBank;
+        this.allowLowSecurity = allowLowSecurity;
     }
 
     public Object getValue(String var) {
         Object o = null;
-        try {
-            o = memoryBank.getValue(var);
-        } catch (NullValueException e) {
+        if (var.contains(".")) {
+            String[] pcs = var.split("\\.");
+            if (pcs.length != 2) throw new SyntaxException(var);
+            o = ((Struct) getValue(pcs[0])).getFields().get(pcs[1]);
+        } else {
             try {
-                o = memoryBank.getValue(var + '@' + Long.toHexString(id));
-            } catch (NullValueException ignore) {
-                e.printStackTrace();
+                o = memoryBank.getValue(var);
+            } catch (NullValueException e) {
+                try {
+                    o = memoryBank.getValue(var + '@' + Long.toHexString(id));
+                } catch (NullValueException ignore) {
+                    e.printStackTrace();
+                }
             }
         }
         return o;
@@ -48,6 +56,10 @@ public final class ValueMod extends SecurityManager {
             return memoryBank.put(name, value);
         else
             return memoryBank.put(name + '@' + Long.toHexString(id), value);
+    }
+
+    public Object remove(int pointer) {
+        return memoryBank.getPointers().remove(pointer);
     }
 
     @Override
@@ -63,5 +75,9 @@ public final class ValueMod extends SecurityManager {
 
     public long getId() {
         return id;
+    }
+
+    public boolean isAllowLowSecurity() {
+        return allowLowSecurity;
     }
 }

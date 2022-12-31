@@ -15,7 +15,9 @@
 
 package com.xebisco.ys.calls;
 
+import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.exceptions.VariableDontExistException;
+import com.xebisco.ys.types.Struct;
 
 public class SetVariable extends Instruction {
     private final String variable;
@@ -28,8 +30,16 @@ public class SetVariable extends Instruction {
 
     @Override
     public Object call(ValueMod valueMod) {
-        Object o = valueMod.getMemoryBank().getVariables().replace(variable, instruction.call(new ValueMod(0, valueMod.getMemoryBank())));
-        if(o == null) throw new VariableDontExistException(variable);
+        Object o;
+        if (variable.contains(".")) {
+            String[] pcs = variable.split("\\.");
+            if (pcs.length != 2) throw new SyntaxException(variable);
+            ((Struct) valueMod.getValue(pcs[0])).getFields().replace(pcs[1], instruction.call(new ValueMod(0, valueMod.getMemoryBank(), valueMod.isAllowLowSecurity())));
+            o = ((Struct) valueMod.getValue(pcs[0])).getFields().get(pcs[1]);
+        } else {
+            o = valueMod.getMemoryBank().getVariables().replace(variable, instruction.call(new ValueMod(0, valueMod.getMemoryBank(), valueMod.isAllowLowSecurity())));
+        }
+        if (o == null) throw new VariableDontExistException(variable);
         return o;
     }
 

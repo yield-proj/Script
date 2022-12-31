@@ -20,7 +20,9 @@ import java.util.regex.Pattern;
 public class Constants {
 
     public final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("^([^(.]+)\\(([^}]*)\\)"),
+            LIBRARY_FUNCTION_PATTERN = Pattern.compile("([^()_]+)_([^(.]+)"),
             FUNCTION_DECLARATION_PATTERN = Pattern.compile("^([^(.]+) (\\w+)\\(([^}]*)\\)\\{"),
+            STRUCT_DECLARATION_PATTERN = Pattern.compile("^Struct (\\w+)\\(([^}]*)\\)"),
             VARIABLE_DECLARATION_PATTERN = Pattern.compile("^var (\\S+)=([^}]*)"),
             POINTER_DECLARATION_PATTERN = Pattern.compile("^var(\\*\\S+)=([^}]*)"),
             CAST_PATTERN = Pattern.compile("^\\(([^()]+)\\)"),
@@ -32,6 +34,8 @@ public class Constants {
             NEW_PATTERN = Pattern.compile("new (\2-*[0-9]+)\\(([^}]*)\\)"),
             ARGUMENT_PATTERN = Pattern.compile("^(.*\\S+) (\\S+)"),
             REFERENCE_ARGUMENT_PATTERN = Pattern.compile("^(.*\\S*)&(\\S+)"),
+            IN_ARGUMENT_PATTERN = Pattern.compile("^in (.*\\S+) (\\S+)"),
+            IN_REFERENCE_ARGUMENT_PATTERN = Pattern.compile("^in (.*\\S*)&(\\S+)"),
             RETURN_PATTERN = Pattern.compile("^return\\(([^}]*)\\)"),
             EQUALS_PATTERN = Pattern.compile("^(\\S+)==(\\S+)"),
             NOT_EQUALS_PATTERN = Pattern.compile("^(\\S+)!=(\\S+)");

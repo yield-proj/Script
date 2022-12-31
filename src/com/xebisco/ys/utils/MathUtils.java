@@ -49,7 +49,7 @@ public class MathUtils {
                 nextChar();
                 Double x = parseExpression();
                 if (x == null) return null;
-                if (pos < str.length()) throw new RuntimeException("Unexpected: " + (char) ch);
+                if (pos < str.length()) throw new SyntaxException("Unexpected: " + (char) ch);
                 return x;
             }
 
@@ -89,7 +89,7 @@ public class MathUtils {
                 int startPos = this.pos;
                 if (eat('(')) { // parentheses
                     x = parseExpression();
-                    if (!eat(')')) throw new RuntimeException("Missing ')'");
+                    if (!eat(')')) throw new SyntaxException("Missing ')'");
                 } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
                     while ((ch >= '0' && ch <= '9') || ch == '.' || ch == 'L' || ch == 'f') nextChar();
                     String s = str.substring(startPos, this.pos);

@@ -16,35 +16,28 @@
 package com.xebisco.ys.utils;
 
 import com.xebisco.yieldutils.Pair;
-import com.xebisco.ys.Constants;
 import com.xebisco.ys.calls.*;
 import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.program.Interpreter;
+import com.xebisco.ys.program.Library;
 import com.xebisco.ys.program.Program;
 import com.xebisco.ys.types.Array;
 import com.xebisco.ys.types.ArrayArgs;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class LibUtils {
-    public static void addLibs(Program program, LibVersion libVersion) {
+    public static Library addLibs(LibVersion libVersion) {
+        Library library = new Library("lib");
         switch (libVersion) {
             case _01:
-
-                //Default variables
-                program.getBank().put("true", true);
-                program.getBank().put("false", false);
-                program.getBank().put(Constants.POINTER_CHAR + "nullptr", null);
 
                 //Action functions
 
                 //function: if(boolean execute)
-                program.getBank().getFunctions().put(new Pair<>("if", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("if", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -59,7 +52,7 @@ public class LibUtils {
                 //String Conversion functions
 
                 //array to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Array.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Array.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -72,7 +65,7 @@ public class LibUtils {
                 }));
 
                 //arrayargs to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -85,7 +78,7 @@ public class LibUtils {
                 }));
 
                 //boolean to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -98,7 +91,7 @@ public class LibUtils {
                 }));
 
                 //long to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -111,7 +104,7 @@ public class LibUtils {
                 }));
 
                 //double to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -123,8 +116,21 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
 
+                //float to string
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                return String.valueOf((float) valueMod.getValue("x"));
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("x", Float.class, false)
+                }));
+
                 //int to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -137,7 +143,7 @@ public class LibUtils {
                 }));
 
                 //short to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -150,7 +156,7 @@ public class LibUtils {
                 }));
 
                 //byte to string
-                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -165,7 +171,7 @@ public class LibUtils {
                 //Number Conversions functions
 
                 //float to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -177,7 +183,7 @@ public class LibUtils {
                         new Argument("x", Float.class, false)
                 }));
                 //long to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -189,7 +195,7 @@ public class LibUtils {
                         new Argument("x", Long.class, false)
                 }));
                 //int to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -202,7 +208,7 @@ public class LibUtils {
                 }));
 
                 //short to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -215,7 +221,7 @@ public class LibUtils {
                 }));
 
                 //byte to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -228,7 +234,7 @@ public class LibUtils {
                 }));
 
                 //string to double
-                program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -242,7 +248,7 @@ public class LibUtils {
 
 
                 //double to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -254,7 +260,7 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
                 //long to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -266,7 +272,7 @@ public class LibUtils {
                         new Argument("x", Long.class, false)
                 }));
                 //int to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -279,7 +285,7 @@ public class LibUtils {
                 }));
 
                 //short to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -292,7 +298,7 @@ public class LibUtils {
                 }));
 
                 //byte to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -305,7 +311,7 @@ public class LibUtils {
                 }));
 
                 //string to float
-                program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -319,7 +325,7 @@ public class LibUtils {
 
 
                 //double to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -331,7 +337,7 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
                 //float to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -343,7 +349,7 @@ public class LibUtils {
                         new Argument("x", Float.class, false)
                 }));
                 //int to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -356,7 +362,7 @@ public class LibUtils {
                 }));
 
                 //short to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -369,7 +375,7 @@ public class LibUtils {
                 }));
 
                 //byte to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -382,7 +388,7 @@ public class LibUtils {
                 }));
 
                 //string to long
-                program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -396,7 +402,7 @@ public class LibUtils {
 
 
                 //double to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -408,7 +414,7 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
                 //float to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -420,7 +426,7 @@ public class LibUtils {
                         new Argument("x", Float.class, false)
                 }));
                 //long to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -433,7 +439,7 @@ public class LibUtils {
                 }));
 
                 //short to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -446,7 +452,7 @@ public class LibUtils {
                 }));
 
                 //byte to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -459,7 +465,7 @@ public class LibUtils {
                 }));
 
                 //string to int
-                program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -473,7 +479,7 @@ public class LibUtils {
 
 
                 //double to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -485,7 +491,7 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
                 //float to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -497,7 +503,7 @@ public class LibUtils {
                         new Argument("x", Float.class, false)
                 }));
                 //long to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -510,7 +516,7 @@ public class LibUtils {
                 }));
 
                 //int to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -523,7 +529,7 @@ public class LibUtils {
                 }));
 
                 //byte to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -536,7 +542,7 @@ public class LibUtils {
                 }));
 
                 //string to short
-                program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -550,7 +556,7 @@ public class LibUtils {
 
 
                 //double to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -562,7 +568,7 @@ public class LibUtils {
                         new Argument("x", Double.class, false)
                 }));
                 //float to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -574,7 +580,7 @@ public class LibUtils {
                         new Argument("x", Float.class, false)
                 }));
                 //long to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -587,7 +593,7 @@ public class LibUtils {
                 }));
 
                 //int to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -600,7 +606,7 @@ public class LibUtils {
                 }));
 
                 //short to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -613,7 +619,7 @@ public class LibUtils {
                 }));
 
                 //string to byte
-                program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -627,7 +633,7 @@ public class LibUtils {
 
                 //function: class(String className)
                 //Get class from string
-                program.getBank().getFunctions().put(new Pair<>("class", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("class", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -641,7 +647,7 @@ public class LibUtils {
 
                 //function: array(ArrayArgs args)
                 //Create array of objects
-                program.getBank().getFunctions().put(new Pair<>("array", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("array", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -655,7 +661,7 @@ public class LibUtils {
 
                 //function: new(Class class, ArrayArgs args)
                 //New instance of a class
-                program.getBank().getFunctions().put(new Pair<>("new", List.of(new Class<?>[]{Class.class, ArrayArgs.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("new", List.of(new Class<?>[]{Class.class, ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -675,7 +681,7 @@ public class LibUtils {
                 }));
 
                 //function: setPointer(Long ptr, Object value)
-                program.getBank().getFunctions().put(new Pair<>("setPointer", List.of(new Class<?>[]{Integer.class, Object.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("setPointer", List.of(new Class<?>[]{Integer.class, Object.class})), new Function(new Instruction[]{
                         new LowSecurityInstruction() {
                             @Override
                             public Object call(MemoryBank memoryBank, ValueMod valueMod) {
@@ -690,13 +696,13 @@ public class LibUtils {
 
                 //function: include(String file)
                 //This function execute and attach other ys file in this program.
-                program.getBank().getFunctions().put(new Pair<>("include", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("include", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new LowSecurityInstruction() {
                             @Override
                             public Object call(MemoryBank memoryBank, ValueMod valueMod) {
                                 File file = new File(valueMod.getValue("file") + ".ys");
                                 if (!file.exists())
-                                    file = new File(program.getLibsFolder(), valueMod.getValue("file") + ".ys");
+                                    file = new File(library.getLibsFolder(), valueMod.getValue("file") + ".ys");
                                 Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)), memoryBank);
                                 toInclude.interpret(new Interpreter());
                                 toInclude.run();
@@ -706,9 +712,30 @@ public class LibUtils {
                 }, new Argument[]{
                         new Argument("file", String.class, false)
                 }));
+
+                //function: includels(String file)
+                //This function execute and attach other ys file in this program with allow low security set to true.
+                library.getFunctions().put(new Pair<>("includels", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                        new LowSecurityInstruction() {
+                            @Override
+                            public Object call(MemoryBank memoryBank, ValueMod valueMod) {
+                                File file = new File(valueMod.getValue("file") + ".ys");
+                                if (!file.exists())
+                                    file = new File(library.getLibsFolder(), valueMod.getValue("file") + ".ys");
+                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)), memoryBank);
+                                toInclude.setAllowLowSecurity(true);
+                                toInclude.interpret(new Interpreter());
+                                toInclude.run();
+                                return null;
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("file", String.class, false)
+                }));
+
                 //function: puts(String x)
                 //This function prints a String into de standard output stream
-                program.getBank().getFunctions().put(new Pair<>("puts", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("puts", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -721,7 +748,7 @@ public class LibUtils {
                 }));
 
                 //function: execMethod(Object& obj, String method, ArrayArgs args)
-                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Integer.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Integer.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -741,7 +768,7 @@ public class LibUtils {
                 }));
 
                 //function: execMethod(Class class, String method, Array casts, Array args)
-                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, Array.class, Array.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, Array.class, Array.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -766,7 +793,7 @@ public class LibUtils {
                 }));
 
                 //function: execMethod(Class class, String method, ArrayArgs args)
-                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                library.getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
@@ -788,5 +815,6 @@ public class LibUtils {
             default:
                 throw new IllegalArgumentException("'" + libVersion + "' is not compatible with this interpreter.");
         }
+        return library;
     }
 }

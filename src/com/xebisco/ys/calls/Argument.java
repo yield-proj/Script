@@ -21,11 +21,20 @@ public class Argument {
     private final String name;
     private final Class<?> type;
     private final boolean isReference;
+    private final boolean in;
+
+    public Argument(String name, Class<?> type, boolean isReference, boolean in) {
+        this.name = name;
+        this.type = type;
+        this.isReference = isReference;
+        this.in = in;
+    }
 
     public Argument(String name, Class<?> type, boolean isReference) {
         this.name = name;
         this.type = type;
         this.isReference = isReference;
+        this.in = false;
     }
 
     @Override
@@ -51,5 +60,9 @@ public class Argument {
 
     public boolean isReference() {
         return isReference;
+    }
+
+    public boolean isIn() {
+        return in;
     }
 }

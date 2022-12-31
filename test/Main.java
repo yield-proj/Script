@@ -23,7 +23,8 @@ import com.xebisco.ys.utils.SourceUtils;
 public class Main {
     public static void main(String[] args) {
         Program program = new Program(SourceUtils.fromRaw(FileUtils.readInputStream(Main.class.getResourceAsStream("test.ys"))));
-        LibUtils.addLibs(program, LibVersion._01);
+        program.setAllowLowSecurity(true);
+        program.getBank().getLibraries().add(LibUtils.addLibs(LibVersion._01));
         program.interpret(new Interpreter());
         program.run();
     }

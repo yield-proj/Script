@@ -51,9 +51,9 @@ public class InterpreterUtils {
             for (int i = 0; i < arguments.length; i++) {
                 Matcher m = Constants.REFERENCE_ARGUMENT_PATTERN.matcher(args[i]);
                 if (m.matches())
-                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), true);
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), true, false);
                 else if (m.usePattern(Constants.ARGUMENT_PATTERN).matches())
-                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false);
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false, false);
                 else throw new SyntaxException(line + ". on: " + args[i]);
             }
             Function function = new Function(arguments);
@@ -62,6 +62,23 @@ public class InterpreterUtils {
             functionsLayer.add(function);
             call = function;
             outOfGlobal = true;
+        } else if (matcher.usePattern(Constants.STRUCT_DECLARATION_PATTERN).matches()) {
+            String[] args = matcher.group(2).split(",");
+            if(args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
+            Argument[] arguments = new Argument[args.length];
+            for (int i = 0; i < arguments.length; i++) {
+                Matcher m = Constants.IN_REFERENCE_ARGUMENT_PATTERN.matcher(args[i]);
+                if (m.matches())
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), true, true);
+                else if (m.usePattern(Constants.IN_ARGUMENT_PATTERN).matches())
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false, true);
+                else if (m.usePattern(Constants.REFERENCE_ARGUMENT_PATTERN).matches())
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), true, false);
+                else if (m.usePattern(Constants.ARGUMENT_PATTERN).matches())
+                    arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false, false);
+                else throw new SyntaxException(line + ". on: " + args[i]);
+            }
+            call = StructUtils.createStruct(matcher.group(1), arguments);
         } else if (matcher.usePattern(Constants.ACTION_FUNCTION_PATTERN).matches()) {
             call = FunctionUtils.createFunctionCall(line.substring(0, line.length() - 1), ActionFunctionCall.class, cast);
             functionsLayer.add(call);
@@ -75,7 +92,7 @@ public class InterpreterUtils {
         //Other
         else if (matcher.usePattern(Constants.SET_PATTERN).matches()) {
             call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), null));
-        } else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
+        }else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
             call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null));
         } else if (matcher.usePattern(Constants.RETURN_PATTERN).matches()) {
             if (functionsLayer.size() > 0)
@@ -93,6 +110,7 @@ public class InterpreterUtils {
 
         if (functionsLayer != null && functionsLayer.size() > 0 && call != null && !outOfGlobal) {
             Call function = functionsLayer.get(functionsLayer.size() - 1);
+            assert call instanceof Instruction;
             if (function instanceof ActionFunctionCall) {
                 ((ActionFunctionCall) function).getInstructions().add((Instruction) call);
             } else {

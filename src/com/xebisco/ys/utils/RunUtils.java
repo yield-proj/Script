@@ -15,7 +15,9 @@
 
 package com.xebisco.ys.utils;
 
+import com.xebisco.ys.LastScopeInstruction;
 import com.xebisco.ys.calls.Instruction;
+import com.xebisco.ys.calls.LowSecurityInstruction;
 import com.xebisco.ys.calls.ValueMod;
 import com.xebisco.ys.memory.MemoryBank;
 
@@ -33,42 +35,56 @@ public class RunUtils {
         PACKAGES.add("com.xebisco.ys.types");
     }
 
-    public static Object run(MemoryBank memoryBank, List<Instruction> instructions) {
-        return run(memoryBank, instructions, new Random().nextLong());
+    public static Object run(MemoryBank memoryBank, List<Instruction> instructions, boolean allowLowSecurity) {
+        return run(memoryBank, instructions, new Random().nextLong(), allowLowSecurity);
     }
 
-    public static Object run(MemoryBank memoryBank, List<Instruction> instructions, long valueModID) {
-        ValueMod valueMod = new ValueMod(valueModID, memoryBank);
-        return run(valueMod, instructions, valueModID);
+    public static Object run(MemoryBank memoryBank, List<Instruction> instructions, long valueModID, boolean allowLowSecurity) {
+        ValueMod valueMod = new ValueMod(valueModID, memoryBank, allowLowSecurity);
+        return run(valueMod, instructions);
     }
 
     public static Object run(ValueMod valueMod, List<Instruction> instructions) {
-        return run(valueMod, instructions, new Random().nextLong());
+        return run(valueMod, null, instructions);
     }
 
-    public static Object run(ValueMod valueMod, List<Instruction> instructions, long valueModID) {
-        for(Instruction instruction : instructions) {
-            Object o = instruction.call(valueMod);
+    public static Object run(ValueMod valueMod, ValueMod lastScopeValueMod, List<Instruction> instructions) {
+        for (Instruction instruction : instructions) {
+            Object o;
+            if(instruction instanceof LowSecurityInstruction && !valueMod.isAllowLowSecurity()) {
+                throw new SecurityException("This execution does not support low security instructions.");
+            }
+            if (instruction instanceof LastScopeInstruction)
+                o = ((LastScopeInstruction) instruction).call(valueMod, lastScopeValueMod);
+            else
+                o = instruction.call(valueMod);
             if (instruction.isReturnExecution())
                 return o;
         }
         return null;
     }
-    
+
     public static Class<?> forName(String clazz) {
         try {
             return Class.forName(clazz);
         } catch (ClassNotFoundException e) {
             switch (clazz) {
-                case "double": return double.class;
-                case "float": return float.class;
-                case "long": return long.class;
-                case "int": return int.class;
-                case "short": return short.class;
-                case "byte": return byte.class;
-                case "char": return char.class;
+                case "double":
+                    return double.class;
+                case "float":
+                    return float.class;
+                case "long":
+                    return long.class;
+                case "int":
+                    return int.class;
+                case "short":
+                    return short.class;
+                case "byte":
+                    return byte.class;
+                case "char":
+                    return char.class;
             }
-            for(String pkg : PACKAGES) {
+            for (String pkg : PACKAGES) {
                 try {
                     return Class.forName(pkg + '.' + clazz);
                 } catch (ClassNotFoundException ignore) {

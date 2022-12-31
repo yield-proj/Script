@@ -45,34 +45,24 @@ public class FunctionUtils {
             else
                 types.add(args[i].getCast());
         }
-        Function function = memoryBank.getFunctions().get(new Pair<>(functionName, types));
-        if (function == null) {
-            List<Class<?>> cTypes = new ArrayList<>();
-            cTypes.add(ArrayArgs.class);
-            function = memoryBank.getFunctions().get(new Pair<>(functionName, cTypes));
-            if (function == null) {
-                for (Class<?> type : types) {
-                    cTypes.add(cTypes.size() - 1, type);
-                    function = memoryBank.getFunctions().get(new Pair<>(functionName, cTypes));
-                    if (function != null) break;
-                }
-            }
-            if (function == null) throw new FunctionNotFoundException(functionName + ' ' + types);
-            ArrayArgs arrayArgs = new ArrayArgs(args.length - cTypes.size() + 1);
+        Function function = memoryBank.getFunction(functionName, types);
+
+        if(function.getArgs().length > 0 && function.getArgs()[function.getArgs().length - 1].getType() == ArrayArgs.class) {
+            ArrayArgs arrayArgs = new ArrayArgs(args.length - function.getArgs().length + 1);
             for (int i = 0; i < arrayArgs.getObjectArray().length; i++) {
-                arrayArgs.set(i, argObjects[i + cTypes.size() - 1]);
-                if (args[i + cTypes.size() - 1].getCast() == null)
-                    arrayArgs.getTypesArray()[i] = argObjects[i + cTypes.size() - 1].getClass();
-                else arrayArgs.getTypesArray()[i] = args[i + cTypes.size() - 1].getCast();
+                arrayArgs.set(i, argObjects[i + function.getArgs().length - 1]);
+                if (args[i + function.getArgs().length - 1].getCast() == null)
+                    arrayArgs.getTypesArray()[i] = argObjects[i + function.getArgs().length - 1].getClass();
+                else arrayArgs.getTypesArray()[i] = args[i + function.getArgs().length - 1].getCast();
             }
-            Object[] cArgs = new Object[cTypes.size() - 1];
+            Object[] cArgs = new Object[function.getArgs().length - 1];
             System.arraycopy(argObjects, 0, cArgs, 0, cArgs.length);
-            argObjects = new Object[cTypes.size()];
+            argObjects = new Object[function.getArgs().length];
             System.arraycopy(cArgs, 0, argObjects, 0, cArgs.length);
             argObjects[argObjects.length - 1] = arrayArgs;
         }
 
-        ValueMod vam = new ValueMod(new Random().nextLong(), memoryBank);
+        ValueMod vam = new ValueMod(new Random().nextLong(), memoryBank, valueMod.isAllowLowSecurity());
 
         for (int i = 0; i < argObjects.length; i++) {
             Argument argument = function.getArgs()[i];
@@ -83,7 +73,7 @@ public class FunctionUtils {
             } else
                 vam.put(argument.getName(), argObjects[i]);
         }
-        Object o = RunUtils.run(vam, function.getInstructions());
+        Object o = RunUtils.run(vam, valueMod, function.getInstructions());
         if (function.getReturnCast() == null)
             return o;
         else if (function.getReturnCast().equals(Unit.class)) return function.getReturnCast().cast(o);

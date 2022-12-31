@@ -34,7 +34,7 @@ public class ActionFunctionCall extends FunctionCall {
         Object o = super.call(valueMod);
         if (o instanceof Boolean) {
             if ((Boolean) o)
-                RunUtils.run(valueMod.getMemoryBank(), instructions);
+                RunUtils.run(valueMod.getMemoryBank(), instructions, valueMod.isAllowLowSecurity());
             return o;
         }
         throw new ReturnException("A action function needs to return a boolean, not '" + o.getClass().getName() + "' (" + getFunctionName() + ")");
