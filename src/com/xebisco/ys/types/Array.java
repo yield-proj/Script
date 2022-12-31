@@ -19,18 +19,18 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Array {
-    private final Class<?> type;
     private final Object[] objectArray;
 
-    public Array(Class<?> type, int length) {
-        this.type = type;
+    public Array(int length) {
         objectArray = new Object[length];
     }
 
+    public Array(ArrayArgs arrayArgs) {
+        objectArray = arrayArgs.getObjectArray();
+    }
+
     public void set(int index, Object o) {
-        if (type != null)
-            objectArray[index] = type.cast(o);
-        else objectArray[index] = o;
+        objectArray[index] = o;
     }
 
     public Object get(int index) {
@@ -47,18 +47,12 @@ public class Array {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Array array = (Array) o;
-        return Objects.equals(type, array.type) && Arrays.equals(objectArray, array.objectArray);
+        return Arrays.equals(objectArray, array.objectArray);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(type);
-        result = 31 * result + Arrays.hashCode(objectArray);
-        return result;
-    }
-
-    public Class<?> getType() {
-        return type;
+        return Arrays.hashCode(objectArray);
     }
 
     public Object[] getObjectArray() {

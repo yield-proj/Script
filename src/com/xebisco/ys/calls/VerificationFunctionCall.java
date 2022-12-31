@@ -13,13 +13,17 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.exceptions;
+package com.xebisco.ys.calls;
 
-public class ValueNotFoundException extends RuntimeException {
-    public ValueNotFoundException() {
+import com.xebisco.ys.utils.MathUtils;
+
+public class VerificationFunctionCall extends FunctionCall {
+    public VerificationFunctionCall(String equation, Class<?> cast) {
+        super(equation, null, cast);
     }
 
-    public ValueNotFoundException(String message) {
-        super(message);
+    @Override
+    public Object call(ValueMod valueMod) {
+        return MathUtils.bool(valueMod.getMemoryBank(), getFunctionName());
     }
 }

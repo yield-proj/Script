@@ -16,9 +16,8 @@
 package com.xebisco.ys.utils;
 
 import com.xebisco.yieldutils.Pair;
-import com.xebisco.ys.calls.Argument;
-import com.xebisco.ys.calls.Function;
-import com.xebisco.ys.calls.Instruction;
+import com.xebisco.ys.Constants;
+import com.xebisco.ys.calls.*;
 import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.program.Interpreter;
 import com.xebisco.ys.program.Program;
@@ -27,21 +26,45 @@ import com.xebisco.ys.types.ArrayArgs;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LibUtils {
     public static void addLibs(Program program, LibVersion libVersion) {
         switch (libVersion) {
             case _01:
+
+                //Default variables
+                program.getBank().put("true", true);
+                program.getBank().put("false", false);
+                program.getBank().put(Constants.POINTER_CHAR + "nullptr", null);
+
+                //Action functions
+
+                //function: if(boolean execute)
+                program.getBank().getFunctions().put(new Pair<>("if", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                return valueMod.getValue("execute");
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("execute", Boolean.class, false)
+                }));
+
                 //String Conversion functions
 
                 //array to string
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Array.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return memoryBank.getValue("x").toString();
+                                return valueMod.getValue("x").toString();
                             }
                         }
                 }, new Argument[]{
@@ -52,22 +75,35 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return memoryBank.getValue("x").toString();
+                                return valueMod.getValue("x").toString();
                             }
                         }
                 }, new Argument[]{
                         new Argument("x", ArrayArgs.class, false)
                 }));
 
+                //boolean to string
+                program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Boolean.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                return String.valueOf((boolean) valueMod.getValue("x"));
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("x", Boolean.class, false)
+                }));
+
                 //long to string
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return String.valueOf((long) memoryBank.getValue("x"));
+                                return String.valueOf((long) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -78,9 +114,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return String.valueOf((double) memoryBank.getValue("x"));
+                                return String.valueOf((double) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -91,9 +127,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return String.valueOf((int) memoryBank.getValue("x"));
+                                return String.valueOf((int) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -104,9 +140,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return String.valueOf((short) memoryBank.getValue("x"));
+                                return String.valueOf((short) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -117,9 +153,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return String.valueOf((byte) memoryBank.getValue("x"));
+                                return String.valueOf((byte) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -132,9 +168,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (double) (float) memoryBank.getValue("x");
+                                return (double) (float) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -144,9 +180,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (double) (long) memoryBank.getValue("x");
+                                return (double) (long) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -156,9 +192,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (double) (int) memoryBank.getValue("x");
+                                return (double) (int) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -169,9 +205,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (double) (short) memoryBank.getValue("x");
+                                return (double) (short) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -182,9 +218,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (double) (byte) memoryBank.getValue("x");
+                                return (double) (byte) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -195,9 +231,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("double", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Double.parseDouble((String) memoryBank.getValue("x"));
+                                return Double.parseDouble((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -209,9 +245,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (float) (double) memoryBank.getValue("x");
+                                return (float) (double) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -221,9 +257,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (float) (long) memoryBank.getValue("x");
+                                return (float) (long) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -233,9 +269,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (float) (int) memoryBank.getValue("x");
+                                return (float) (int) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -246,9 +282,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (float) (short) memoryBank.getValue("x");
+                                return (float) (short) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -259,9 +295,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (float) (byte) memoryBank.getValue("x");
+                                return (float) (byte) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -272,9 +308,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("float", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Float.parseFloat((String) memoryBank.getValue("x"));
+                                return Float.parseFloat((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -286,9 +322,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (long) (double) memoryBank.getValue("x");
+                                return (long) (double) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -298,9 +334,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (long) (float) memoryBank.getValue("x");
+                                return (long) (float) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -310,9 +346,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Integer.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (long) (int) memoryBank.getValue("x");
+                                return (long) (int) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -323,9 +359,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (long) (short) memoryBank.getValue("x");
+                                return (long) (short) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -336,9 +372,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (long) (byte) memoryBank.getValue("x");
+                                return (long) (byte) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -349,9 +385,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("long", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Long.parseLong((String) memoryBank.getValue("x"));
+                                return Long.parseLong((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -363,9 +399,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (int) (double) memoryBank.getValue("x");
+                                return (int) (double) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -375,9 +411,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (int) (float) memoryBank.getValue("x");
+                                return (int) (float) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -387,9 +423,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (int) (long) memoryBank.getValue("x");
+                                return (int) (long) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -400,9 +436,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (int) (short) memoryBank.getValue("x");
+                                return (int) (short) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -413,9 +449,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (int) (byte) memoryBank.getValue("x");
+                                return (int) (byte) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -426,9 +462,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("int", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Integer.parseInt((String) memoryBank.getValue("x"));
+                                return Integer.parseInt((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -440,9 +476,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (short) (double) memoryBank.getValue("x");
+                                return (short) (double) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -452,9 +488,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (short) (float) memoryBank.getValue("x");
+                                return (short) (float) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -464,9 +500,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (short) (long) memoryBank.getValue("x");
+                                return (short) (long) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -477,9 +513,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (short) (int) memoryBank.getValue("x");
+                                return (short) (int) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -490,9 +526,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (short) (byte) memoryBank.getValue("x");
+                                return (short) (byte) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -503,9 +539,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("short", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Short.parseShort((String) memoryBank.getValue("x"));
+                                return Short.parseShort((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -517,9 +553,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Double.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (byte) (double) memoryBank.getValue("x");
+                                return (byte) (double) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -529,9 +565,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Float.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (byte) (float) memoryBank.getValue("x");
+                                return (byte) (float) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -541,9 +577,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Long.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (byte) (long) memoryBank.getValue("x");
+                                return (byte) (long) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -554,9 +590,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Short.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (byte) (int) memoryBank.getValue("x");
+                                return (byte) (int) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -567,9 +603,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{Byte.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return (byte) (short) memoryBank.getValue("x");
+                                return (byte) (short) valueMod.getValue("x");
                             }
                         }
                 }, new Argument[]{
@@ -580,9 +616,9 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("byte", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return Byte.parseByte((String) memoryBank.getValue("x"));
+                                return Byte.parseByte((String) valueMod.getValue("x"));
                             }
                         }
                 }, new Argument[]{
@@ -594,13 +630,27 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("class", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                return RunUtils.forName((String) memoryBank.getValue("className"));
+                                return RunUtils.forName((String) valueMod.getValue("className"));
                             }
                         }
                 }, new Argument[]{
                         new Argument("className", String.class, false)
+                }));
+
+                //function: array(ArrayArgs args)
+                //Create array of objects
+                program.getBank().getFunctions().put(new Pair<>("array", List.of(new Class<?>[]{ArrayArgs.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                return new Array((ArrayArgs) valueMod.getValue("args"));
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("args", ArrayArgs.class, false)
                 }));
 
                 //function: new(Class class, ArrayArgs args)
@@ -608,11 +658,11 @@ public class LibUtils {
                 program.getBank().getFunctions().put(new Pair<>("new", List.of(new Class<?>[]{Class.class, ArrayArgs.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
+                            public Object call(ValueMod valueMod) {
                                 setReturnExecution(true);
-                                ArrayArgs args = (ArrayArgs) memoryBank.getValue("args");
+                                ArrayArgs args = (ArrayArgs) valueMod.getValue("args");
                                 try {
-                                    return ((Class<?>) memoryBank.getValue("class")).getConstructor(args.getTypesArray()).newInstance(args.getObjectArray());
+                                    return ((Class<?>) valueMod.getValue("class")).getConstructor(args.getTypesArray()).newInstance(args.getObjectArray());
                                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                                          InvocationTargetException e) {
                                     throw new RuntimeException(e);
@@ -624,59 +674,115 @@ public class LibUtils {
                         new Argument("args", ArrayArgs.class, false)
                 }));
 
+                //function: setPointer(Long ptr, Object value)
+                program.getBank().getFunctions().put(new Pair<>("setPointer", List.of(new Class<?>[]{Integer.class, Object.class})), new Function(new Instruction[]{
+                        new LowSecurityInstruction() {
+                            @Override
+                            public Object call(MemoryBank memoryBank, ValueMod valueMod) {
+                                memoryBank.getPointers().set((Integer) valueMod.getValue("ptr"), valueMod.getValue("value"));
+                                return null;
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("ptr", Long.class, false),
+                        new Argument("value", Object.class, false)
+                }));
 
                 //function: include(String file)
                 //This function execute and attach other ys file in this program.
                 program.getBank().getFunctions().put(new Pair<>("include", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
-                        new Instruction() {
+                        new LowSecurityInstruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
-                                File file = new File(memoryBank.getValue("file") + ".ys");
+                            public Object call(MemoryBank memoryBank, ValueMod valueMod) {
+                                File file = new File(valueMod.getValue("file") + ".ys");
                                 if (!file.exists())
-                                    file = new File(program.getLibsFolder(), memoryBank.getValue("file") + ".ys");
-                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)));
-                                addLibs(toInclude, libVersion);
+                                    file = new File(program.getLibsFolder(), valueMod.getValue("file") + ".ys");
+                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(file)), memoryBank);
                                 toInclude.interpret(new Interpreter());
                                 toInclude.run();
-                                memoryBank.getVariables().putAll(toInclude.getBank().getVariables());
-                                memoryBank.getPointers().putAll(toInclude.getBank().getPointers());
                                 return null;
                             }
                         }
                 }, new Argument[]{
                         new Argument("file", String.class, false)
                 }));
-                //function: include(String file, String libVersion)
-                //This function execute and attach other ys file in this program.
-                program.getBank().getFunctions().put(new Pair<>("include", List.of(new Class<?>[]{String.class, String.class})), new Function(new Instruction[]{
-                        new Instruction() {
-                            @Override
-                            public Object call(MemoryBank memoryBank) {
-                                Program toInclude = new Program(SourceUtils.fromRaw(FileUtils.readFile(new File(program.getLibsFolder(), memoryBank.getValue("file") + ".ys"))));
-                                addLibs(toInclude, LibVersion.valueOf((String) memoryBank.getValue("libVersion")));
-                                toInclude.interpret(new Interpreter());
-                                toInclude.run();
-                                memoryBank.getVariables().putAll(toInclude.getBank().getVariables());
-                                memoryBank.getPointers().putAll(toInclude.getBank().getPointers());
-                                return null;
-                            }
-                        }
-                }, new Argument[]{
-                        new Argument("file", String.class, false),
-                        new Argument("libVersion", String.class, false)
-                }));
                 //function: puts(String x)
                 //This function prints a String into de standard output stream
                 program.getBank().getFunctions().put(new Pair<>("puts", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
-                            public Object call(MemoryBank memoryBank) {
-                                System.out.println(memoryBank.getValue("x"));
+                            public Object call(ValueMod valueMod) {
+                                System.out.println(valueMod.getValue("x"));
                                 return null;
                             }
                         }
                 }, new Argument[]{
                         new Argument("x", String.class, false)
+                }));
+
+                //function: execMethod(Object& obj, String method, ArrayArgs args)
+                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Integer.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                Object o = valueMod.getValue("obj");
+                                ArrayArgs arrayArgs = (ArrayArgs) valueMod.getValue("args");
+                                try {
+                                    return o.getClass().getDeclaredMethod((String) valueMod.getValue("method"), arrayArgs.getTypesArray()).invoke(o, arrayArgs.getObjectArray());
+                                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("obj", Object.class, true),
+                        new Argument("method", String.class, false),
+                        new Argument("args", ArrayArgs.class, false)
+                }));
+
+                //function: execMethod(Class class, String method, Array casts, Array args)
+                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, Array.class, Array.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                Array casts = (Array) valueMod.getValue("casts");
+                                setReturnExecution(true);
+                                Class<?>[] classes = new Class<?>[casts.getObjectArray().length];
+                                for (int i = 0; i < casts.getObjectArray().length; i++) {
+                                    classes[i] = (Class<?>) casts.getObjectArray()[i];
+                                }
+                                try {
+                                    return ((Class<?>) valueMod.getValue("class")).getDeclaredMethod((String) valueMod.getValue("method"), classes).invoke(null, ((Array) valueMod.getValue("args")).getObjectArray());
+                                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("class", Class.class, false),
+                        new Argument("method", String.class, false),
+                        new Argument("casts", Array.class, false),
+                        new Argument("args", Array.class, false)
+                }));
+
+                //function: execMethod(Class class, String method, ArrayArgs args)
+                program.getBank().getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Class.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                ArrayArgs args = (ArrayArgs) valueMod.getValue("args");
+                                setReturnExecution(true);
+                                try {
+                                    return ((Class<?>) valueMod.getValue("class")).getDeclaredMethod((String) valueMod.getValue("method"), args.getTypesArray()).invoke(null, args.getObjectArray());
+                                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("class", Class.class, false),
+                        new Argument("method", String.class, false),
+                        new Argument("args", ArrayArgs.class, false)
                 }));
                 break;
             default:

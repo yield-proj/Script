@@ -16,7 +16,6 @@
 package com.xebisco.ys.calls;
 
 import com.xebisco.ys.exceptions.VariableDontExistException;
-import com.xebisco.ys.memory.MemoryBank;
 
 public class SetVariable extends Instruction {
     private final String variable;
@@ -28,8 +27,8 @@ public class SetVariable extends Instruction {
     }
 
     @Override
-    public Object call(MemoryBank memoryBank) {
-        Object o = memoryBank.getVariables().replace(variable, instruction.call(memoryBank));
+    public Object call(ValueMod valueMod) {
+        Object o = valueMod.getMemoryBank().getVariables().replace(variable, instruction.call(new ValueMod(0, valueMod.getMemoryBank())));
         if(o == null) throw new VariableDontExistException(variable);
         return o;
     }

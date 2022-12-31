@@ -26,19 +26,15 @@ import com.xebisco.ys.types.Unit;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 
 public class FunctionUtils {
-    public static Object call(MemoryBank bank, String functionName, FunctionCall[] args) {
-        MemoryBank functionBank = new MemoryBank();
-        functionBank.getPointers().putAll(bank.getPointers());
-        functionBank.setVariables(bank.getVariables());
-        functionBank.setFunctions(bank.getFunctions());
-        functionBank.setStringLiterals(bank.getStringLiterals());
+    public static Object call(ValueMod valueMod, MemoryBank memoryBank, String functionName, FunctionCall[] args) {
         List<Class<?>> types = new ArrayList<>();
         Object[] argObjects = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            argObjects[i] = args[i].call(bank);
+            argObjects[i] = args[i].call(valueMod);
             if (args[i].getCast() == null)
                 try {
                     types.add(argObjects[i].getClass());
@@ -49,20 +45,20 @@ public class FunctionUtils {
             else
                 types.add(args[i].getCast());
         }
-        Function function = bank.getFunctions().get(new Pair<>(functionName, types));
+        Function function = memoryBank.getFunctions().get(new Pair<>(functionName, types));
         if (function == null) {
             List<Class<?>> cTypes = new ArrayList<>();
             cTypes.add(ArrayArgs.class);
-            function = bank.getFunctions().get(new Pair<>(functionName, cTypes));
+            function = memoryBank.getFunctions().get(new Pair<>(functionName, cTypes));
             if (function == null) {
                 for (Class<?> type : types) {
-                    cTypes.add(0, type);
-                    function = bank.getFunctions().get(new Pair<>(functionName, cTypes));
+                    cTypes.add(cTypes.size() - 1, type);
+                    function = memoryBank.getFunctions().get(new Pair<>(functionName, cTypes));
                     if (function != null) break;
                 }
             }
             if (function == null) throw new FunctionNotFoundException(functionName + ' ' + types);
-            ArrayArgs arrayArgs = new ArrayArgs(null, args.length - cTypes.size() + 1);
+            ArrayArgs arrayArgs = new ArrayArgs(args.length - cTypes.size() + 1);
             for (int i = 0; i < arrayArgs.getObjectArray().length; i++) {
                 arrayArgs.set(i, argObjects[i + cTypes.size() - 1]);
                 if (args[i + cTypes.size() - 1].getCast() == null)
@@ -75,14 +71,19 @@ public class FunctionUtils {
             System.arraycopy(cArgs, 0, argObjects, 0, cArgs.length);
             argObjects[argObjects.length - 1] = arrayArgs;
         }
+
+        ValueMod vam = new ValueMod(new Random().nextLong(), memoryBank);
+
         for (int i = 0; i < argObjects.length; i++) {
             Argument argument = function.getArgs()[i];
-            if (argument.isReference())
-                functionBank.getVariables().put(argument.getName(), functionBank.getPointers().get((long) argObjects[i]));
-            else
-                functionBank.getVariables().put(argument.getName(), argObjects[i]);
+            if (argument.isReference()) {
+                if (argument.getType() != null)
+                    argument.getType().cast(memoryBank.getPointers().get((int) argObjects[i]));
+                vam.put(argument.getName(), argObjects[i]);
+            } else
+                vam.put(argument.getName(), argObjects[i]);
         }
-        Object o = RunUtils.run(functionBank, function.getInstructions());
+        Object o = RunUtils.run(vam, function.getInstructions());
         if (function.getReturnCast() == null)
             return o;
         else if (function.getReturnCast().equals(Unit.class)) return function.getReturnCast().cast(o);
@@ -96,7 +97,7 @@ public class FunctionUtils {
         return argTypes;
     }
 
-    public static <T extends FunctionCall> T createCall(String line, Class<T> type, Class<?> cast) {
+    public static <T extends FunctionCall> T createFunctionCall(String line, Class<T> type, Class<?> cast) {
         if (line.length() > 0) {
             Matcher matcher = Constants.FUNCTION_CALL_PATTERN.matcher(line);
             if (matcher.matches()) {
@@ -106,10 +107,10 @@ public class FunctionUtils {
                     arguments = new FunctionCall[argStrings.length];
                     for (int i = 0; i < arguments.length; i++) {
                         Matcher m = Constants.CAST_PATTERN.matcher(argStrings[i]);
-                        if (m.matches()) {
-                            arguments[i] = createCall(m.group(2), FunctionCall.class, RunUtils.forName(m.group(1)));
+                        if (m.find()) {
+                            arguments[i] = createFunctionCall(argStrings[i].substring(argStrings[i].indexOf(")") + 1), FunctionCall.class, RunUtils.forName(m.group(1)));
                         } else
-                            arguments[i] = createCall(argStrings[i], FunctionCall.class, null);
+                            arguments[i] = createFunctionCall(argStrings[i], FunctionCall.class, null);
                     }
                 }
                 if (arguments == null) arguments = new FunctionCall[0];
@@ -121,12 +122,12 @@ public class FunctionUtils {
                 }
             }
 
-            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.contains("+") || line.contains("-") || line.contains("/") || line.contains("^") || line.substring(1).contains("*") || Constants.DECIMAL_NUMBER_PATTERN.matcher(line).matches() || Constants.NUMBER_PATTERN.matcher(line).matches()))
+            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.contains("==") || line.contains("!=")))
                 //noinspection unchecked
-                return (T) new EquationFunctionCall(line, cast);
+                return (T) new VerificationFunctionCall(line, cast);
             else
                 //noinspection unchecked
-                return (T) new VariableFromFunctionCall(line, cast);
+                return (T) new PossibleEquationFunctionCall(line, cast);
         }
         //noinspection unchecked
         return (T) new NullFunctionCall(cast);

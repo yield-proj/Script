@@ -1,1 +1,5 @@
-include("hellotest/hello");
+include("lang/string");
+include("lang/runtime");
+
+puts(string_concat("Hello, ", "World!"));
+exit(0);

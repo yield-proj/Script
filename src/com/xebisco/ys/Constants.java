@@ -19,21 +19,22 @@ import java.util.regex.Pattern;
 
 public class Constants {
 
-    public final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\)"),
-            FUNCTION_DECLARATION_PATTERN = Pattern.compile("^(.*\\w+) (\\w+)\\(([^}]*)\\)\\{"),
-            VARIABLE_DECLARATION_PATTERN = Pattern.compile("^var (\\w+)=([^}]*)"),
-            POINTER_DECLARATION_PATTERN = Pattern.compile("^var(\\*\\w+)=([^}]*)"),
-            CAST_PATTERN = Pattern.compile("\\((.*\\w+)\\)([^}]+)"),
+    public final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("^([^(.]+)\\(([^}]*)\\)"),
+            FUNCTION_DECLARATION_PATTERN = Pattern.compile("^([^(.]+) (\\w+)\\(([^}]*)\\)\\{"),
+            VARIABLE_DECLARATION_PATTERN = Pattern.compile("^var (\\S+)=([^}]*)"),
+            POINTER_DECLARATION_PATTERN = Pattern.compile("^var(\\*\\S+)=([^}]*)"),
+            CAST_PATTERN = Pattern.compile("^\\(([^()]+)\\)"),
             SET_PATTERN = Pattern.compile("^([^ *=]+)=([^}]+)"),
+            SET_POINTER_PATTERN = Pattern.compile("^(\\*[^ *=]+)=([^}]+)"),
             CLOSE_CURLY_BRACES_PATTERN = Pattern.compile("}"),
-            ACTION_FUNCTION_PATTERN = Pattern.compile("^(\\w+)\\(([^}]*)\\)\\{"),
-            DECIMAL_NUMBER_PATTERN = Pattern.compile("[0-9]+"),
-            NUMBER_PATTERN = Pattern.compile("[0-9]+\\.[0-9]+"),
+            ACTION_FUNCTION_PATTERN = Pattern.compile("^(\\S+)\\(([^}]*)\\)\\{"),
             IMPORT_PACKAGE_PATTERN = Pattern.compile("^import package (.*\\w+)"),
-            SHORTCUT_NEW_PATTERN = Pattern.compile("new (\2-*[0-9]+)\\(([^}]*)\\)"),
-            ARGUMENT_PATTERN = Pattern.compile("^(.*\\w+) (\\w+)"),
-            REFERENCE_ARGUMENT_PATTERN = Pattern.compile("^(.*\\w+)&(\\w+)"),
-            RETURN_PATTERN = Pattern.compile("^return\\(([^}]*)\\)");
+            NEW_PATTERN = Pattern.compile("new (\2-*[0-9]+)\\(([^}]*)\\)"),
+            ARGUMENT_PATTERN = Pattern.compile("^(.*\\S+) (\\S+)"),
+            REFERENCE_ARGUMENT_PATTERN = Pattern.compile("^(.*\\S*)&(\\S+)"),
+            RETURN_PATTERN = Pattern.compile("^return\\(([^}]*)\\)"),
+            EQUALS_PATTERN = Pattern.compile("^(\\S+)==(\\S+)"),
+            NOT_EQUALS_PATTERN = Pattern.compile("^(\\S+)!=(\\S+)");
 
     // @SuppressWarnings("RegExpRedundantEscape")
    /* public final static Pattern

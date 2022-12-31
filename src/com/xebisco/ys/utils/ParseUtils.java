@@ -107,9 +107,7 @@ public class ParseUtils {
         return args.toArray(new String[0]);
     }
 
-    public static Pair<String, Map<Long, String>> extractStringLiterals(String source) {
-        long index = Long.MIN_VALUE;
-        Map<Long, String> literals = new HashMap<>();
+    public static String extractStringLiterals(String source) {
         StringBuilder out = new StringBuilder();
         boolean inString = false, lastIsSlash = false, append;
         StringBuilder string = new StringBuilder();
@@ -120,10 +118,10 @@ public class ParseUtils {
                     append = false;
                     inString = !inString;
                     if (!inString) {
-                        out.append(Constants.STRING_LITERAL_CHAR).append(index);
-                        literals.put(index, string.toString().replace("\\\\", "\4").replace("\\n", "\n").replace("\\t", "\t").replace("\4", "\\"));
+                        out.append(Constants.STRING_LITERAL_CHAR).append(RunUtils.stringLiteralIndex);
+                        RunUtils.STRING_LITERALS.put(RunUtils.stringLiteralIndex, string.toString().replace("\\\\", "\4").replace("\\n", "\n").replace("\\t", "\t").replace("\4", "\\"));
                         string.setLength(0);
-                        index++;
+                        RunUtils.stringLiteralIndex++;
                     }
                 } else {
                     string.setLength(string.length() - 1);
@@ -137,7 +135,7 @@ public class ParseUtils {
             if (append)
                 out.append(c);
         }
-        return new Pair<>(out.toString(), literals);
+        return out.toString();
     }
 
     @SuppressWarnings("RegExpRedundantEscape")

@@ -27,14 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Program {
-    private MemoryBank bank = new MemoryBank();
+    private MemoryBank bank;
     private final Source source;
     private File libsFolder = new File("./");
     private List<Instruction> instructions;
 
     public Program(Source source) {
         this.source = source;
-        SourceUtils.putAll(bank.getStringLiterals(), source.getStringLiterals());
+        bank = new MemoryBank();
+    }
+
+    public Program(Source source, MemoryBank bank) {
+        this.source = source;
+        this.bank = bank;
     }
 
     public void interpret(IInterpreter interpreter) {
@@ -48,7 +53,7 @@ public class Program {
     }
 
     public void run() {
-        RunUtils.run(bank, instructions);
+        RunUtils.run(bank, instructions, 0);
     }
 
     public List<Instruction> getInstructions() {

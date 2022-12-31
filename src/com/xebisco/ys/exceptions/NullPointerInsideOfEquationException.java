@@ -13,17 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.calls;
+package com.xebisco.ys.exceptions;
 
-import com.xebisco.ys.memory.MemoryBank;
-
-public class VariableFromFunctionCall extends FunctionCall {
-    public VariableFromFunctionCall(String functionName, Class<?> cast) {
-        super(functionName, null, cast);
+public class NullPointerInsideOfEquationException extends RuntimeException {
+    public NullPointerInsideOfEquationException() {
     }
 
-    @Override
-    public Object call(MemoryBank memoryBank) {
-        return memoryBank.getValue(getFunctionName());
+    public NullPointerInsideOfEquationException(String message) {
+        super(message);
     }
 }

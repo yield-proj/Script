@@ -19,8 +19,8 @@ public class ArrayArgs extends Array {
 
     private final Class<?>[] typesArray;
 
-    public ArrayArgs(Class<?> type, int length) {
-        super(type, length);
+    public ArrayArgs(int length) {
+        super(length);
         typesArray = new Class<?>[length];
     }
 

@@ -15,7 +15,6 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.utils.FunctionUtils;
 
 public class FunctionCall extends Instruction {
@@ -30,8 +29,8 @@ public class FunctionCall extends Instruction {
     }
 
     @Override
-    public Object call(MemoryBank memoryBank) {
-        Object o = FunctionUtils.call(memoryBank, functionName, args);
+    public Object call(ValueMod valueMod) {
+        Object o = FunctionUtils.call(valueMod, valueMod.getMemoryBank(), functionName, args);
         if(cast == null && o != null) {
             cast = o.getClass();
         }

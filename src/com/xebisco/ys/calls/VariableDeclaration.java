@@ -16,11 +16,8 @@
 package com.xebisco.ys.calls;
 
 import com.xebisco.ys.exceptions.FunctionNotFoundException;
-import com.xebisco.ys.exceptions.ValueNotFoundException;
-import com.xebisco.ys.memory.MemoryBank;
+import com.xebisco.ys.exceptions.NullValueException;
 import com.xebisco.ys.utils.MathUtils;
-
-import java.util.Objects;
 
 public class VariableDeclaration extends Instruction {
 
@@ -33,23 +30,21 @@ public class VariableDeclaration extends Instruction {
     }
 
     @Override
-    public Object call(MemoryBank memoryBank) {
+    public Object call(ValueMod valueMod) {
         Object v = null;
-        Exception originalException = null;
         try {
-            v = value.call(memoryBank);
-        } catch (ValueNotFoundException | FunctionNotFoundException e) {
-            originalException = e;
-        }
-        if (v == null) {
+            if (value != null)
+                v = value.call(valueMod);
+        } catch (NullValueException | FunctionNotFoundException e) {
             try {
-                v = MathUtils.eval(memoryBank, value.getFunctionName());
-            } catch (ValueNotFoundException e) {
-                Objects.requireNonNullElse(originalException, e).printStackTrace();
+                v = MathUtils.eval(valueMod, value.getFunctionName());
+            } catch (NullValueException e1) {
+                e.printStackTrace();
+                e1.printStackTrace();
                 System.exit(1);
             }
         }
 
-        return memoryBank.put(name, v);
+        return valueMod.put(name, v);
     }
 }

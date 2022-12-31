@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.program;
+package com.xebisco.ys.calls;
 
-public class Source {
-    private final String[] contents;
+import com.xebisco.ys.memory.MemoryBank;
 
-    public Source(String[] contents) {
-        this.contents = contents;
+public abstract class LowSecurityInstruction extends Instruction {
+    @Override
+    public Object call(ValueMod valueMod) {
+        return call(valueMod.getMemoryBank(), valueMod);
     }
 
-    public String[] getContents() {
-        return contents;
-    }
+    public abstract Object call(MemoryBank memoryBank, ValueMod valueMod);
 }

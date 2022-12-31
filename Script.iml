@@ -15,5 +15,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="YieldUtils" level="project" />
     <orderEntry type="library" name="YieldUtils (2)" level="project" />
+    <orderEntry type="library" name="YieldUtils (3)" level="project" />
   </component>
 </module>

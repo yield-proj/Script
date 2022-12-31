@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.program;
+package com.xebisco.ys.lang;
 
-public class Source {
-    private final String[] contents;
+import com.xebisco.ys.types.Array;
 
-    public Source(String[] contents) {
-        this.contents = contents;
-    }
-
-    public String[] getContents() {
-        return contents;
+public class LangString {
+    public static String concat(Array strings) {
+        StringBuilder out = new StringBuilder();
+        for(Object o : strings.getObjectArray()) {
+            out.append((String) o);
+        }
+        return out.toString();
     }
 }

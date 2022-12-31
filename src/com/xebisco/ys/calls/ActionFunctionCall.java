@@ -16,7 +16,6 @@
 package com.xebisco.ys.calls;
 
 import com.xebisco.ys.exceptions.ReturnException;
-import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.utils.RunUtils;
 
 import java.util.ArrayList;
@@ -31,10 +30,11 @@ public class ActionFunctionCall extends FunctionCall {
     }
 
     @Override
-    public Object call(MemoryBank memoryBank) {
-        Object o = super.call(memoryBank);
-        if(o instanceof Boolean) {
-            RunUtils.runOnSpecificBank(memoryBank, instructions);
+    public Object call(ValueMod valueMod) {
+        Object o = super.call(valueMod);
+        if (o instanceof Boolean) {
+            if ((Boolean) o)
+                RunUtils.run(valueMod.getMemoryBank(), instructions);
             return o;
         }
         throw new ReturnException("A action function needs to return a boolean, not '" + o.getClass().getName() + "' (" + getFunctionName() + ")");

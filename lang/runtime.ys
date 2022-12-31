@@ -1,0 +1,22 @@
+var *LAST_VERIFICATION_TIME = *nullptr;
+
+Long delta() {
+    if(*LAST_VERIFICATION_TIME == *nullptr) {
+        setPointer(LAST_VERIFICATION_TIME, (Object) currentTimeMillis());
+    }
+    var chLast = *LAST_VERIFICATION_TIME;
+    setPointer(LAST_VERIFICATION_TIME, (Object) currentTimeMillis());
+    return(currentTimeMillis() - chLast);
+}
+
+Long currentTimeMillis() {
+    return(execMethod(class("System"), "currentTimeMillis"));
+}
+
+Unit exit(Integer exitCode) {
+    execMethod(class("System"), "exit", (int) exitCode);
+}
+
+Unit sleep(Long millis) {
+    execMethod(class("Thread"), "sleep", (long) millis);
+}

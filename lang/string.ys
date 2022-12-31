@@ -1,0 +1,3 @@
+String string_concat(ArrayArgs strings) {
+    return(execMethod(class("com.xebisco.ys.lang.LangString"), "concat", array(strings)));
+}

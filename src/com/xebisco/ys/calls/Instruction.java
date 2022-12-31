@@ -15,13 +15,11 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.memory.MemoryBank;
-
 public abstract class Instruction implements Call {
     private boolean breakExecution;
     private boolean returnExecution;
 
-    public abstract Object call(MemoryBank memoryBank);
+    public abstract Object call(ValueMod valueMod);
 
     public boolean isBreakExecution() {
         return breakExecution;

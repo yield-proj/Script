@@ -15,15 +15,13 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.memory.MemoryBank;
-
 public class NullFunctionCall extends FunctionCall {
     public NullFunctionCall(Class<?> cast) {
         super(null, null, cast);
     }
 
     @Override
-    public Object call(MemoryBank memoryBank) {
+    public Object call(ValueMod valueMod) {
         return null;
     }
 }

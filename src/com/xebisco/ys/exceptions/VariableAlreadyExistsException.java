@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.program;
+package com.xebisco.ys.exceptions;
 
-public class Source {
-    private final String[] contents;
-
-    public Source(String[] contents) {
-        this.contents = contents;
+public class VariableAlreadyExistsException extends RuntimeException {
+    public VariableAlreadyExistsException() {
     }
 
-    public String[] getContents() {
-        return contents;
+    public VariableAlreadyExistsException(String message) {
+        super(message);
     }
 }

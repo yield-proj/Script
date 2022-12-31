@@ -15,15 +15,11 @@
 
 package com.xebisco.ys.program;
 
-import com.xebisco.ys.Constants;
-import com.xebisco.ys.calls.*;
-import com.xebisco.ys.utils.FunctionUtils;
+import com.xebisco.ys.calls.Call;
 import com.xebisco.ys.utils.InterpreterUtils;
-import com.xebisco.ys.utils.RunUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 public class Interpreter implements IInterpreter {
 

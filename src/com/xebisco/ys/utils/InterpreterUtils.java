@@ -18,7 +18,6 @@ package com.xebisco.ys.utils;
 import com.xebisco.ys.Constants;
 import com.xebisco.ys.calls.*;
 import com.xebisco.ys.exceptions.SyntaxException;
-import com.xebisco.ys.memory.MemoryBank;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,12 +27,18 @@ public class InterpreterUtils {
         Call call = null;
         Matcher matcher = Constants.CAST_PATTERN.matcher(line);
         Class<?> cast = null;
-        if (matcher.matches()) {
+        while (matcher.find()) {
             cast = RunUtils.forName(matcher.group(1));
+            line = line.substring(line.indexOf(")") + 1);
+            matcher = Constants.CAST_PATTERN.matcher(line);
         }
 
-        while (matcher.usePattern(Constants.SHORTCUT_NEW_PATTERN).find()) {
-            line = line.replaceAll(Constants.SHORTCUT_NEW_PATTERN.pattern(), "new(class(" + matcher.group(1) + ")," + matcher.group(2) + ")");
+        while (matcher.usePattern(Constants.NEW_PATTERN).find()) {
+            line = line.replaceAll(Constants.NEW_PATTERN.pattern(), "new(class(" + matcher.group(1) + ")," + matcher.group(2) + ")");
+        }
+
+        while (matcher.usePattern(Constants.SET_POINTER_PATTERN).find()) {
+            line = line.replaceAll(Constants.SET_POINTER_PATTERN.pattern(), "setPointer(" + matcher.group(1).substring(1) + ",(Object)" + matcher.group(2) + ")");
         }
 
         boolean outOfGlobal = false;
@@ -41,6 +46,7 @@ public class InterpreterUtils {
         //Functions
         if (matcher.usePattern(Constants.FUNCTION_DECLARATION_PATTERN).matches()) {
             String[] args = matcher.group(3).split(",");
+            if(args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
             Argument[] arguments = new Argument[args.length];
             for (int i = 0; i < arguments.length; i++) {
                 Matcher m = Constants.REFERENCE_ARGUMENT_PATTERN.matcher(args[i]);
@@ -57,10 +63,10 @@ public class InterpreterUtils {
             call = function;
             outOfGlobal = true;
         } else if (matcher.usePattern(Constants.ACTION_FUNCTION_PATTERN).matches()) {
-            call = FunctionUtils.createCall(line.substring(0, line.length() - 1), ActionFunctionCall.class, cast);
+            call = FunctionUtils.createFunctionCall(line.substring(0, line.length() - 1), ActionFunctionCall.class, cast);
             functionsLayer.add(call);
+            outOfGlobal = true;
         } else if (matcher.usePattern(Constants.CLOSE_CURLY_BRACES_PATTERN).matches()) {
-            call = functionsLayer.get(functionsLayer.size() - 1);
             functionsLayer.remove(functionsLayer.size() - 1);
         } else if (matcher.usePattern(Constants.IMPORT_PACKAGE_PATTERN).matches()) {
             RunUtils.PACKAGES.add(matcher.group(1));
@@ -68,9 +74,9 @@ public class InterpreterUtils {
 
         //Other
         else if (matcher.usePattern(Constants.SET_PATTERN).matches()) {
-            call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), functionsLayer));
+            call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), null));
         } else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
-            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), functionsLayer));
+            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null));
         } else if (matcher.usePattern(Constants.RETURN_PATTERN).matches()) {
             if (functionsLayer.size() > 0)
             {
@@ -79,10 +85,10 @@ public class InterpreterUtils {
                     throw new SyntaxException("return() cannot be called outside a function declaration or outside the global scope. '" + line + "'");
                 cast = ((Function) f).getReturnCast();
             }
-            call = FunctionUtils.createCall(matcher.group(1), FunctionCall.class, cast);
+            call = FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, cast);
             ((Instruction) call).setReturnExecution(true);
         } else {
-            call = FunctionUtils.createCall(line, FunctionCall.class, cast);
+            call = FunctionUtils.createFunctionCall(line, FunctionCall.class, cast);
         }
 
         if (functionsLayer != null && functionsLayer.size() > 0 && call != null && !outOfGlobal) {

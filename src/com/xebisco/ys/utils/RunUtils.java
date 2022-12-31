@@ -16,15 +16,17 @@
 package com.xebisco.ys.utils;
 
 import com.xebisco.ys.calls.Instruction;
+import com.xebisco.ys.calls.ValueMod;
 import com.xebisco.ys.memory.MemoryBank;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RunUtils {
 
     public final static Set<String> PACKAGES = new HashSet<>();
+    public final static Map<Long, String> STRING_LITERALS = new HashMap<>();
+
+    public static long stringLiteralIndex = Long.parseUnsignedLong("0");
 
     static {
         PACKAGES.add("java.lang");
@@ -32,8 +34,21 @@ public class RunUtils {
     }
 
     public static Object run(MemoryBank memoryBank, List<Instruction> instructions) {
+        return run(memoryBank, instructions, new Random().nextLong());
+    }
+
+    public static Object run(MemoryBank memoryBank, List<Instruction> instructions, long valueModID) {
+        ValueMod valueMod = new ValueMod(valueModID, memoryBank);
+        return run(valueMod, instructions, valueModID);
+    }
+
+    public static Object run(ValueMod valueMod, List<Instruction> instructions) {
+        return run(valueMod, instructions, new Random().nextLong());
+    }
+
+    public static Object run(ValueMod valueMod, List<Instruction> instructions, long valueModID) {
         for(Instruction instruction : instructions) {
-            Object o = instruction.call(memoryBank);
+            Object o = instruction.call(valueMod);
             if (instruction.isReturnExecution())
                 return o;
         }
@@ -44,6 +59,15 @@ public class RunUtils {
         try {
             return Class.forName(clazz);
         } catch (ClassNotFoundException e) {
+            switch (clazz) {
+                case "double": return double.class;
+                case "float": return float.class;
+                case "long": return long.class;
+                case "int": return int.class;
+                case "short": return short.class;
+                case "byte": return byte.class;
+                case "char": return char.class;
+            }
             for(String pkg : PACKAGES) {
                 try {
                     return Class.forName(pkg + '.' + clazz);
@@ -54,19 +78,5 @@ public class RunUtils {
             System.exit(1);
             return null;
         }
-    }
-
-    public static Object runOnSpecificBank(MemoryBank memoryBank, List<Instruction> instructions) {
-        MemoryBank bank = new MemoryBank();
-        bank.getVariables().putAll(memoryBank.getVariables());
-        bank.getPointers().putAll(memoryBank.getPointers());
-        bank.getFunctions().putAll(memoryBank.getFunctions());
-        bank.getStringLiterals().putAll(memoryBank.getStringLiterals());
-        for(Instruction instruction : instructions) {
-            Object o = instruction.call(memoryBank);
-            if (instruction.isReturnExecution())
-                return o;
-        }
-        return null;
     }
 }

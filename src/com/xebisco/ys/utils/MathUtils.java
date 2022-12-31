@@ -15,15 +15,21 @@
 
 package com.xebisco.ys.utils;
 
-import com.xebisco.ys.calls.FunctionCall;
+import com.xebisco.ys.Constants;
 import com.xebisco.ys.calls.Instruction;
+import com.xebisco.ys.calls.PossibleEquationFunctionCall;
+import com.xebisco.ys.calls.ValueMod;
+import com.xebisco.ys.exceptions.NullValueException;
+import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.memory.MemoryBank;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 public class MathUtils {
-    public static double eval(MemoryBank memoryBank, final String str) {
-        return new Object() {
+    public static Number eval(ValueMod valueMod, final String str) {
+        final Class<?>[] number = {Integer.class};
+        Number result = new Object() {
             int pos = -1, ch;
 
             void nextChar() {
@@ -39,9 +45,10 @@ public class MathUtils {
                 return false;
             }
 
-            double parse() {
+            Double parse() {
                 nextChar();
-                double x = parseExpression();
+                Double x = parseExpression();
+                if (x == null) return null;
                 if (pos < str.length()) throw new RuntimeException("Unexpected: " + (char) ch);
                 return x;
             }
@@ -53,8 +60,9 @@ public class MathUtils {
             //        | functionName `(` expression `)` | functionName factor
             //        | factor `^` factor
 
-            double parseExpression() {
-                double x = parseTerm();
+            Double parseExpression() {
+                Double x = parseTerm();
+                if (x == null) return null;
                 for (; ; ) {
                     if (eat('+')) x += parseTerm(); // addition
                     else if (eat('-')) x -= parseTerm(); // subtraction
@@ -62,46 +70,124 @@ public class MathUtils {
                 }
             }
 
-            double parseTerm() {
-                double x = parseFactor();
+            Double parseTerm() {
+                Double x = parseFactor();
+                if (x == null) return null;
                 for (; ; ) {
                     if (eat('*')) x *= parseFactor(); // multiplication
                     else if (eat('/')) x /= parseFactor(); // division
+                    else if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
                     else return x;
                 }
             }
 
-            double parseFactor() {
+            Double parseFactor() {
                 if (eat('+')) return +parseFactor(); // unary plus
                 if (eat('-')) return -parseFactor(); // unary minus
 
-                double x;
+                Double x;
                 int startPos = this.pos;
                 if (eat('(')) { // parentheses
                     x = parseExpression();
                     if (!eat(')')) throw new RuntimeException("Missing ')'");
                 } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
-                    while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
-                    x = Double.parseDouble(str.substring(startPos, this.pos));
-                } else  { // functions
+                    while ((ch >= '0' && ch <= '9') || ch == '.' || ch == 'L' || ch == 'f') nextChar();
+                    String s = str.substring(startPos, this.pos);
+                    try {
+                        x = Integer.valueOf(s).doubleValue();
+                    } catch (NumberFormatException ignore) {
+                        try {
+                            if (!s.endsWith("L")) throw new NumberFormatException();
+                            x = Long.valueOf(s.substring(0, s.length() - 1)).doubleValue();
+                            if (number[0] == Integer.class) number[0] = Long.class;
+                        } catch (NumberFormatException ignore1) {
+                            try {
+                                if (!s.endsWith("f")) throw new NumberFormatException();
+                                x = Float.valueOf(s.substring(0, s.length() - 1)).doubleValue();
+                                if (number[0] == Integer.class || number[0] == Long.class) number[0] = Float.class;
+                            } catch (NumberFormatException ignore2) {
+                                try {
+                                    x = Double.parseDouble(s);
+                                    number[0] = Double.class;
+                                } catch (NumberFormatException e) {
+                                    e.printStackTrace();
+                                    throw new SyntaxException(s);
+                                }
+                            }
+                        }
+                    }
+                } else { // functions
                     int callLayer = 1;
                     boolean first = true;
-                    while (callLayer > 0 && !(ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^' || ch == -1)) {
+                    boolean firstChar = true;
+                    boolean cancel = false;
+                    while (!cancel) {
                         nextChar();
+                        if (callLayer <= 0) cancel = true;
+                        if (callLayer == 1 && (ch == '+' || ch == '-' || (ch == '*' && !firstChar) || ch == '/' || ch == '^' || ch == -1))
+                            break;
                         if (ch == '(') {
-                            if (!first)
-                                callLayer++;
+                            if (callLayer == 2) first = false;
+                            callLayer++;
+                        } else if (ch == ')') {
+                            callLayer--;
+                            if (first)
+                                callLayer--;
                             first = false;
-                        } else if(ch == ')') callLayer--;
+                        }
+                        firstChar = false;
                     }
                     String func = str.substring(startPos, this.pos);
-                    x = ((Number)((Instruction) Objects.requireNonNull(InterpreterUtils.createCall(func, null))).call(memoryBank)).doubleValue();
+                    Instruction instruction = ((Instruction) Objects.requireNonNull(InterpreterUtils.createCall(func, null)));
+                    try {
+                        if (instruction instanceof PossibleEquationFunctionCall)
+                            ((PossibleEquationFunctionCall) instruction).setIgnoreEquation(true);
+                        Number n = ((Number) instruction.call(valueMod));
+                        x = n.doubleValue();
+                        if (n instanceof Long) {
+                            if (number[0] == Integer.class) number[0] = Long.class;
+                        } else if (n instanceof Float) {
+                            if (number[0] == Integer.class || number[0] == Long.class) number[0] = Float.class;
+                        } else if(!(n instanceof Integer))
+                            number[0] = Double.class;
+                        if (instruction instanceof PossibleEquationFunctionCall)
+                            ((PossibleEquationFunctionCall) instruction).setIgnoreEquation(false);
+                    } catch (ClassCastException | NullValueException | NullPointerException ignore) {
+                        x = null;
+                    }
                 }
-
-                if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
-
                 return x;
             }
         }.parse();
+        if (result == null) return null;
+        switch (number[0].getSimpleName()) {
+            case "Integer":
+                result = result.intValue();
+                break;
+            case "Long":
+                result = result.longValue();
+                break;
+            case "Float":
+                result = result.floatValue();
+                break;
+            case "Double":
+                result = result.doubleValue();
+                break;
+        }
+        return result;
+    }
+
+    public static boolean bool(MemoryBank memoryBank, final String str) {
+        Matcher matcher = Constants.EQUALS_PATTERN.matcher(str);
+        if (matcher.matches()) {
+            try {
+                return memoryBank.getValue(matcher.group(1)).equals(memoryBank.getValue(matcher.group(2)));
+            } catch (Exception ignore) {
+                return memoryBank.getValue(matcher.group(1)) == memoryBank.getValue(matcher.group(2));
+            }
+        } else if (matcher.usePattern(Constants.NOT_EQUALS_PATTERN).matches()) {
+            return !memoryBank.getValue(matcher.group(1)).equals(memoryBank.getValue(matcher.group(2)));
+        }
+        return false;
     }
 }

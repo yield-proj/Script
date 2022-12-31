@@ -13,18 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.calls;
+package com.xebisco.ys.exceptions;
 
-import com.xebisco.ys.memory.MemoryBank;
-import com.xebisco.ys.utils.MathUtils;
-
-public class EquationFunctionCall extends FunctionCall {
-    public EquationFunctionCall(String equation, Class<?> cast) {
-        super(equation, null, cast);
+public class NullValueException extends RuntimeException {
+    public NullValueException() {
     }
 
-    @Override
-    public Object call(MemoryBank memoryBank) {
-        return MathUtils.eval(memoryBank, getFunctionName());
+    public NullValueException(String message) {
+        super(message);
     }
 }

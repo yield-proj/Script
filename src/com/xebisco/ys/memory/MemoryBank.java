@@ -19,52 +19,55 @@ import com.xebisco.yieldutils.Pair;
 import com.xebisco.ys.Constants;
 import com.xebisco.ys.calls.Function;
 import com.xebisco.ys.exceptions.InvalidPointerException;
-import com.xebisco.ys.exceptions.ValueNotFoundException;
+import com.xebisco.ys.exceptions.NullValueException;
+import com.xebisco.ys.exceptions.VariableAlreadyExistsException;
+import com.xebisco.ys.utils.RunUtils;
 
 import java.util.*;
 
 public class MemoryBank {
-    private Map<Long, Object> pointers = new HashMap<>();
-    private Map<Long, String> stringLiterals = new HashMap<>();
+    private LinkedList<Object> pointers = new LinkedList<>();
     private Map<String, Object> variables = new HashMap<>();
     private Map<Pair<String, List<Class<?>>>, Function> functions = new HashMap<>();
 
     public Object getValue(String var) {
         Object o;
-        boolean isPtr = var.startsWith("*");
+        boolean isPtr = var.startsWith(String.valueOf(Constants.POINTER_CHAR));
         if (isPtr) var = var.substring(1);
         if (var.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)))
-            o = stringLiterals.get(Long.parseLong(var.substring(1)));
+            o = RunUtils.STRING_LITERALS.get(Long.parseLong(var.substring(1)));
         else o = variables.get(var);
-        if (o == null) throw new ValueNotFoundException(var);
+        if (o == null) {
+            throw new NullValueException(var);
+        }
         if (isPtr) {
             try {
-                o = pointers.get((long) o);
+                o = pointers.get((Integer) o);
             } catch (ClassCastException ignore) {
                 throw new InvalidPointerException(var);
             }
-            if (o == null) throw new InvalidPointerException(var);
         }
         return o;
     }
 
     public Object put(String name, Object value) {
-        if (name.startsWith("*")) {
-            long ptr = Long.MIN_VALUE + pointers.size();
-            pointers.put(ptr, value);
-            variables.put(name.substring(1), ptr);
-            return ptr;
+        // Checking if the variable is a pointer.
+        if(variables.containsKey(name)) throw new VariableAlreadyExistsException(name);
+        if (name.startsWith(String.valueOf(Constants.POINTER_CHAR))) {
+            pointers.addLast(value);
+            variables.put(name.substring(1), pointers.size() - 1);
+            return pointers.size() - 1;
         } else {
             variables.put(name, value);
             return value;
         }
     }
 
-    public Map<Long, Object> getPointers() {
+    public LinkedList<Object> getPointers() {
         return pointers;
     }
 
-    public void setPointers(Map<Long, Object> pointers) {
+    public void setPointers(LinkedList<Object> pointers) {
         this.pointers = pointers;
     }
 
@@ -82,13 +85,5 @@ public class MemoryBank {
 
     public void setFunctions(Map<Pair<String, List<Class<?>>>, Function> functions) {
         this.functions = functions;
-    }
-
-    public Map<Long, String> getStringLiterals() {
-        return stringLiterals;
-    }
-
-    public void setStringLiterals(Map<Long, String> stringLiterals) {
-        this.stringLiterals = stringLiterals;
     }
 }

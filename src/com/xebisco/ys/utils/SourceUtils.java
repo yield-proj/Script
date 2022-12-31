@@ -23,11 +23,10 @@ import java.util.Map;
 
 public class SourceUtils {
     public static Source fromRaw(String contents) {
-        Pair<String, Map<Long, String>> pair = ParseUtils.extractStringLiterals(ParseUtils.removeComments(contents));
-        String[] source = ParseUtils.parseChars(ParseUtils.removeUnnecessaryWhiteSpace(pair.getFirst())).split(String.valueOf(Constants.SOURCE_BREAK));
+        String[] source = ParseUtils.parseChars(ParseUtils.removeUnnecessaryWhiteSpace(ParseUtils.extractStringLiterals(ParseUtils.removeComments(contents)))).split(String.valueOf(Constants.SOURCE_BREAK));
         for (int i = 0; i < source.length; i++)
             source[i] = source[i].trim();
-        return new Source(source, toPairArray(pair.getSecond()));
+        return new Source(source);
     }
 
     public static <F, S> Pair<F, S>[] toPairArray(Map<F, S> map) {
