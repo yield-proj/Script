@@ -1,8 +1,5 @@
 lib("lang/string");
 
-Struct vec2(in Float x, in Float y, ratio = x / y);
-
-if(true or false) {
-    var m = vec2(20f, 10f);
-    puts(string_concat("x=", string(m.x), ", y=", string(m.y), ", ratio=", string(m.ratio)));
-}
+var variable = "Test";
+var var2 = substring(variable, 1, 3);
+puts(var2);

@@ -1,3 +1,11 @@
 String concat(ArrayArgs strings) {
     return(execMethod(class("com.xebisco.ys.lang.LangString"), "concat", (Array) strings));
 }
+
+String substring(String string, Integer begin, Integer end) {
+    return(execMethod((Object) string, "substring", (int) begin, (int) end));
+}
+
+String substring(String string, Integer begin) {
+    return(execMethod((Object) string, "substring", (int) begin));
+}

@@ -786,12 +786,32 @@ public class LibUtils {
                         new Argument("x", String.class, false)
                 }));
 
-                //function: execMethod(Object& obj, String method, ArrayArgs args)
-                library.getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Integer.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                //function: getField(Object obj, String field)
+                library.getFunctions().put(new Pair<>("getField", List.of(new Class<?>[]{Object.class, String.class})), new Function(new Instruction[]{
                         new Instruction() {
                             @Override
                             public Object call(ValueMod valueMod) {
                                 Object o = valueMod.getValue("obj");
+                                setReturnExecution(true);
+                                try {
+                                    return o.getClass().getDeclaredField((String) valueMod.getValue("field")).get(o);
+                                } catch (NoSuchFieldException | IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("obj", Object.class, false),
+                        new Argument("field", String.class, false),
+                }));
+
+                //function: execMethod(Object obj, String method, ArrayArgs args)
+                library.getFunctions().put(new Pair<>("execMethod", List.of(new Class<?>[]{Object.class, String.class, ArrayArgs.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                Object o = valueMod.getValue("obj");
+                                setReturnExecution(true);
                                 ArrayArgs arrayArgs = (ArrayArgs) valueMod.getValue("args");
                                 try {
                                     return o.getClass().getDeclaredMethod((String) valueMod.getValue("method"), arrayArgs.getTypesArray()).invoke(o, arrayArgs.getObjectArray());
@@ -801,7 +821,7 @@ public class LibUtils {
                             }
                         }
                 }, new Argument[]{
-                        new Argument("obj", Object.class, true),
+                        new Argument("obj", Object.class, false),
                         new Argument("method", String.class, false),
                         new Argument("args", ArrayArgs.class, false)
                 }));
