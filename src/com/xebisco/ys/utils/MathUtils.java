@@ -91,9 +91,9 @@ public class MathUtils {
 
                 Double x;
                 int startPos = this.pos;
-                if (eat('(')) { // parentheses
+                if (eat('[')) { // brackets
                     x = parseExpression();
-                    if (!eat(')')) throw new SyntaxException("Missing ')'");
+                    if (!eat(']')) throw new SyntaxException("Missing ']'");
                 } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
                     while ((ch >= '0' && ch <= '9') || ch == '.' || ch == 'L' || ch == 'f') nextChar();
                     String s = str.substring(startPos, this.pos);
