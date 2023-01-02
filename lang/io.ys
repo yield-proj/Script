@@ -1,3 +1,5 @@
+let NULL = *nullptr;
+
 java.io.InputStream stdin() {
     return(getField(class("System"), "in"));
 }

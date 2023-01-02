@@ -39,8 +39,7 @@ public class FunctionUtils {
                 try {
                     types.add(argObjects[i].getClass());
                 } catch (NullPointerException e) {
-                    e.printStackTrace();
-                    throw new IllegalStateException("Calling '" + functionName + "' with a null parameter!");
+                    types.add(Object.class);
                 }
             else
                 types.add(args[i].getCast());
