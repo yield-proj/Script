@@ -15,6 +15,7 @@
 
 package com.xebisco.ys.calls;
 
+import com.xebisco.ys.exceptions.ImmutableBreakException;
 import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.exceptions.VariableDontExistException;
 import com.xebisco.ys.types.Struct;
@@ -37,7 +38,9 @@ public class SetVariable extends Instruction {
             ((Struct) valueMod.getValue(pcs[0])).getFields().replace(pcs[1], instruction.call(new ValueMod(0, valueMod.getMemoryBank(), valueMod.isAllowLowSecurity())));
             o = ((Struct) valueMod.getValue(pcs[0])).getFields().get(pcs[1]);
         } else {
-            o = valueMod.getMemoryBank().getVariables().replace(variable, instruction.call(new ValueMod(0, valueMod.getMemoryBank(), valueMod.isAllowLowSecurity())));
+            if (!valueMod.getMemoryBank().getConstants().contains(variable))
+                o = valueMod.getMemoryBank().getVariables().replace(variable, instruction.call(new ValueMod(0, valueMod.getMemoryBank(), valueMod.isAllowLowSecurity())));
+            else throw new ImmutableBreakException(variable);
         }
         if (o == null) throw new VariableDontExistException(variable);
         return o;

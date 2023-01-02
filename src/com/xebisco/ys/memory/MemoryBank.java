@@ -17,22 +17,21 @@ package com.xebisco.ys.memory;
 
 import com.xebisco.ys.Constants;
 import com.xebisco.ys.exceptions.InvalidPointerException;
-import com.xebisco.ys.exceptions.NullValueException;
+import com.xebisco.ys.exceptions.NonExistingVariableException;
 import com.xebisco.ys.exceptions.VariableAlreadyExistsException;
 import com.xebisco.ys.utils.RunUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryBank extends LibraryBank {
+    private List<String> constants = new ArrayList<>();
     private LinkedList<Object> pointers = new LinkedList<>();
     private Map<String, Object> variables = new HashMap<>();
 
     public MemoryBank() {
-        put("true", true);
-        put("false", false);
-        put(Constants.POINTER_CHAR + "nullptr", null);
+        put("true", true, false);
+        put("false", false, false);
+        put(Constants.POINTER_CHAR + "nullptr", null, false);
     }
 
     public Object getValue(String var) {
@@ -42,8 +41,8 @@ public class MemoryBank extends LibraryBank {
         if (var.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)))
             o = RunUtils.STRING_LITERALS.get(Long.parseLong(var.substring(1)));
         else o = variables.get(var);
-        if (o == null) {
-            throw new NullValueException(var);
+        if (o == null && !variables.containsKey(var)) {
+            throw new NonExistingVariableException(var);
         }
         if (isPtr) {
             try {
@@ -55,15 +54,17 @@ public class MemoryBank extends LibraryBank {
         return o;
     }
 
-    public Object put(String name, Object value) {
+    public Object put(String name, Object value, boolean constant) {
         // Checking if the variable is a pointer.
-        if(variables.containsKey(name)) throw new VariableAlreadyExistsException(name);
+        if (variables.containsKey(name)) throw new VariableAlreadyExistsException(name);
         if (name.startsWith(String.valueOf(Constants.POINTER_CHAR))) {
             pointers.addLast(value);
             variables.put(name.substring(1), pointers.size() - 1);
+            if (constant) constants.add(name.substring(1));
             return pointers.size() - 1;
         } else {
             variables.put(name, value);
+            if (constant) constants.add(name);
             return value;
         }
     }
@@ -82,5 +83,13 @@ public class MemoryBank extends LibraryBank {
 
     public void setVariables(Map<String, Object> variables) {
         this.variables = variables;
+    }
+
+    public List<String> getConstants() {
+        return constants;
+    }
+
+    public void setConstants(List<String> constants) {
+        this.constants = constants;
     }
 }

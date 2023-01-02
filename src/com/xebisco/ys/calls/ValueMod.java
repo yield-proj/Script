@@ -15,7 +15,7 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.exceptions.NullValueException;
+import com.xebisco.ys.exceptions.NonExistingVariableException;
 import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.memory.MemoryBank;
 import com.xebisco.ys.types.Struct;
@@ -40,10 +40,10 @@ public final class ValueMod extends SecurityManager {
         } else {
             try {
                 o = memoryBank.getValue(var);
-            } catch (NullValueException e) {
+            } catch (NonExistingVariableException e) {
                 try {
                     o = memoryBank.getValue(var + '@' + Long.toHexString(id));
-                } catch (NullValueException ignore) {
+                } catch (NonExistingVariableException ignore) {
                     e.printStackTrace();
                 }
             }
@@ -51,11 +51,11 @@ public final class ValueMod extends SecurityManager {
         return o;
     }
 
-    public Object put(String name, Object value) {
+    public Object put(String name, Object value, boolean constant) {
         if (id == 0)
-            return memoryBank.put(name, value);
+            return memoryBank.put(name, value, constant);
         else
-            return memoryBank.put(name + '@' + Long.toHexString(id), value);
+            return memoryBank.put(name + '@' + Long.toHexString(id), value, constant);
     }
 
     public Object remove(int pointer) {

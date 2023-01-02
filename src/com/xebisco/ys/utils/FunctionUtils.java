@@ -69,9 +69,9 @@ public class FunctionUtils {
             if (argument.isReference()) {
                 if (argument.getType() != null)
                     argument.getType().cast(memoryBank.getPointers().get((int) argObjects[i]));
-                vam.put(argument.getName(), argObjects[i]);
+                vam.put(argument.getName(), argObjects[i], true);
             } else
-                vam.put(argument.getName(), argObjects[i]);
+                vam.put(argument.getName(), argObjects[i], true);
         }
         Object o = RunUtils.run(vam, valueMod, function.getInstructions());
         if (function.getReturnCast() == null)

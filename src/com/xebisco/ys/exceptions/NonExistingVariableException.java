@@ -13,24 +13,13 @@
  * limitations under the License.
  */
 
-package com.xebisco.ys.calls;
+package com.xebisco.ys.exceptions;
 
-public class VariableDeclaration extends Instruction {
-
-    private final String name;
-    private final FunctionCall value;
-    private final boolean constant;
-
-    public VariableDeclaration(String name, FunctionCall value, boolean constant) {
-        this.name = name;
-        this.value = value;
-        this.constant = constant;
+public class NonExistingVariableException extends RuntimeException {
+    public NonExistingVariableException() {
     }
 
-    @Override
-    public Object call(ValueMod valueMod) {
-        Object v = value.call(valueMod);
-
-        return valueMod.put(name, v, constant);
+    public NonExistingVariableException(String message) {
+        super(message);
     }
 }

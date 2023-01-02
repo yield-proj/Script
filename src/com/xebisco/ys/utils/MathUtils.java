@@ -20,13 +20,9 @@ import com.xebisco.ys.calls.FunctionCall;
 import com.xebisco.ys.calls.Instruction;
 import com.xebisco.ys.calls.PossibleEquationFunctionCall;
 import com.xebisco.ys.calls.ValueMod;
-import com.xebisco.ys.exceptions.NullValueException;
+import com.xebisco.ys.exceptions.NonExistingVariableException;
 import com.xebisco.ys.exceptions.SyntaxException;
-import com.xebisco.ys.memory.MemoryBank;
-import org.w3c.dom.stylesheets.LinkStyle;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 
@@ -156,7 +152,7 @@ public class MathUtils {
                             number[0] = Double.class;
                         if (instruction instanceof PossibleEquationFunctionCall)
                             ((PossibleEquationFunctionCall) instruction).setIgnoreEquation(false);
-                    } catch (ClassCastException | NullValueException | NullPointerException ignore) {
+                    } catch (ClassCastException | NonExistingVariableException | NullPointerException ignore) {
                         x = null;
                     }
                 }
@@ -260,7 +256,7 @@ public class MathUtils {
         } else {
             try {
                 return (Boolean) valueMod.getValue(str);
-            } catch (NullValueException ignore) {
+            } catch (NonExistingVariableException ignore) {
             }
         }
         throw new SyntaxException(str);

@@ -15,11 +15,11 @@
 
 package com.xebisco.ys.exceptions;
 
-public class NullValueException extends RuntimeException {
-    public NullValueException() {
+public class ImmutableBreakException extends RuntimeException {
+    public ImmutableBreakException() {
     }
 
-    public NullValueException(String message) {
+    public ImmutableBreakException(String message) {
         super(message);
     }
 }

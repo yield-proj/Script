@@ -94,7 +94,9 @@ public class InterpreterUtils {
         else if (matcher.usePattern(Constants.SET_PATTERN).matches()) {
             call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), null, null));
         } else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
-            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null, null));
+            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null, null), false);
+        } else if (matcher.usePattern(Constants.CONSTANT_VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.CONSTANT_POINTER_DECLARATION_PATTERN).matches()) {
+            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null, null), true);
         } else if (matcher.usePattern(Constants.RETURN_PATTERN).matches()) {
             if (functionsLayer.size() > 0) {
                 Call f = functionsLayer.get(functionsLayer.size() - 1);
