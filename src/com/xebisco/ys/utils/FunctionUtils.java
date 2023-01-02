@@ -111,7 +111,7 @@ public class FunctionUtils {
                 }
             }
 
-            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.contains("==") || line.contains("!=") || line.contains(">") || line.contains("<") || line.contains(">=") || line.contains("<=") || line.contains(" " + Constants.BOOL_OR_STRING + " ") || line.contains(" " + Constants.BOOL_AND_STRING + " ")) )
+            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.startsWith(String.valueOf(Constants.BOOL_INVERT_CHAR)) || line.contains("==") || line.contains("!=") || line.contains(">") || line.contains("<") || line.contains(">=") || line.contains("<=") || line.contains(" " + Constants.BOOL_OR_STRING + " ") || line.contains(" " + Constants.BOOL_AND_STRING + " ")) )
                 //noinspection unchecked
                 return (T) new VerificationFunctionCall(line, cast);
             else

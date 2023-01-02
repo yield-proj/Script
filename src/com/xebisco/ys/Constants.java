@@ -48,6 +48,6 @@ public class Constants {
 
     public static final String BOOL_OR_STRING = "or", BOOL_AND_STRING = "and";
 
-    public final static char POINTER_CHAR = '*', STRING_LITERAL_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3', NEGATE_CHAR = '!';
+    public final static char POINTER_CHAR = '*', STRING_LITERAL_CHAR = '\2', TO_REMOVE_CHAR = '\3', BOOL_INVERT_CHAR = '!', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3', NEGATE_CHAR = '!';
     public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '-', '>', '<', '+', '/', '%', '*', '!', '&'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }

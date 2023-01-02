@@ -191,7 +191,11 @@ public class MathUtils {
                         lastIsOr = false;
                     else throw new SyntaxException(str + ". on: " + verification);
                 } else {
-                    boolean bool;
+                    boolean bool, invert = false;
+                    if(verification.startsWith("!")) {
+                        verification = verification.substring(1);
+                        invert = true;
+                    }
                     if (verification.startsWith("[")) {
                         StringBuilder b = new StringBuilder();
                         int layer = 0, toRemoveSize = 1;
@@ -219,6 +223,7 @@ public class MathUtils {
                         bool = bool(valueMod, verification);
                     } else
                         bool = oneBool(valueMod, verification);
+                    if(invert) bool = !bool;
                     if (lastIsOr) {
                         if (!out && bool) out = true;
                     } else {

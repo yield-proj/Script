@@ -9,6 +9,11 @@ Unit println(String x) {
     execMethod((Object) stdout, "println", x);
 }
 
+Unit println() {
+    var stdout = getField(class("System"), "out");
+    execMethod((Object) stdout, "println");
+}
+
 Unit printf(String x, ArrayArgs args) {
     var stdout = getField(class("System"), "out");
     var array = execMethod((Object) args, "getObjectArray");

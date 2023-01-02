@@ -1,2 +1,16 @@
 lib("lang/io");
-printf("%s, %s!\n", "Hello", "World");
+lib("lang/scanner");
+lib("lang/string");
+libls("lang/runtime");
+
+let sc = scanner(stdin());
+let input = nextBoolean(sc);
+
+if(input) {
+    println("Yes");
+}
+if(!input) {
+    println("No");
+}
+
+exit(0);
