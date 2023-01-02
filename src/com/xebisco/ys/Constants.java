@@ -38,7 +38,11 @@ public class Constants {
             IN_REFERENCE_ARGUMENT_PATTERN = Pattern.compile("^in (.*\\S*)&(\\S+)"),
             RETURN_PATTERN = Pattern.compile("^return\\(([^}]*)\\)"),
             EQUALS_PATTERN = Pattern.compile("^(\\S+)==(\\S+)"),
-            NOT_EQUALS_PATTERN = Pattern.compile("^(\\S+)!=(\\S+)");
+            NOT_EQUALS_PATTERN = Pattern.compile("^(\\S+)!=(\\S+)"),
+            GREATER_THAN_PATTERN = Pattern.compile("^(\\S+)>(\\S+)"),
+            GREATER_OR_EQUAL_THAN_PATTERN = Pattern.compile("^(\\S+)>=(\\S+)"),
+            LESS_THAN_PATTERN = Pattern.compile("^(\\S+)<(\\S+)"),
+            LESS_OR_EQUAL_THAN_PATTERN = Pattern.compile("^(\\S+)<=(\\S+)");
 
     public static final String BOOL_OR_STRING = "or", BOOL_AND_STRING = "and";
 

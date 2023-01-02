@@ -16,6 +16,7 @@
 package com.xebisco.ys.utils;
 
 import com.xebisco.ys.Constants;
+import com.xebisco.ys.calls.FunctionCall;
 import com.xebisco.ys.calls.Instruction;
 import com.xebisco.ys.calls.PossibleEquationFunctionCall;
 import com.xebisco.ys.calls.ValueMod;
@@ -205,22 +206,37 @@ public class MathUtils {
     }
 
     private static boolean oneBool(ValueMod valueMod, final String str) {
-        try {
-            return (Boolean) valueMod.getValue(str);
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        } catch (NullValueException ignore) {
-        }
         Matcher matcher = Constants.EQUALS_PATTERN.matcher(str);
         if (matcher.matches()) {
             try {
-                return valueMod.getValue(matcher.group(1)).equals(valueMod.getValue(matcher.group(2)));
+                return FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod).equals(FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
             } catch (Exception ignore) {
-                return valueMod.getValue(matcher.group(1)) == valueMod.getValue(matcher.group(2));
+                return FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod) == FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod);
             }
         } else if (matcher.usePattern(Constants.NOT_EQUALS_PATTERN).matches()) {
-            return !valueMod.getValue(matcher.group(1)).equals(valueMod.getValue(matcher.group(2)));
+            try {
+                return (!FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod).equals(FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod)));
+            } catch (Exception ignore) {
+                return FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod) != FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod);
+            }
+        } else if (matcher.usePattern(Constants.GREATER_OR_EQUAL_THAN_PATTERN).matches()) {
+            return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) >= toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
+        } else if (matcher.usePattern(Constants.LESS_OR_EQUAL_THAN_PATTERN).matches()) {
+            return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) <= toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
+        }  else if (matcher.usePattern(Constants.GREATER_THAN_PATTERN).matches()) {
+            return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) > toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
+        } else if (matcher.usePattern(Constants.LESS_THAN_PATTERN).matches()) {
+            return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) < toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
+        }else {
+            try {
+                return (Boolean) valueMod.getValue(str);
+            } catch (NullValueException ignore) {
+            }
         }
         throw new SyntaxException(str);
+    }
+
+    public static double toDouble(Number number) {
+        return number.doubleValue();
     }
 }

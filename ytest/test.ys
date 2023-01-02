@@ -1,5 +1,9 @@
 lib("lang/string");
 
-var variable = "Test";
-var var2 = substring(variable, 1, 3);
-puts(var2);
+var result = "No";
+
+if(10 > 1) {
+    result = "Yes";
+}
+
+puts(result);
