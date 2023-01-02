@@ -185,22 +185,52 @@ public class MathUtils {
         boolean out = false;
         String[] verifications = str.split(" ");
         boolean keyWord = false, lastIsOr = true;
-        for (String verification : verifications) {
-            if (keyWord) {
-                if (verification.hashCode() == Constants.BOOL_OR_STRING.hashCode() && verification.equals(Constants.BOOL_OR_STRING))
-                    lastIsOr = true;
-                else if (verification.hashCode() == Constants.BOOL_AND_STRING.hashCode() && verification.equals(Constants.BOOL_AND_STRING))
-                    lastIsOr = false;
-                else throw new SyntaxException(str + ". on: " + verification);
-            } else {
-                boolean bool = oneBool(valueMod, verification);
-                if (lastIsOr) {
-                    if (!out && bool) out = true;
+        for (int i = 0; i < verifications.length; i++) {
+            String verification = verifications[i];
+            if (verification.hashCode() != "".hashCode()) {
+                if (keyWord) {
+                    if (verification.hashCode() == Constants.BOOL_OR_STRING.hashCode() && verification.equals(Constants.BOOL_OR_STRING))
+                        lastIsOr = true;
+                    else if (verification.hashCode() == Constants.BOOL_AND_STRING.hashCode() && verification.equals(Constants.BOOL_AND_STRING))
+                        lastIsOr = false;
+                    else throw new SyntaxException(str + ". on: " + verification);
                 } else {
-                    if (out) out = bool;
+                    boolean bool;
+                    if (verification.startsWith("[")) {
+                        StringBuilder b = new StringBuilder();
+                        int layer = 0, toRemoveSize = 1;
+                        StringBuilder remaining = new StringBuilder(verification.substring(1));
+                        remaining.append(" ");
+                        for (int i1 = i + 1; i1 < verifications.length; i1++)
+                            remaining.append(verifications[i1]).append(" ");
+                        remaining.setLength(remaining.length() - 1);
+                        for (char c : remaining.toString().toCharArray()) {
+                            if (c == '[') layer++;
+                            if (c == ']') layer--;
+                            toRemoveSize++;
+                            if (layer < 0) break;
+                            b.append(c);
+                        }
+                        int cSize = 0;
+                        for (int i1 = i; i1 < verifications.length; i1++) {
+                            String v = verifications[i1];
+                            cSize += v.length();
+                            if (cSize < toRemoveSize)
+                                verifications[i1] = "";
+                            else break;
+                        }
+                        verification = b.toString();
+                        bool = bool(valueMod, verification);
+                    } else
+                        bool = oneBool(valueMod, verification);
+                    if (lastIsOr) {
+                        if (!out && bool) out = true;
+                    } else {
+                        if (out) out = bool;
+                    }
                 }
+                keyWord = !keyWord;
             }
-            keyWord = !keyWord;
         }
         return out;
     }
@@ -223,11 +253,11 @@ public class MathUtils {
             return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) >= toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
         } else if (matcher.usePattern(Constants.LESS_OR_EQUAL_THAN_PATTERN).matches()) {
             return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) <= toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
-        }  else if (matcher.usePattern(Constants.GREATER_THAN_PATTERN).matches()) {
+        } else if (matcher.usePattern(Constants.GREATER_THAN_PATTERN).matches()) {
             return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) > toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
         } else if (matcher.usePattern(Constants.LESS_THAN_PATTERN).matches()) {
             return toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, null).call(valueMod)) < toDouble((Number) FunctionUtils.createFunctionCall(matcher.group(2), FunctionCall.class, null).call(valueMod));
-        }else {
+        } else {
             try {
                 return (Boolean) valueMod.getValue(str);
             } catch (NullValueException ignore) {

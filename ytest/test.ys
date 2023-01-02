@@ -2,7 +2,7 @@ lib("lang/string");
 
 var result = "No";
 
-if(10 > 1) {
+if(10 == 10 or [10 < 1 and 10 == 11]) {
     result = "Yes";
 }
 

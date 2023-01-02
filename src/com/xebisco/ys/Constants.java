@@ -82,5 +82,5 @@ public class Constants {
             BRACE_PATTERN = Pattern.compile("\\[[^\\[\\]]+\\]");*/
 
     public final static char POINTER_CHAR = '*', STRING_LITERAL_CHAR = '\2', TO_REMOVE_CHAR = '\3', SOURCE_BREAK = ';', FUNCTION_ARGUMENT_ID_CHAR = '\3', NEGATE_CHAR = '!';
-    public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '[', ']', '-', '>', '<', '+', '/', '%', '*', '!', '&'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
+    public final static char[] CHARS_TO_REMOVE_SPACES = new char[]{'=', ',', '{', '}', '.', ':', '(', ')', '-', '>', '<', '+', '/', '%', '*', '!', '&'}, CHARS_TO_INSERT_SOURCE_BREAK = new char[]{'{', '}'};
 }
