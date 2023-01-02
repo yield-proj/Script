@@ -27,5 +27,6 @@ public class Main {
         program.getBank().getLibraries().add(LibUtils.addLibs(LibVersion._01));
         program.interpret(new Interpreter());
         program.run();
+
     }
 }

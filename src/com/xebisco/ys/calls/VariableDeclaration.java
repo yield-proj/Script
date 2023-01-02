@@ -15,10 +15,6 @@
 
 package com.xebisco.ys.calls;
 
-import com.xebisco.ys.exceptions.FunctionNotFoundException;
-import com.xebisco.ys.exceptions.NullValueException;
-import com.xebisco.ys.utils.MathUtils;
-
 public class VariableDeclaration extends Instruction {
 
     private final String name;
@@ -31,19 +27,7 @@ public class VariableDeclaration extends Instruction {
 
     @Override
     public Object call(ValueMod valueMod) {
-        Object v = null;
-        try {
-            if (value != null)
-                v = value.call(valueMod);
-        } catch (NullValueException | FunctionNotFoundException e) {
-            try {
-                v = MathUtils.eval(valueMod, value.getFunctionName());
-            } catch (NullValueException e1) {
-                e.printStackTrace();
-                e1.printStackTrace();
-                System.exit(1);
-            }
-        }
+        Object v = value.call(valueMod);
 
         return valueMod.put(name, v);
     }

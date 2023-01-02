@@ -25,6 +25,10 @@ public class Array {
         objectArray = new Object[length];
     }
 
+    public Array(Object[] objectArray) {
+        this.objectArray = objectArray;
+    }
+
     public Array(ArrayArgs arrayArgs) {
         objectArray = arrayArgs.getObjectArray();
     }

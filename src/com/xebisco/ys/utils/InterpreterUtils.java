@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 public class InterpreterUtils {
-    public static Call createCall(String line, List<Call> functionsLayer) {
+    public static Call createCall(String line, Class<?> cast, List<Call> functionsLayer) {
         Call call = null;
         Matcher matcher = Constants.CAST_PATTERN.matcher(line);
-        Class<?> cast = null;
         while (matcher.find()) {
             cast = RunUtils.forName(matcher.group(1));
             line = line.substring(line.indexOf(")") + 1);
@@ -46,7 +45,7 @@ public class InterpreterUtils {
         //Functions
         if (matcher.usePattern(Constants.FUNCTION_DECLARATION_PATTERN).matches()) {
             String[] args = matcher.group(3).split(",");
-            if(args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
+            if (args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
             Argument[] arguments = new Argument[args.length];
             for (int i = 0; i < arguments.length; i++) {
                 Matcher m = Constants.REFERENCE_ARGUMENT_PATTERN.matcher(args[i]);
@@ -64,7 +63,7 @@ public class InterpreterUtils {
             outOfGlobal = true;
         } else if (matcher.usePattern(Constants.STRUCT_DECLARATION_PATTERN).matches()) {
             String[] args = matcher.group(2).split(",");
-            if(args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
+            if (args.length == 1 && args[0].hashCode() == "".hashCode()) args = new String[0];
             Argument[] arguments = new Argument[args.length];
             for (int i = 0; i < arguments.length; i++) {
                 Matcher m = Constants.IN_REFERENCE_ARGUMENT_PATTERN.matcher(args[i]);
@@ -77,7 +76,7 @@ public class InterpreterUtils {
                 else if (m.usePattern(Constants.ARGUMENT_PATTERN).matches())
                     arguments[i] = new Argument(m.group(2), RunUtils.forName(m.group(1)), false, false);
                 else if (m.usePattern(Constants.SET_PATTERN).matches())
-                    arguments[i] = new SetArgument(m.group(1), (Instruction) createCall(m.group(2), null));
+                    arguments[i] = new SetArgument(m.group(1), (Instruction) createCall(m.group(2), null, null));
                 else throw new SyntaxException(line + ". on: " + args[i]);
             }
             call = StructUtils.createStruct(matcher.group(1), arguments);
@@ -93,18 +92,18 @@ public class InterpreterUtils {
 
         //Other
         else if (matcher.usePattern(Constants.SET_PATTERN).matches()) {
-            call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), null));
-        }else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
-            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null));
+            call = new SetVariable(matcher.group(1), (Instruction) createCall(matcher.group(2), null, null));
+        } else if (matcher.usePattern(Constants.VARIABLE_DECLARATION_PATTERN).matches() || matcher.usePattern(Constants.POINTER_DECLARATION_PATTERN).matches()) {
+            call = new VariableDeclaration(matcher.group(1), (FunctionCall) createCall(matcher.group(2), null, null));
         } else if (matcher.usePattern(Constants.RETURN_PATTERN).matches()) {
-            if (functionsLayer.size() > 0)
-            {
+            if (functionsLayer.size() > 0) {
                 Call f = functionsLayer.get(functionsLayer.size() - 1);
-                if(!(f instanceof Function))
+                if (!(f instanceof Function))
                     throw new SyntaxException("return() cannot be called outside a function declaration or outside the global scope. '" + line + "'");
                 cast = ((Function) f).getReturnCast();
             }
-            call = FunctionUtils.createFunctionCall(matcher.group(1), FunctionCall.class, cast);
+            call = createCall(matcher.group(1), cast, null);
+            assert call != null;
             ((Instruction) call).setReturnExecution(true);
         } else {
             call = FunctionUtils.createFunctionCall(line, FunctionCall.class, cast);

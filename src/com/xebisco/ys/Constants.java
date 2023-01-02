@@ -21,7 +21,7 @@ public class Constants {
 
     public final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("^([^(.]+)\\(([^}]*)\\)"),
             LIBRARY_FUNCTION_PATTERN = Pattern.compile("([^()_]+)_([^(.]+)"),
-            FUNCTION_DECLARATION_PATTERN = Pattern.compile("^([^(.]+) (\\w+)\\(([^}]*)\\)\\{"),
+            FUNCTION_DECLARATION_PATTERN = Pattern.compile("^([^(]+) (\\w+)\\(([^}]*)\\)\\{"),
             STRUCT_DECLARATION_PATTERN = Pattern.compile("^Struct (\\w+)\\(([^}]*)\\)"),
             VARIABLE_DECLARATION_PATTERN = Pattern.compile("^var (\\S+)=([^}]*)"),
             POINTER_DECLARATION_PATTERN = Pattern.compile("^var(\\*\\S+)=([^}]*)"),

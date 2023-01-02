@@ -24,6 +24,11 @@ public class ArrayArgs extends Array {
         typesArray = new Class<?>[length];
     }
 
+    public ArrayArgs(Array array) {
+        super(array.getObjectArray());
+        typesArray = new Class<?>[array.getObjectArray().length];
+    }
+
     public Class<?>[] getTypesArray() {
         return typesArray;
     }

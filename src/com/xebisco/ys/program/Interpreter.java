@@ -27,6 +27,6 @@ public class Interpreter implements IInterpreter {
 
     @Override
     public Call createInstruction(String line) {
-        return InterpreterUtils.createCall(line, functionsLayer);
+        return InterpreterUtils.createCall(line, null, functionsLayer);
     }
 }

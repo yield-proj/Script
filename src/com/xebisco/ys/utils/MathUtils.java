@@ -142,7 +142,7 @@ public class MathUtils {
                         firstChar = false;
                     }
                     String func = str.substring(startPos, this.pos);
-                    Instruction instruction = ((Instruction) Objects.requireNonNull(InterpreterUtils.createCall(func, null)));
+                    Instruction instruction = ((Instruction) Objects.requireNonNull(InterpreterUtils.createCall(func, null, null)));
                     try {
                         if (instruction instanceof PossibleEquationFunctionCall)
                             ((PossibleEquationFunctionCall) instruction).setIgnoreEquation(true);

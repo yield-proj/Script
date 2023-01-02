@@ -1,0 +1,3 @@
+ArrayArgs arrayArgs(Array array) {
+    return(new "ArrayArgs"((Array) array));
+}

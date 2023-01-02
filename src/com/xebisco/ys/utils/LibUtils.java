@@ -168,6 +168,19 @@ public class LibUtils {
                         new Argument("x", Byte.class, false)
                 }));
 
+                //object to string
+                library.getFunctions().put(new Pair<>("string", List.of(new Class<?>[]{Object.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                return String.valueOf(valueMod.getValue("x").toString());
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("x", Object.class, false)
+                }));
+
                 //Number Conversions functions
 
                 //float to double
@@ -802,6 +815,24 @@ public class LibUtils {
                         }
                 }, new Argument[]{
                         new Argument("obj", Object.class, false),
+                        new Argument("field", String.class, false),
+                }));
+
+                //function: getField(Class class, String field)
+                library.getFunctions().put(new Pair<>("getField", List.of(new Class<?>[]{Class.class, String.class})), new Function(new Instruction[]{
+                        new Instruction() {
+                            @Override
+                            public Object call(ValueMod valueMod) {
+                                setReturnExecution(true);
+                                try {
+                                    return ((Class<?>) valueMod.getValue("class")).getDeclaredField((String) valueMod.getValue("field")).get(null);
+                                } catch (NoSuchFieldException | IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                }, new Argument[]{
+                        new Argument("class", Class.class, false),
                         new Argument("field", String.class, false),
                 }));
 

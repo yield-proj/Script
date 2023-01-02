@@ -1,9 +1,7 @@
-lib("lang/string");
+import package java.io;
 
-var result = "No";
+lib("lang/io");
+libls("lang/scanner");
 
-if(10 == 10 or [10 < 1 and 10 == 11]) {
-    result = "Yes";
-}
-
-puts(result);
+var out = scanner(stdin());
+puts(nextLine(out));

@@ -1,0 +1,87 @@
+java.util.Scanner scanner(java.io.InputStream inputStream) {
+    return(new "java.util.Scanner"((java.io.InputStream) inputStream));
+}
+
+java.util.Scanner scanner(java.io.BufferedInputStream inputStream) {
+    return(scanner_scanner((java.io.InputStream) inputStream));
+}
+
+Boolean hasNext(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "hasNext"));
+}
+
+String next(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "next"));
+}
+
+String nextLine(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextLine"));
+}
+
+Boolean nextBoolean(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextBoolean"));
+}
+
+Double nextDouble(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextFloat"));
+}
+
+Float nextFloat(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextDouble"));
+}
+
+Byte nextByte(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextByte"));
+}
+
+Byte nextByte(java.util.Scanner scanner, Integer radix) {
+    return(execMethod((Object) scanner, "nextByte", (int) radix));
+}
+
+Integer nextInteger(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextInt"));
+}
+
+Integer nextInteger(java.util.Scanner scanner, Integer radix) {
+    return(execMethod((Object) scanner, "nextInt", (int) radix));
+}
+
+Long nextLong(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextLong"));
+}
+
+Long nextLong(java.util.Scanner scanner, Integer radix) {
+    return(execMethod((Object) scanner, "nextLong", (int) radix));
+}
+
+Short nextShort(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextShort"));
+}
+
+Short nextShort(java.util.Scanner scanner, Integer radix) {
+    return(execMethod((Object) scanner, "nextShort", (int) radix));
+}
+
+String next(java.util.Scanner scanner, java.util.regex.Pattern pattern) {
+    return(execMethod((Object) scanner, "next", pattern));
+}
+
+Boolean nextBoolean(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextBoolean"));
+}
+
+Boolean nextBoolean(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextBoolean"));
+}
+
+java.math.BigDecimal nextBigDecimal(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextBigDecimal"));
+}
+
+java.math.BigInteger nextBigInteger(java.util.Scanner scanner) {
+    return(execMethod((Object) scanner, "nextBigInteger"));
+}
+
+java.math.BigInteger nextBigInteger(java.util.Scanner scanner, Integer radix) {
+    return(execMethod((Object) scanner, "nextBigInteger", (int) radix));
+}
