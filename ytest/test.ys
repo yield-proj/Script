@@ -1,7 +1,2 @@
-import package java.io;
-
 lib("lang/io");
-libls("lang/scanner");
-
-var out = scanner(stdin());
-puts(nextLine(out));
+printf("%s, %s!\n", "Hello", "World");

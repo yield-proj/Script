@@ -1,3 +1,14 @@
 java.io.InputStream stdin() {
     return(getField(class("System"), "in"));
 }
+
+Unit println(String x) {
+    var stdout = getField(class("System"), "out");
+    execMethod((Object) stdout, "println", x);
+}
+
+Unit printf(String x, ArrayArgs args) {
+    var stdout = getField(class("System"), "out");
+    var array = execMethod((Object) args, "getObjectArray");
+    execMethod((Object) stdout, "printf", x, array);
+}

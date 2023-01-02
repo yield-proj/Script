@@ -785,20 +785,6 @@ public class LibUtils {
                         new Argument("file", String.class, false)
                 }));
 
-                //function: puts(String x)
-                //This function prints a String into de standard output stream
-                library.getFunctions().put(new Pair<>("puts", List.of(new Class<?>[]{String.class})), new Function(new Instruction[]{
-                        new Instruction() {
-                            @Override
-                            public Object call(ValueMod valueMod) {
-                                System.out.println(valueMod.getValue("x"));
-                                return null;
-                            }
-                        }
-                }, new Argument[]{
-                        new Argument("x", String.class, false)
-                }));
-
                 //function: getField(Object obj, String field)
                 library.getFunctions().put(new Pair<>("getField", List.of(new Class<?>[]{Object.class, String.class})), new Function(new Instruction[]{
                         new Instruction() {

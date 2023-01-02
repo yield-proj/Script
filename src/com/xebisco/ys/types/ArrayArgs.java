@@ -32,4 +32,19 @@ public class ArrayArgs extends Array {
     public Class<?>[] getTypesArray() {
         return typesArray;
     }
+
+    @Override
+    public Object[] getObjectArray() {
+        return super.getObjectArray();
+    }
+
+    @Override
+    public Object get(int index) {
+        return super.get(index);
+    }
+
+    @Override
+    public void set(int index, Object o) {
+        super.set(index, o);
+    }
 }
