@@ -24,6 +24,6 @@ public class VerificationFunctionCall extends FunctionCall {
 
     @Override
     public Object call(ValueMod valueMod) {
-        return MathUtils.bool(valueMod.getMemoryBank(), getFunctionName());
+        return MathUtils.bool(valueMod, getFunctionName());
     }
 }

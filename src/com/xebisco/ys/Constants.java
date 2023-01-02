@@ -40,6 +40,8 @@ public class Constants {
             EQUALS_PATTERN = Pattern.compile("^(\\S+)==(\\S+)"),
             NOT_EQUALS_PATTERN = Pattern.compile("^(\\S+)!=(\\S+)");
 
+    public static final String BOOL_OR_STRING = "or", BOOL_AND_STRING = "and";
+
     // @SuppressWarnings("RegExpRedundantEscape")
    /* public final static Pattern
             DECLARATION_PATTERN = Pattern.compile("^(\\w+):(" + PatternUtils.pattern(Type.class) + ")=([^}]*)\\[([^}]*)\\]"),

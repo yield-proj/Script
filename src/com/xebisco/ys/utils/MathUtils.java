@@ -22,7 +22,10 @@ import com.xebisco.ys.calls.ValueMod;
 import com.xebisco.ys.exceptions.NullValueException;
 import com.xebisco.ys.exceptions.SyntaxException;
 import com.xebisco.ys.memory.MemoryBank;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 
@@ -148,7 +151,7 @@ public class MathUtils {
                             if (number[0] == Integer.class) number[0] = Long.class;
                         } else if (n instanceof Float) {
                             if (number[0] == Integer.class || number[0] == Long.class) number[0] = Float.class;
-                        } else if(!(n instanceof Integer))
+                        } else if (!(n instanceof Integer))
                             number[0] = Double.class;
                         if (instruction instanceof PossibleEquationFunctionCall)
                             ((PossibleEquationFunctionCall) instruction).setIgnoreEquation(false);
@@ -177,17 +180,47 @@ public class MathUtils {
         return result;
     }
 
-    public static boolean bool(MemoryBank memoryBank, final String str) {
+    public static boolean bool(ValueMod valueMod, final String str) {
+        boolean out = false;
+        String[] verifications = str.split(" ");
+        boolean keyWord = false, lastIsOr = true;
+        for (String verification : verifications) {
+            if (keyWord) {
+                if (verification.hashCode() == Constants.BOOL_OR_STRING.hashCode() && verification.equals(Constants.BOOL_OR_STRING))
+                    lastIsOr = true;
+                else if (verification.hashCode() == Constants.BOOL_AND_STRING.hashCode() && verification.equals(Constants.BOOL_AND_STRING))
+                    lastIsOr = false;
+                else throw new SyntaxException(str + ". on: " + verification);
+            } else {
+                boolean bool = oneBool(valueMod, verification);
+                if (lastIsOr) {
+                    if (!out && bool) out = true;
+                } else {
+                    if (out) out = bool;
+                }
+            }
+            keyWord = !keyWord;
+        }
+        return out;
+    }
+
+    private static boolean oneBool(ValueMod valueMod, final String str) {
+        try {
+            return (Boolean) valueMod.getValue(str);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        } catch (NullValueException ignore) {
+        }
         Matcher matcher = Constants.EQUALS_PATTERN.matcher(str);
         if (matcher.matches()) {
             try {
-                return memoryBank.getValue(matcher.group(1)).equals(memoryBank.getValue(matcher.group(2)));
+                return valueMod.getValue(matcher.group(1)).equals(valueMod.getValue(matcher.group(2)));
             } catch (Exception ignore) {
-                return memoryBank.getValue(matcher.group(1)) == memoryBank.getValue(matcher.group(2));
+                return valueMod.getValue(matcher.group(1)) == valueMod.getValue(matcher.group(2));
             }
         } else if (matcher.usePattern(Constants.NOT_EQUALS_PATTERN).matches()) {
-            return !memoryBank.getValue(matcher.group(1)).equals(memoryBank.getValue(matcher.group(2)));
+            return !valueMod.getValue(matcher.group(1)).equals(valueMod.getValue(matcher.group(2)));
         }
-        return false;
+        throw new SyntaxException(str);
     }
 }

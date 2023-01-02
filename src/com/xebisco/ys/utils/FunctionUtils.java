@@ -112,7 +112,7 @@ public class FunctionUtils {
                 }
             }
 
-            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.contains("==") || line.contains("!=")))
+            if (!line.startsWith(String.valueOf(Constants.STRING_LITERAL_CHAR)) && (line.contains("==") || line.contains("!=") || line.contains(" " + Constants.BOOL_OR_STRING + " ") || line.contains(" " + Constants.BOOL_AND_STRING + " ")) )
                 //noinspection unchecked
                 return (T) new VerificationFunctionCall(line, cast);
             else
